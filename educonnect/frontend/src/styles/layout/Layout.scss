@@ -1,15 +1,23 @@
+@use '../variables' as *;
+
 .layout {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background-color: $background-color;
 
   .layout-content {
     display: flex;
     flex: 1;
+    margin-top: $header-height;
   }
 
   .main-content {
     flex: 1;
-    padding: 20px;
+    padding: 2rem;
+    margin: 1rem;
+    background-color: white;
+    border-radius: $border-radius;
+    box-shadow: $box-shadow;
   }
 } 

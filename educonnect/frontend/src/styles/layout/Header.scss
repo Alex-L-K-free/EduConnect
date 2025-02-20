@@ -1,20 +1,50 @@
+@use '../variables' as *;
+
 .header {
-  background-color: #2c3e50;
-  color: white;
-  padding: 1rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: $header-height;
+  background-color: white;
+  color: $text-color;
+  padding: 0 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: $box-shadow;
+  z-index: 1000;
 
   &-logo {
     h1 {
       margin: 0;
       font-size: 1.5rem;
+      color: $primary-color;
+      font-weight: 600;
     }
   }
 
   &-nav {
     display: flex;
-    gap: 1rem;
+    gap: 1.5rem;
+    align-items: center;
+
+    a {
+      color: $secondary-color;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: $button-radius;
+      transition: all $transition-speed ease;
+
+      &:hover {
+        background-color: rgba($primary-color, 0.1);
+        color: $primary-color;
+      }
+
+      &.active {
+        background-color: $primary-color;
+        color: white;
+      }
+    }
   }
 } 
