@@ -1,25 +1,25 @@
 // Цветовая схема
-$primary-color: #4a90e2;
-$secondary-color: #50667b;
-$accent-color: #43b581;
-$background-color: #f5f6f8;
-$text-color: #2c3e50;
+$primary-color: #2e7d32;      // Основной зеленый
+$secondary-color: #4caf50;    // Светлый зеленый
+$accent-color: #81c784;       // Акцентный зеленый
+$background-color: #f1f8e9;   // Светлый фон
+$text-color: #1b5e20;        // Темно-зеленый текст
 $light-text: #ffffff;
-$border-color: #e1e4e8;
+$border-color: #c8e6c9;
 
 // Тени
-$box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-$card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-$hover-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+$box-shadow: 0 2px 8px rgba(46, 125, 50, 0.1);
+$card-shadow: 0 4px 12px rgba(46, 125, 50, 0.15);
+$hover-shadow: 0 8px 16px rgba(46, 125, 50, 0.2);
 
 // Скругления
-$border-radius: 8px;
-$button-radius: 4px;
+$border-radius: 12px;
+$button-radius: 8px;
 
 // Переходы
 $transition-speed: 0.3s;
 
 // Размеры
-$header-height: 60px;
-$sidebar-width: 250px;
+$header-height: 64px;
+$sidebar-width: 260px;
 $footer-height: 60px; 

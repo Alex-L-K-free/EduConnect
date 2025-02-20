@@ -2,12 +2,13 @@ import React from 'react';
 
 const Header = () => {
   return (
-    <header className="navbar navbar-expand-lg navbar-light bg-light fixed-top shadow-sm">
-      <div className="container">
+    <header className="navbar">
+      <div className="container-fluid">
         <a className="navbar-brand" href="/">EduConnect</a>
-        <nav className="navbar-nav ms-auto">
-          {/* Навигация будет добавлена позже */}
-        </nav>
+        <div className="nav-auth">
+          <a href="/register">Регистрация</a>
+          <a href="/login">Вход</a>
+        </div>
       </div>
     </header>
   );

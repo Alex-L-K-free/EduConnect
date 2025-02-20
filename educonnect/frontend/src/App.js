@@ -7,8 +7,9 @@ import './App.css';
 function App() {
   return (
     <Layout>
-      <div className="container">
-        <h1 className="text-center mt-4">Добро пожаловать в EduConnect</h1>
+      <div className="welcome-container">
+        <h1>Добро пожаловать в EduConnect</h1>
+        <p>Платформа для эффективного взаимодействия учителя и учеников</p>
       </div>
     </Layout>
   );
