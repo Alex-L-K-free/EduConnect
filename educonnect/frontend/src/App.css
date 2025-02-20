@@ -94,6 +94,12 @@
   margin-left: 1rem;
   font-size: 0.9rem;
   line-height: 1;
+  transition: all 0.3s ease;
+}
+
+.navbar .nav-auth a:hover {
+  color: #e8f5e9;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
 }
 
 /* Sidebar */
@@ -169,6 +175,18 @@ main {
   transform: translateZ(10px);
 }
 
+/* Links */
+a {
+  color: #2e7d32;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+a:hover {
+  color: #43a047;
+  text-decoration: none;
+}
+
 /* Navigation Links */
 .nav-link {
   color: #2e7d32;
@@ -202,6 +220,7 @@ main {
 }
 
 .nav-link:hover {
+  color: #43a047;
   transform: translateX(5px) translateZ(10px);
   box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.1);
 }
