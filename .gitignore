@@ -27,6 +27,7 @@ yarn-error.log*
 .vscode/
 *.swp
 doc/
+for import/
 
 # OS
 .DS_Store
