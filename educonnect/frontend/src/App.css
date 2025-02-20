@@ -36,3 +36,23 @@
     transform: rotate(360deg);
   }
 }
+
+.sidebar {
+  height: calc(100vh - 56px);
+  position: sticky;
+  top: 56px;
+}
+
+.nav-link {
+  color: #333;
+  padding: 0.5rem 1rem;
+}
+
+.nav-link:hover {
+  background-color: rgba(0,0,0,.05);
+}
+
+.nav-link.active {
+  color: #0d6efd;
+  background-color: rgba(13,110,253,.1);
+}

@@ -1,5 +1,9 @@
-@use './styles/variables' as *;
-@use './styles/components';
+@use 'styles/variables' as *;
+@use 'styles/components' as *;
+@use 'styles/layout/Layout' as *;
+@use 'styles/layout/Header' as *;
+@use 'styles/layout/Sidebar' as *;
+@use 'styles/layout/Footer' as *;
 
 .app {
   text-align: center;

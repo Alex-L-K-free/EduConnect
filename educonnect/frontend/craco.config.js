@@ -7,5 +7,13 @@ module.exports = {
         }
       }
     }
+  },
+  webpack: {
+    configure: {
+      watchOptions: {
+        poll: 1000,
+        aggregateTimeout: 300
+      }
+    }
   }
 }; 
