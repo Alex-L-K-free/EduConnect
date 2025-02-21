@@ -1,0 +1,26 @@
+.login-modal .modal-content {
+    background-color: #f1f8e9; /* Светлый фон */
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+  }
+  
+  .login-modal .modal-header {
+    border-bottom: 1px solid #c8e6c9; /* Легкая граница */
+  }
+  
+  .login-modal .modal-title {
+    color: #2e7d32; /* Темно-зеленый цвет заголовка */
+  }
+  
+  .login-modal .alert {
+    margin-bottom: 1rem;
+  }
+  
+  .login-modal .btn-primary {
+    background-color: #2e7d32; /* Темно-зеленый цвет кнопки */
+    border: none;
+  }
+  
+  .login-modal .btn-primary:hover {
+    background-color: #4caf50; /* Светло-зеленый при наведении */
+  } 
