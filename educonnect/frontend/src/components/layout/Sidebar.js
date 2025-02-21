@@ -1,33 +1,24 @@
 import React from 'react';
+import './Sidebar.css'; // Импортируйте стили для Sidebar
 
-const Sidebar = () => {
+const Sidebar = ({ activePage }) => {
   return (
-    <div className="position-sticky pt-3">
-      <ul className="nav flex-column">
-        <li className="nav-item">
-          <a className="nav-link active" href="/">
-            <i className="bi bi-house-door me-2"></i>
-            Главная
-          </a>
+    <div className="sidebar">
+      <h2>Навигация</h2>
+      <ul>
+        <li className={activePage === 'home' ? 'active' : ''}>
+          <a href="/">Главная</a>
         </li>
-        <li className="nav-item">
-          <a className="nav-link" href="/subjects">
-            <i className="bi bi-book me-2"></i>
-            Предметы
-          </a>
+        <li className={activePage === 'admin' ? 'active' : ''}>
+          <a href="/admin">Панель управления</a>
         </li>
-        <li className="nav-item">
-          <a className="nav-link" href="/assignments">
-            <i className="bi bi-clipboard-check me-2"></i>
-            Задания
-          </a>
+        <li className={activePage === 'teacher' ? 'active' : ''}>
+          <a href="/teacher">Панель учителя</a>
         </li>
-        <li className="nav-item">
-          <a className="nav-link" href="/messages">
-            <i className="bi bi-chat-dots me-2"></i>
-            Сообщения
-          </a>
+        <li className={activePage === 'student' ? 'active' : ''}>
+          <a href="/student">Панель ученика</a>
         </li>
+        {/* Добавьте другие элементы навигации по мере необходимости */}
       </ul>
     </div>
   );

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import axios from 'axios';
 import { useUser } from '../UserContext'; // Импортируем контекст
+import { useNavigate } from 'react-router-dom'; // Импортируем useNavigate
 import './LoginModal.css'; // Импортируем стили
 
 const LoginModal = ({ show, handleClose }) => {
@@ -9,6 +10,7 @@ const LoginModal = ({ show, handleClose }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate(); // Получаем navigate для перенаправления
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,6 +21,12 @@ const LoginModal = ({ show, handleClose }) => {
       });
       console.log('Login successful:', response.data);
       setUser({ username: response.data.username, role: response.data.role }); // Сохраняем пользователя и его роль
+
+      // Перенаправляем на панель управления, если это администратор
+      if (response.data.role === 'admin') {
+        navigate('/admin');
+      }
+
       handleClose();
     } catch (err) {
       setError('Неверные учетные данные');
