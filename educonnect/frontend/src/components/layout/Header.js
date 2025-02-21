@@ -21,7 +21,7 @@ const Header = () => {
         <div className="nav-auth">
           {user ? (
             <>
-              <span className="navbar-text">{user.username}</span>
+              <span className="navbar-text">{user.username} ({user.role})</span>
               <Button variant="link" onClick={handleLogout}>Выход</Button>
             </>
           ) : (

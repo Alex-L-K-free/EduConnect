@@ -18,7 +18,7 @@ const LoginModal = ({ show, handleClose }) => {
         password,
       });
       console.log('Login successful:', response.data);
-      setUser({ username: response.data.username }); // Сохраняем пользователя
+      setUser({ username: response.data.username, role: response.data.role }); // Сохраняем пользователя и его роль
       handleClose();
     } catch (err) {
       setError('Неверные учетные данные');

@@ -30,7 +30,7 @@
     align-items: center;
 
     a {
-      color: $secondary-color;
+      color: $primary-color;
       text-decoration: none;
       padding: 0.5rem 1rem;
       border-radius: $button-radius;
@@ -44,6 +44,15 @@
       &.active {
         background-color: $primary-color;
         color: white;
+      }
+    }
+
+    .btn-link {
+      color: $primary-color;
+      text-decoration: none;
+
+      &:hover {
+        color: $accent-color;
       }
     }
   }

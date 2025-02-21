@@ -36,5 +36,5 @@ class LoginView(APIView):
 
         if user is not None:
             token, created = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key, 'username': user.username})
+            return Response({'token': token.key, 'username': user.username, 'role': user.role})
         return Response({'error': 'Неверные учетные данные'}, status=400)
