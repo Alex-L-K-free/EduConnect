@@ -118,9 +118,13 @@
   backdrop-filter: blur(10px);
   transform-style: preserve-3d;
   perspective: 1000px;
-  height: calc(100vh - 100px);
-  overflow-y: auto;
+  height: calc(100vh - 100px); /* Высота от навбара до футера */
+  position: fixed; /* Фиксируем сайдбар */
+  top: 32px; /* Отступ от верха равен высоте навбара */
+  left: 0; /* Прижимаем к левому краю */
+  overflow-y: hidden; /* Отключаем прокрутку */
   flex-shrink: 0;
+  z-index: 100; /* Убеждаемся, что сайдбар поверх основного контента */
 }
 
 /* Main Content */
@@ -128,7 +132,8 @@
   flex: 1;
   padding: 20px;
   background-color: #f9f9f9;
-  overflow: auto; /* Прокрутка содержимого при необходимости */
+  overflow: auto;
+  margin-left: 200px; /* Отступ слева равен ширине сайдбара */
 }
 
 .welcome-container {
