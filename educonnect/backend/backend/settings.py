@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_filters',
     'drf_yasg',
+    'rest_framework.authtoken',
     
     # Local apps
     'education_core.apps.EducationCoreConfig',
