@@ -1,5 +1,21 @@
 .admin-dashboard {
+  background: var(--bg-main);
+  min-height: 100%;
   padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
+  transform-style: preserve-3d;
+}
+
+.dashboard-card {
+  background: var(--bg-light);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-normal);
+  transform-style: preserve-3d;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px) translateZ(10px);
+  box-shadow: var(--shadow-lg);
 } 

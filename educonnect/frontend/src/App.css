@@ -1,3 +1,31 @@
+:root {
+  /* Основная цветовая схема */
+  --primary-dark: #1b5e20;
+  --primary: #2e7d32;
+  --primary-light: #43a047;
+  --accent: #4CAF50;
+  
+  /* Фоны */
+  --bg-main: #f1f8e9;
+  --bg-light: rgba(255, 255, 255, 0.95);
+  --bg-sidebar: rgba(255, 255, 255, 0.95);
+  
+  /* Тени */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(46, 125, 50, 0.15);
+  --shadow-lg: 0 8px 16px rgba(46, 125, 50, 0.2);
+  
+  /* Градиенты */
+  --gradient-primary: linear-gradient(45deg, #388E3C, #4CAF50);
+  --gradient-hover: linear-gradient(45deg, #43a047, #66bb6a);
+  --gradient-active: linear-gradient(45deg, #e8f5e9, #c8e6c9);
+  
+  /* Анимации */
+  --transition-fast: all 0.2s ease;
+  --transition-normal: all 0.3s ease;
+  --transition-slow: all 0.5s ease;
+}
+
 .App {
   text-align: center;
 }
@@ -111,10 +139,10 @@
 /* Sidebar */
 .sidebar {
   width: 200px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--bg-sidebar);
   border-right: 1px solid rgba(0, 0, 0, 0.1);
   padding: 1rem;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
   backdrop-filter: blur(10px);
   transform-style: preserve-3d;
   perspective: 1000px;
@@ -125,6 +153,12 @@
   overflow-y: hidden; /* Отключаем прокрутку */
   flex-shrink: 0;
   z-index: 100; /* Убеждаемся, что сайдбар поверх основного контента */
+  transition: var(--transition-normal);
+}
+
+.sidebar:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateZ(5px);
 }
 
 /* Main Content */
@@ -204,16 +238,17 @@ a:hover {
 
 /* Navigation Links */
 .nav-link {
-  color: #2e7d32;
+  color: var(--primary);
   padding: 0.75rem 1rem;
   margin: 0.25rem 0;
   text-decoration: none;
   display: flex;
   align-items: center;
   border-radius: 8px;
-  transition: all 0.3s ease;
+  transition: var(--transition-normal);
   transform-style: preserve-3d;
   position: relative;
+  background: transparent;
 }
 
 .nav-link::before {
@@ -235,17 +270,19 @@ a:hover {
 }
 
 .nav-link:hover {
-  color: #43a047;
+  color: var(--primary-light);
   transform: translateX(5px) translateZ(10px);
-  box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
+  background: var(--gradient-hover);
+  color: white;
 }
 
 .nav-link.active {
-  background: linear-gradient(45deg, #e8f5e9, #c8e6c9);
-  color: #2e7d32;
+  background: var(--gradient-active);
+  color: var(--primary-dark);
   font-weight: 500;
   transform: translateZ(5px);
-  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+  box-shadow: var(--shadow-md);
 }
 
 /* Footer */
