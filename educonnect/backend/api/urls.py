@@ -9,5 +9,6 @@ app_name = 'api'
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('login/', views.LoginView.as_view(), name='login'),
     # Здесь будем добавлять другие URL-паттерны
 ] 
