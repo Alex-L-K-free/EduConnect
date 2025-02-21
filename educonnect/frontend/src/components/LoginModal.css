@@ -14,4 +14,13 @@
 
 .login-modal .alert {
   margin-bottom: 1rem;
+}
+
+.login-modal .btn-primary {
+  background-color: #2e7d32; /* Темно-зеленый цвет кнопки */
+  border: none;
+}
+
+.login-modal .btn-primary:hover {
+  background-color: #4caf50; /* Светло-зеленый при наведении */
 } 

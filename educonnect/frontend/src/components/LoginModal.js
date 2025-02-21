@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import axios from 'axios';
+import { useUser } from '../UserContext'; // Импортируем контекст
 import './LoginModal.css'; // Импортируем стили
 
 const LoginModal = ({ show, handleClose }) => {
+  const { setUser } = useUser(); // Получаем функцию для установки пользователя
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -16,7 +18,7 @@ const LoginModal = ({ show, handleClose }) => {
         password,
       });
       console.log('Login successful:', response.data);
-      // Здесь можно сохранить токен в localStorage или в контексте
+      setUser({ username: response.data.username }); // Сохраняем пользователя
       handleClose();
     } catch (err) {
       setError('Неверные учетные данные');
@@ -49,7 +51,7 @@ const LoginModal = ({ show, handleClose }) => {
               onChange={(e) => setPassword(e.target.value)}
             />
           </Form.Group>
-          <Button variant="primary" type="submit">
+          <Button variant="success" type="submit">
             Войти
           </Button>
         </Form>
