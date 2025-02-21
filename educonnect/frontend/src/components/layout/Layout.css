@@ -1,26 +1,36 @@
+* {
+  box-sizing: border-box; /* Учитывать padding и border в размерах */
+  margin: 0;
+  padding: 0;
+}
+
 .layout {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100vh; /* Минимальная высота на весь экран */
 }
 
 .content-wrapper {
   display: flex;
-  flex: 1;
+  flex: 1; /* Занимает всё доступное пространство */
+  min-height: 0; /* Важно для корректного сжатия вложенных блоков */
 }
 
 .main-content {
-  flex: 1;
-  padding: 20px; /* Отступы для основного контента */
-  background-color: #f9f9f9; /* Цвет фона для основного контента */
+  flex: 1; /* Растягивается на всё свободное место */
+  padding: 20px;
+  background-color: #f9f9f9;
+  overflow: auto; /* Прокрутка внутри блока при переполнении */
 }
 
 .sidebar {
-  width: 200px; /* Ширина сайдбара */
-  background-color: #f4f4f4; /* Цвет фона сайдбара */
+  width: 200px;
+  background-color: #f4f4f4;
   padding: 20px;
   border-right: 1px solid #ccc;
-  height: calc(100vh - 64px); /* Высота сайдбара, учитывая высоту заголовка */
+  height: auto; /* Высота по содержимому */
+  min-height: 100%; /* Заполнить доступную высоту */
   position: sticky;
-  top: 64px; /* Высота заголовка */
-} 
+  top: 64px; /* Высота шапки */
+  overflow: auto; /* Прокрутка внутри сайдбара */
+}
