@@ -4,7 +4,7 @@ import './Sidebar.css'; // Импортируйте стили для Sidebar
 const Sidebar = ({ activePage }) => {
   return (
     <div className="sidebar">
-      <h2>Навигация</h2>
+      <h2>главная</h2>
       <ul>
         <li className={activePage === 'home' ? 'active' : ''}>
           <a href="/">Главная</a>
