@@ -6,10 +6,10 @@ const HomePage = () => {
   return (
     <div className="home-page">
       <Sidebar activePage="home" />
-      <div className="main-content">
+      {/* <div className="main-content"> */}
         {/* <h1>Добро пожаловать на главную страницу</h1> */}
         {/* Добавьте функционал для главной страницы */}
-      </div>
+      {/* </div> */}
     </div>
   );
 };
