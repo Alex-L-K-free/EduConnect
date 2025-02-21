@@ -5,9 +5,11 @@ import Sidebar from './layout/Sidebar';
 const HomePage = () => {
   return (
     <div className="home-page">
-      <h1>Добро пожаловать на главную страницу</h1>
       <Sidebar activePage="home" />
-      {/* Добавьте функционал для главной страницы */}
+      <div className="main-content">
+        <h1>Добро пожаловать на главную страницу</h1>
+        {/* Добавьте функционал для главной страницы */}
+      </div>
     </div>
   );
 };

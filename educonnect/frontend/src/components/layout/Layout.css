@@ -1,0 +1,26 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content-wrapper {
+  display: flex;
+  flex: 1;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px; /* Отступы для основного контента */
+  background-color: #f9f9f9; /* Цвет фона для основного контента */
+}
+
+.sidebar {
+  width: 200px; /* Ширина сайдбара */
+  background-color: #f4f4f4; /* Цвет фона сайдбара */
+  padding: 20px;
+  border-right: 1px solid #ccc;
+  height: calc(100vh - 64px); /* Высота сайдбара, учитывая высоту заголовка */
+  position: sticky;
+  top: 64px; /* Высота заголовка */
+} 

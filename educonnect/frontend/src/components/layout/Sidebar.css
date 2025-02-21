@@ -3,6 +3,9 @@
   background-color: #f4f4f4;
   padding: 20px;
   border-right: 1px solid #ccc;
+  height: calc(100vh - 64px); /* Высота сайдбара */
+  position: sticky;
+  top: 64px; /* Высота заголовка */
 }
 
 .sidebar h2 {
