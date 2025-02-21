@@ -9,16 +9,7 @@ const Sidebar = ({ activePage }) => {
         <li className={activePage === 'home' ? 'active' : ''}>
           <a href="/">Главная</a>
         </li>
-        <li className={activePage === 'admin' ? 'active' : ''}>
-          <a href="/admin">Панель управления</a>
-        </li>
-        <li className={activePage === 'teacher' ? 'active' : ''}>
-          <a href="/teacher">Панель учителя</a>
-        </li>
-        <li className={activePage === 'student' ? 'active' : ''}>
-          <a href="/student">Панель ученика</a>
-        </li>
-        {/* Добавьте другие элементы навигации по мере необходимости */}
+        {/* Удалите другие элементы, если они не нужны на главной странице */}
       </ul>
     </div>
   );
