@@ -4,7 +4,7 @@ import Footer from './Footer';
 import SidebarAdmin from './SidebarAdmin';
 import SidebarStudent from './SidebarStudent';
 import SidebarTeacher from './SidebarTeacher';
-import './Layout.css'; // Импортируйте стили для Layout
+// import './Layout.css'; // Импортируйте стили для Layout
 
 const Layout = ({ children, activePage, userRole }) => {
   let SidebarComponent;

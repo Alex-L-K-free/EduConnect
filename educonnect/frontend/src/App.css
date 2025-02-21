@@ -42,12 +42,14 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  min-height: 100vh; /* Минимальная высота на весь экран */
 }
 
 .content-wrapper {
   flex: 1;
   display: flex;
   background-color: #f1f8e9;
+  min-height: 0; /* Важно для корректного сжатия вложенных блоков */
 }
 
 /* Header */
@@ -104,7 +106,7 @@
 
 /* Sidebar */
 .sidebar {
-  width: 240px;
+  width: 200px;
   background: rgba(255, 255, 255, 0.95);
   border-right: 1px solid rgba(0, 0, 0, 0.1);
   padding: 1rem;
@@ -303,4 +305,12 @@ h1, h2, h3, h4, h5, h6 {
 .card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 16px rgba(46, 125, 50, 0.2);
+}
+
+
+.main-content {
+  flex: 1; /* Растягивается на всё свободное место */
+  padding: 20px;
+  background-color: #f9f9f9;
+  overflow: auto; /* Прокрутка внутри блока при переполнении */
 }
