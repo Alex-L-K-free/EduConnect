@@ -5,7 +5,7 @@ const AdminDashboard = () => {
   return (
     <div className="admin-dashboard">
       <SidebarAdmin activePage="admin" />
-      <h1>Панель управления администратора</h1>
+      {/* <h1>Панель управления администратора</h1> */}
       {/* Добавьте функционал для панели администратора */}
     </div>
   );
