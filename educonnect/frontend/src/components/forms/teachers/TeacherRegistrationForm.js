@@ -28,27 +28,28 @@ const TeacherRegistrationForm = ({ onSuccess }) => {
     setSuccess('');
 
     try {
-      // Получаем токен из localStorage или другого хранилища
       const token = localStorage.getItem('token');
+      console.log('Sending request with token:', token);
+      console.log('Form data:', formData);
       
-      const response = await fetch('/api/v1/teachers/register/', {
+      const response = await fetch('http://127.0.0.1:8000/api/v1/teachers/register/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` // Добавляем токен для авторизации
+          'Authorization': `Token ${token}`
         },
         body: JSON.stringify(formData)
       });
 
+      console.log('Response status:', response.status);
+      const responseData = await response.json();
+      console.log('Response data:', responseData);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Ошибка при регистрации учителя');
+        throw new Error(responseData.error || 'Ошибка при регистрации учителя');
       }
 
-      const newTeacher = await response.json();
       setSuccess('Учитель успешно зарегистрирован');
-      
-      // Очищаем форму
       setFormData({
         username: '',
         password: '',
@@ -56,11 +57,11 @@ const TeacherRegistrationForm = ({ onSuccess }) => {
         lastName: '',
       });
 
-      // Вызываем callback с новым учителем
       if (onSuccess) {
-        onSuccess(newTeacher);
+        onSuccess(responseData);
       }
     } catch (err) {
+      console.error('Error:', err);
       setError(err.message);
     }
   };
