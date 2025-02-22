@@ -1,17 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SidebarAdmin from './layout/SidebarAdmin';
 import TeacherRegistrationForm from './forms/teachers/TeacherRegistrationForm';
-import TeachersList from './forms/teachers/TeachersList';
+import TeachersList from './forms/teachers/TeachersListAdmin';
 // import '../styles/components/AdminDashboard.css';
 
 const AdminDashboard = () => {
   const [currentView, setCurrentView] = useState('main');
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);
-  const [teachers, setTeachers] = useState([
-    // Временные данные для примера
-    { id: 1, username: 'teacher1', firstName: 'Иван', lastName: 'Петров' },
-    { id: 2, username: 'teacher2', firstName: 'Мария', lastName: 'Иванова' },
-  ]);
+  const [teachers, setTeachers] = useState([]);
+
+  // Загрузка списка учителей
+  const fetchTeachers = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://127.0.0.1:8000/api/v1/teachers/', {
+        headers: {
+          'Authorization': `Token ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setTeachers(data);
+      } else {
+        console.error('Failed to fetch teachers');
+      }
+    } catch (error) {
+      console.error('Error fetching teachers:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (currentView === 'teacher') {
+      fetchTeachers();
+    }
+  }, [currentView]);
 
   const handleNavigate = (view) => {
     setCurrentView(view);
@@ -22,16 +45,16 @@ const AdminDashboard = () => {
     setShowRegistrationForm(true);
   };
 
+  const handleTeacherAdded = (newTeacher) => {
+    setTeachers([...teachers, newTeacher]);
+    setShowRegistrationForm(false);
+  };
+
   const renderContent = () => {
     switch (currentView) {
       case 'teacher':
         return showRegistrationForm ? (
-          <TeacherRegistrationForm 
-            onSuccess={(newTeacher) => {
-              setTeachers([...teachers, newTeacher]);
-              setShowRegistrationForm(false);
-            }}
-          />
+          <TeacherRegistrationForm onSuccess={handleTeacherAdded} />
         ) : (
           <TeachersList 
             teachers={teachers} 

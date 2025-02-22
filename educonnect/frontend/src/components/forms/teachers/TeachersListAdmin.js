@@ -1,8 +1,8 @@
 import React from 'react';
 import { Table, Button } from 'react-bootstrap';
-import './TeachersList.css';
+import './TeachersListAdmin.css';
 
-const TeachersList = ({ teachers, onAddTeacher }) => {
+const TeachersListAdmin = ({ teachers, onAddTeacher }) => {
   return (
     <div className="teachers-list">
       <div className="teachers-header">
@@ -48,4 +48,4 @@ const TeachersList = ({ teachers, onAddTeacher }) => {
   );
 };
 
-export default TeachersList; 
+export default TeachersListAdmin; 
