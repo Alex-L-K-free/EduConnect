@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import SidebarAdmin from './layout/SidebarAdmin';
-import TeacherRegistrationForm from './forms/TeacherRegistrationForm';
-import TeachersList from './teachers/TeachersList';
+import TeacherRegistrationForm from './forms/teachers/TeacherRegistrationForm';
+import TeachersList from './forms/teachers/TeachersList';
 // import '../styles/components/AdminDashboard.css';
 
 const AdminDashboard = () => {
