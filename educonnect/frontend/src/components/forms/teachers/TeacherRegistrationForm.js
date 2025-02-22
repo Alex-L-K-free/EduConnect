@@ -6,10 +6,10 @@ const TeacherRegistrationForm = ({ onSuccess }) => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    email: '',
+    // email: '',
     firstName: '',
     lastName: '',
-    specialization: ''
+    // specialization: ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
