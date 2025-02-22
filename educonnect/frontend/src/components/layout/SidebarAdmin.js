@@ -1,7 +1,7 @@
 import React from 'react';
-import './Sidebar.css'; // Импортируйте стили для Sidebar
+// import './Sidebar.css'; // Импортируйте стили для Sidebar
 
-const SidebarAdmin = ({ activePage }) => {
+const SidebarAdmin = ({ activePage, onNavigate }) => {
   return (
     <div className="sidebar">
       <h6>Администратор</h6>
@@ -10,7 +10,12 @@ const SidebarAdmin = ({ activePage }) => {
           <a href="/">Главная</a>
         </li>
         <li className={activePage === 'teacher' ? 'active' : ''}>
-          <a href="/teacher">Учитель</a>
+          <button 
+            className="nav-link" 
+            onClick={() => onNavigate('teacher')}
+          >
+            Учитель
+          </button>
         </li>
         <li className={activePage === 'student' ? 'active' : ''}>
           <a href="/student">Ученик</a>

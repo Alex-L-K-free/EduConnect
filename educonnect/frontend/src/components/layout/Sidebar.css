@@ -50,4 +50,26 @@
   background: var(--gradient-active);
   transform: translateZ(5px);
   box-shadow: var(--shadow-sm);
+}
+
+.sidebar .nav-link {
+  background: none;
+  border: none;
+  color: var(--primary);
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.sidebar .nav-link:hover {
+  color: var(--primary-light);
+  background: var(--gradient-hover);
+}
+
+.sidebar li.active .nav-link {
+  font-weight: bold;
+  color: var(--primary-dark);
+  background: var(--gradient-active);
 } 
