@@ -1,0 +1,22 @@
+.navbar {
+  background-color: var(--primary-color);
+  padding: 1rem;
+}
+
+.navbar-brand {
+  color: white !important;
+  font-weight: bold;
+}
+
+.nav-auth {
+  color: white;
+}
+
+.nav-auth span {
+  margin-right: 1rem;
+}
+
+.btn-outline-light:hover {
+  background-color: white;
+  color: var(--primary-color);
+} 

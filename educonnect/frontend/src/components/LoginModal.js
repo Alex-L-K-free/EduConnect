@@ -5,7 +5,7 @@ import { useUser } from '../UserContext'; // Импортируем контек
 import { useNavigate } from 'react-router-dom'; // Импортируем useNavigate
 import './LoginModal.css'; // Импортируем стили
 
-const LoginModal = ({ show, handleClose }) => {
+const LoginModal = ({ show, onHide }) => {
   const { setUser } = useUser(); // Получаем функцию для установки пользователя
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -29,11 +29,19 @@ const LoginModal = ({ show, handleClose }) => {
 
       if (response.ok) {
         console.log('Login successful:', data);
-        // Сохраняем токен и роль в localStorage
+        // Сохраняем токен и данные пользователя
         localStorage.setItem('token', data.token);
         localStorage.setItem('role', data.role);
         localStorage.setItem('username', data.username);
-        handleClose();
+        
+        // Обновляем состояние пользователя в контексте
+        setUser({
+          username: data.username,
+          role: data.role,
+          token: data.token
+        });
+        
+        onHide();
 
         // Перенаправление в зависимости от роли
         switch (data.role) {
@@ -59,7 +67,7 @@ const LoginModal = ({ show, handleClose }) => {
   };
 
   return (
-    <Modal show={show} onHide={handleClose} className="login-modal">
+    <Modal show={show} onHide={onHide} className="login-modal">
       <Modal.Header closeButton>
         <Modal.Title>Вход</Modal.Title>
       </Modal.Header>
