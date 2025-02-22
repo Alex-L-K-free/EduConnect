@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
-import axios from 'axios';
+// import axios from 'axios';
 import { useUser } from '../UserContext'; // Импортируем контекст
 import { useNavigate } from 'react-router-dom'; // Импортируем useNavigate
 import './LoginModal.css'; // Импортируем стили
