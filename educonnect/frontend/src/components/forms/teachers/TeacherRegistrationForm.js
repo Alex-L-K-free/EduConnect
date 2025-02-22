@@ -28,16 +28,21 @@ const TeacherRegistrationForm = ({ onSuccess }) => {
     setSuccess('');
 
     try {
-      const response = await fetch('/api/v1/teachers/register', {
+      // Получаем токен из localStorage или другого хранилища
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch('/api/v1/teachers/register/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Добавляем токен для авторизации
         },
         body: JSON.stringify(formData)
       });
 
       if (!response.ok) {
-        throw new Error('Ошибка при регистрации учителя');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Ошибка при регистрации учителя');
       }
 
       const newTeacher = await response.json();
