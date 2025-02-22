@@ -30,7 +30,6 @@ const TeacherRegistrationForm = ({ onSuccess }) => {
     try {
       const token = localStorage.getItem('token');
       console.log('Sending request with token:', token);
-      console.log('Form data:', formData);
       
       const response = await fetch('http://127.0.0.1:8000/api/v1/teachers/register/', {
         method: 'POST',
@@ -41,24 +40,21 @@ const TeacherRegistrationForm = ({ onSuccess }) => {
         body: JSON.stringify(formData)
       });
 
-      console.log('Response status:', response.status);
-      const responseData = await response.json();
-      console.log('Response data:', responseData);
+      const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(responseData.error || 'Ошибка при регистрации учителя');
-      }
-
-      setSuccess('Учитель успешно зарегистрирован');
-      setFormData({
-        username: '',
-        password: '',
-        firstName: '',
-        lastName: '',
-      });
-
-      if (onSuccess) {
-        onSuccess(responseData);
+      if (response.ok) {
+        setSuccess('Учитель успешно зарегистрирован');
+        setFormData({
+          username: '',
+          password: '',
+          firstName: '',
+          lastName: '',
+        });
+        if (onSuccess) {
+          onSuccess(data);
+        }
+      } else {
+        throw new Error(data.error || 'Ошибка при регистрации учителя');
       }
     } catch (err) {
       console.error('Error:', err);

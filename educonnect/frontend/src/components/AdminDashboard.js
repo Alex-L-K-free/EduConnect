@@ -13,9 +13,12 @@ const AdminDashboard = () => {
   const fetchTeachers = async () => {
     try {
       const token = localStorage.getItem('token');
+      console.log('Fetching teachers with token:', token);
+      
       const response = await fetch('http://127.0.0.1:8000/api/v1/teachers/', {
         headers: {
-          'Authorization': `Token ${token}`
+          'Authorization': `Token ${token}`,
+          'Content-Type': 'application/json'
         }
       });
 
@@ -23,7 +26,8 @@ const AdminDashboard = () => {
         const data = await response.json();
         setTeachers(data);
       } else {
-        console.error('Failed to fetch teachers');
+        const errorData = await response.json();
+        console.error('Failed to fetch teachers:', errorData);
       }
     } catch (error) {
       console.error('Error fetching teachers:', error);

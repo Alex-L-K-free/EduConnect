@@ -14,32 +14,47 @@ const LoginModal = ({ show, handleClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
     try {
-      const response = await axios.post('http://localhost:8000/api/v1/login/', {
-        username,
-        password,
+      const response = await fetch('http://127.0.0.1:8000/api/v1/login/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password })
       });
-      console.log('Login successful:', response.data);
-      setUser({ username: response.data.username, role: response.data.role }); // Сохраняем пользователя и его роль
 
-      // Перенаправляем на панель управления, если это администратор
-      if (response.data.role === 'admin') {
-        navigate('/admin');
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log('Login successful:', data);
+        // Сохраняем токен и роль в localStorage
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('role', data.role);
+        localStorage.setItem('username', data.username);
+        handleClose();
+
+        // Перенаправление в зависимости от роли
+        switch (data.role) {
+          case 'admin':
+            navigate('/admin');
+            break;
+          case 'teacher':
+            navigate('/teacher');
+            break;
+          case 'student':
+            navigate('/student');
+            break;
+          default:
+            setError('Неизвестная роль пользователя');
+        }
+      } else {
+        setError(data.error || 'Ошибка при входе');
       }
-
-      // Перенаправляем на панель учителя, если это учитель
-      if (response.data.role === 'teacher') {
-        navigate('/teacher');
-      }
-
-      // Перенаправляем на панель ученика, если это ученик
-      if (response.data.role === 'student') {
-        navigate('/student');
-      }
-
-      handleClose();
     } catch (err) {
-      setError('Неверные учетные данные');
+      setError('Ошибка сервера');
+      console.error('Login error:', err);
     }
   };
 
