@@ -27,6 +27,16 @@ const LoginModal = ({ show, handleClose }) => {
         navigate('/admin');
       }
 
+      // Перенаправляем на панель учителя, если это учитель
+      if (response.data.role === 'teacher') {
+        navigate('/teacher');
+      }
+
+      // Перенаправляем на панель ученика, если это ученик
+      if (response.data.role === 'student') {
+        navigate('/student');
+      }
+
       handleClose();
     } catch (err) {
       setError('Неверные учетные данные');
