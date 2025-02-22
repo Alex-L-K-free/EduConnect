@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 import './TeacherRegistrationForm.css';
 
-const TeacherRegistrationForm = () => {
+const TeacherRegistrationForm = ({ onSuccess }) => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -40,15 +40,21 @@ const TeacherRegistrationForm = () => {
         throw new Error('Ошибка при регистрации учителя');
       }
 
+      const newTeacher = await response.json();
       setSuccess('Учитель успешно зарегистрирован');
+      
+      // Очищаем форму
       setFormData({
         username: '',
         password: '',
-        // email: '',
         firstName: '',
         lastName: '',
-        // specialization: ''
       });
+
+      // Вызываем callback с новым учителем
+      if (onSuccess) {
+        onSuccess(newTeacher);
+      }
     } catch (err) {
       setError(err.message);
     }
