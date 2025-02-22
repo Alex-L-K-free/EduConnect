@@ -2,6 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://Alex-L-K-free.github.io/EduConnect",
   "dependencies": {
     "@popperjs/core": "^2.11.8",
     "@reduxjs/toolkit": "^2.5.1",
@@ -25,7 +26,9 @@
     "start": "cross-env BROWSER=none WATCHPACK_POLLING=true react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build -r https://github.com/Alex-L-K-free/EduConnect.git"
   },
   "eslintConfig": {
     "extends": [
@@ -48,5 +51,9 @@
   "devDependencies": {
     "@craco/craco": "^7.1.0",
     "cross-env": "^7.0.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Alex-L-K-free/EduConnect.git"
   }
 }
