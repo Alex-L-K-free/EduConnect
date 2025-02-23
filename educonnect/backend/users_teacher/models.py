@@ -7,26 +7,31 @@ class TeacherUser(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        primary_key=True
+        primary_key=True,
+        related_name='teacher_profile'
     )
     specialization = models.CharField(
         'Специализация',
         max_length=100,
-        blank=True
+        blank=True,
+        null=True
     )
     telegram = models.CharField(
         'Telegram',
         max_length=100,
-        blank=True
+        blank=True,
+        null=True
     )
     viber = models.CharField(
         'Viber',
         max_length=100,
-        blank=True
+        blank=True,
+        null=True
     )
     about = models.TextField(
         'О себе',
-        blank=True
+        blank=True,
+        null=True
     )
     
     class Meta:

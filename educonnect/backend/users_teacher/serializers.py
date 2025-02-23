@@ -63,9 +63,10 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
     lastName = serializers.CharField(source='user.last_name')
     email = serializers.EmailField(source='user.email')
     subjects = serializers.SerializerMethodField()
-    telegram = serializers.CharField(allow_blank=True)
-    viber = serializers.CharField(allow_blank=True)
-    about = serializers.CharField(allow_blank=True)
+    telegram = serializers.CharField(allow_blank=True, required=False)
+    viber = serializers.CharField(allow_blank=True, required=False)
+    about = serializers.CharField(allow_blank=True, required=False)
+    specialization = serializers.CharField(allow_blank=True, required=False)
 
     class Meta:
         model = TeacherUser
@@ -86,25 +87,22 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
         ]
 
     def update(self, instance, validated_data):
-        # Получаем вложенные данные пользователя
-        user_data = {}
+        logger.debug(f"Updating teacher profile with data: {validated_data}")
+        
+        # Обновляем данные пользователя
+        user = instance.user
         if 'user' in validated_data:
             user_data = validated_data.pop('user')
-        
-        # Обновляем поля пользователя
-        user = instance.user
-        if 'first_name' in user_data:
-            user.first_name = user_data['first_name']
-        if 'last_name' in user_data:
-            user.last_name = user_data['last_name']
-        if 'email' in user_data:
-            user.email = user_data['email']
-        user.save()
+            for key, value in user_data.items():
+                setattr(user, key, value)
+            user.save()
+            logger.debug(f"Updated user data: {user_data}")
 
-        # Обновляем поля учителя
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+        # Обновляем данные учителя
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
         instance.save()
+        logger.debug(f"Updated teacher data: {validated_data}")
 
         return instance
 
