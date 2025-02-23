@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from rest_framework import viewsets, generics
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from education_core.models import User
 from .serializers import UserSerializer
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
@@ -38,3 +38,12 @@ class LoginView(APIView):
             token, created = Token.objects.get_or_create(user=user)
             return Response({'token': token.key, 'username': user.username, 'role': user.role})
         return Response({'error': 'Неверные учетные данные'}, status=400)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def current_user(request):
+    """
+    Получение информации о текущем пользователе
+    """
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data)
