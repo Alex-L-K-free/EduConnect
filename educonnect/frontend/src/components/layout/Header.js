@@ -30,7 +30,8 @@ const Header = () => {
   return (
     <header className="navbar">
       <div className="container-fluid">
-        <a className="navbar-brand" href="/">EduConnect</a>
+        {/* <a className="navbar-brand" href="/">EduConnect</a> */}
+        <a className="navbar-brand" href="#!">EduConnect</a>
         <div className="nav-auth">
           {user ? (
             <div className="d-flex align-items-center">
