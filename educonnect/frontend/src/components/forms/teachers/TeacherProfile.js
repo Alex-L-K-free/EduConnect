@@ -24,30 +24,38 @@ const TeacherProfile = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
   const fetchProfile = async () => {
     try {
-      const response = await fetch('/api/v1/teachers/profile/', {
+      const response = await fetch('http://127.0.0.1:8000/api/v1/teachers/profile/', {
         headers: {
-          'Authorization': `Token ${user.token}`
+          'Authorization': `Token ${user.token}`,
+          'Content-Type': 'application/json'
         }
       });
-      if (response.ok) {
-        const data = await response.json();
-        setProfile(data);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
+      const data = await response.json();
+      console.log('Полученные данные профиля:', data);
+      setProfile(data);
     } catch (error) {
       console.error('Error fetching profile:', error);
+      setError('Ошибка при загрузке профиля');
     }
   };
+
+  useEffect(() => {
+    if (user && user.token) {
+      fetchProfile();
+    }
+  }, [user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/v1/teachers/profile/', {
+      const response = await fetch('http://127.0.0.1:8000/api/v1/teachers/profile/', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -56,15 +64,17 @@ const TeacherProfile = () => {
         body: JSON.stringify(profile)
       });
 
-      if (response.ok) {
-        const updatedProfile = await response.json();
-        setProfile(updatedProfile);
-        setIsEditing(false);
-      } else {
-        console.error('Failed to update profile');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+
+      const updatedProfile = await response.json();
+      setProfile(updatedProfile);
+      setIsEditing(false);
+      setSuccess('Профиль успешно обновлен');
     } catch (error) {
       console.error('Error updating profile:', error);
+      setError('Ошибка при обновлении профиля');
     }
   };
 
@@ -137,58 +147,41 @@ const TeacherProfile = () => {
   return (
     <div className="teacher-profile">
       <Card>
-        <Card.Header className="d-flex justify-content-between align-items-center">
-          <h3>Профиль учителя</h3>
-          <div>
-            {!isEditing ? (
-              <Button variant="primary" onClick={() => setIsEditing(true)}>
-                Редактировать
-              </Button>
-            ) : (
-              <Button variant="success" onClick={handleSubmit}>
-                Сохранить
-              </Button>
-            )}
-          </div>
-        </Card.Header>
-        <Card.Body>
+        <Card.Header>
+          <h2>Профиль учителя</h2>
           {error && <div className="alert alert-danger">{error}</div>}
           {success && <div className="alert alert-success">{success}</div>}
-          
-          <Form>
+        </Card.Header>
+        <Card.Body>
+          <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3">
               <Form.Label>Логин</Form.Label>
               <Form.Control
                 type="text"
+                name="username"
                 value={profile.username}
                 disabled
               />
             </Form.Group>
-
-            <Button 
-              variant="outline-primary" 
-              onClick={() => setShowPasswordModal(true)}
-              className="mb-3"
-            >
-              Изменить пароль
-            </Button>
-
+            
             <Form.Group className="mb-3">
-              <Form.Label>Фамилия</Form.Label>
+              <Form.Label>Имя</Form.Label>
               <Form.Control
                 type="text"
-                value={profile.lastName}
-                onChange={(e) => handleChange(e)}
+                name="firstName"
+                value={profile.firstName}
+                onChange={handleChange}
                 disabled={!isEditing}
               />
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Имя</Form.Label>
+              <Form.Label>Фамилия</Form.Label>
               <Form.Control
                 type="text"
-                value={profile.firstName}
-                onChange={(e) => handleChange(e)}
+                name="lastName"
+                value={profile.lastName}
+                onChange={handleChange}
                 disabled={!isEditing}
               />
             </Form.Group>
@@ -197,8 +190,9 @@ const TeacherProfile = () => {
               <Form.Label>Email</Form.Label>
               <Form.Control
                 type="email"
+                name="email"
                 value={profile.email}
-                onChange={(e) => handleChange(e)}
+                onChange={handleChange}
                 disabled={!isEditing}
               />
             </Form.Group>
@@ -233,6 +227,23 @@ const TeacherProfile = () => {
                 disabled={!isEditing}
               />
             </Form.Group>
+
+            <div className="d-flex justify-content-between">
+              {!isEditing ? (
+                <Button variant="primary" onClick={() => setIsEditing(true)}>
+                  Редактировать
+                </Button>
+              ) : (
+                <>
+                  <Button variant="success" type="submit">
+                    Сохранить
+                  </Button>
+                  <Button variant="secondary" onClick={() => setIsEditing(false)}>
+                    Отмена
+                  </Button>
+                </>
+              )}
+            </div>
           </Form>
 
           <div className="subjects-section mt-4">
