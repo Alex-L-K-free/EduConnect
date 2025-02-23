@@ -8,16 +8,16 @@ const SidebarTeacher = ({ activePage }) => {
       <ul>
         <li className={activePage === 'home' ? 'active' : ''}>
           <a href="/">Главная</a>
-        {/* </li>
-        <li className={activePage === 'admin' ? 'active' : ''}>
-          <a href="/admin">Панель управления</a>
         </li>
-        <li className={activePage === 'teacher' ? 'active' : ''}>
+        <li className={activePage === 'profile' ? 'active' : ''}>
+          <a href="/profile">Мой профиль</a>
+        </li>
+        {/* <li className={activePage === 'teacher' ? 'active' : ''}>
           <a href="/teacher">учителя</a>
         </li>
         <li className={activePage === 'student' ? 'active' : ''}>
-          <a href="/student">ученика</a> */}
-        </li>
+          <a href="/student">ученика</a>
+        </li> */}
          {/* Добавьте другие элементы навигации для ученика */}
       </ul>
     </div>
