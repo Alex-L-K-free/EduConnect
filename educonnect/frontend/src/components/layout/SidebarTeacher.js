@@ -14,14 +14,15 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
         </li>
         <li 
           className={activePage === 'profile' ? 'active' : ''}
-          onClick={() => onNavigate('profile')}
-        >
+          onClick={() => onNavigate('profile')}>
           <a href="#!">Мой профиль</a>
         </li>
-        {/* <li className={activePage === 'teacher' ? 'active' : ''}>
-          <a href="/teacher">учителя</a>
+        <li 
+          className={activePage === 'subjects' ? 'active' : ''}
+          onClick={() => onNavigate('subjects')}>
+          <a href="#!">Мои предметы</a>
         </li>
-        <li className={activePage === 'student' ? 'active' : ''}>
+        {/* <li className={activePage === 'student' ? 'active' : ''}>
           <a href="/student">ученика</a>
         </li> */}
          {/* Добавьте другие элементы навигации для ученика */}
