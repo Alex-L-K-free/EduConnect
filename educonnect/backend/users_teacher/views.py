@@ -74,14 +74,12 @@ def teacher_profile(request):
     elif request.method == 'PUT':
         logger.debug(f"Received PUT request data: {request.data}")
         
-        # Подготавливаем данные для обновления
         data = request.data.copy()
         user_data = {}
         
         # Извлекаем данные пользователя
         for field in ['firstName', 'lastName', 'email']:
             if field in data:
-                # Преобразуем camelCase в snake_case для Django
                 django_field = ''.join(['_' + c.lower() if c.isupper() else c 
                                       for c in field]).lstrip('_')
                 user_data[django_field] = data.pop(field)
@@ -94,11 +92,13 @@ def teacher_profile(request):
         serializer = TeacherProfileSerializer(teacher, data=data, partial=True)
         if serializer.is_valid():
             try:
-                updated_teacher = serializer.save()
-                # Принудительно обновляем пользователя в базе данных
-                updated_teacher.user.save()
-                logger.debug(f"Successfully updated teacher profile: {updated_teacher}")
-                return Response(serializer.data)
+                serializer.save()
+                # Обновляем данные в базе
+                teacher.refresh_from_db()
+                teacher.user.refresh_from_db()
+                
+                # Возвращаем обновленные данные
+                return Response(TeacherProfileSerializer(teacher).data)
             except Exception as e:
                 logger.error(f"Error updating teacher profile: {str(e)}")
                 return Response(

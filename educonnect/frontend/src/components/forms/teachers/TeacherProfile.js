@@ -9,31 +9,30 @@ const TeacherProfile = () => {
     username: '',
     firstName: '',
     lastName: '',
-    middleName: '',
-    about: '',
     email: '',
     telegram: '',
     viber: '',
+    about: '',
+    specialization: '',
     subjects: []
   });
-  
+  const [isEditing, setIsEditing] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showSubjectModal, setShowSubjectModal] = useState(false);
   const [newPassword, setNewPassword] = useState({ current: '', new: '', confirm: '' });
   const [newSubject, setNewSubject] = useState({ name: '', grade: '', code: '' });
-  const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    fetchTeacherProfile();
-  }, [user]);
+    fetchProfile();
+  }, []);
 
-  const fetchTeacherProfile = async () => {
+  const fetchProfile = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/teachers/profile/`, {
+      const response = await fetch('/api/v1/teachers/profile/', {
         headers: {
-          'Authorization': `Token ${localStorage.getItem('token')}`
+          'Authorization': `Token ${user.token}`
         }
       });
       if (response.ok) {
@@ -45,27 +44,36 @@ const TeacherProfile = () => {
     }
   };
 
-  const handleProfileUpdate = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/teachers/profile/`, {
+      const response = await fetch('/api/v1/teachers/profile/', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Token ${localStorage.getItem('token')}`
+          'Authorization': `Token ${user.token}`
         },
         body: JSON.stringify(profile)
       });
 
       if (response.ok) {
-        setSuccess('Профиль успешно обновлен');
+        const updatedProfile = await response.json();
+        setProfile(updatedProfile);
         setIsEditing(false);
       } else {
-        setError('Ошибка при обновлении профиля');
+        console.error('Failed to update profile');
       }
     } catch (error) {
-      setError('Ошибка сервера');
+      console.error('Error updating profile:', error);
     }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProfile(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handlePasswordChange = async (e) => {
@@ -76,11 +84,11 @@ const TeacherProfile = () => {
     }
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/teachers/change-password/`, {
+      const response = await fetch('/api/v1/teachers/change-password/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Token ${localStorage.getItem('token')}`
+          'Authorization': `Token ${user.token}`
         },
         body: JSON.stringify({
           current_password: newPassword.current,
@@ -103,11 +111,11 @@ const TeacherProfile = () => {
   const handleAddSubject = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/teachers/subjects/`, {
+      const response = await fetch('/api/v1/teachers/subjects/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Token ${localStorage.getItem('token')}`
+          'Authorization': `Token ${user.token}`
         },
         body: JSON.stringify(newSubject)
       });
@@ -137,7 +145,7 @@ const TeacherProfile = () => {
                 Редактировать
               </Button>
             ) : (
-              <Button variant="success" onClick={handleProfileUpdate}>
+              <Button variant="success" onClick={handleSubmit}>
                 Сохранить
               </Button>
             )}
@@ -170,7 +178,7 @@ const TeacherProfile = () => {
               <Form.Control
                 type="text"
                 value={profile.lastName}
-                onChange={(e) => setProfile({...profile, lastName: e.target.value})}
+                onChange={(e) => handleChange(e)}
                 disabled={!isEditing}
               />
             </Form.Group>
@@ -180,17 +188,7 @@ const TeacherProfile = () => {
               <Form.Control
                 type="text"
                 value={profile.firstName}
-                onChange={(e) => setProfile({...profile, firstName: e.target.value})}
-                disabled={!isEditing}
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Отчество</Form.Label>
-              <Form.Control
-                type="text"
-                value={profile.middleName}
-                onChange={(e) => setProfile({...profile, middleName: e.target.value})}
+                onChange={(e) => handleChange(e)}
                 disabled={!isEditing}
               />
             </Form.Group>
@@ -200,7 +198,7 @@ const TeacherProfile = () => {
               <Form.Control
                 type="email"
                 value={profile.email}
-                onChange={(e) => setProfile({...profile, email: e.target.value})}
+                onChange={(e) => handleChange(e)}
                 disabled={!isEditing}
               />
             </Form.Group>
@@ -210,7 +208,7 @@ const TeacherProfile = () => {
               <Form.Control
                 type="text"
                 value={profile.telegram}
-                onChange={(e) => setProfile({...profile, telegram: e.target.value})}
+                onChange={(e) => handleChange(e)}
                 disabled={!isEditing}
               />
             </Form.Group>
@@ -220,7 +218,7 @@ const TeacherProfile = () => {
               <Form.Control
                 type="text"
                 value={profile.viber}
-                onChange={(e) => setProfile({...profile, viber: e.target.value})}
+                onChange={(e) => handleChange(e)}
                 disabled={!isEditing}
               />
             </Form.Group>
@@ -231,7 +229,7 @@ const TeacherProfile = () => {
                 as="textarea"
                 rows={3}
                 value={profile.about}
-                onChange={(e) => setProfile({...profile, about: e.target.value})}
+                onChange={(e) => handleChange(e)}
                 disabled={!isEditing}
               />
             </Form.Group>
