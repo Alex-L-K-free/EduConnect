@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import SidebarTeacher from './layout/SidebarTeacher';
 import TeacherProfile from './forms/teachers/TeacherProfile';
+import TeacherSubjects from './forms/teachers/TeacherSubjects';
 
 const TeacherDashboard = () => {
   const [currentView, setCurrentView] = useState('main');
@@ -13,6 +14,8 @@ const TeacherDashboard = () => {
     switch (currentView) {
       case 'profile':
         return <TeacherProfile />;
+      case 'subjects':
+        return <TeacherSubjects />;
       default:
         return <h1>Панель управления учителя</h1>;
     }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Form, Button, Card, ListGroup, Modal } from 'react-bootstrap';
+// import { Form, Button, Card, ListGroup, Modal } from 'react-bootstrap';
+import { Form, Button, Card, Modal } from 'react-bootstrap';
 import { useUser } from '../../../UserContext';
 import './TeacherProfile.css';
 
@@ -18,9 +19,7 @@ const TeacherProfile = () => {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [showSubjectModal, setShowSubjectModal] = useState(false);
   const [newPassword, setNewPassword] = useState({ current: '', new: '', confirm: '' });
-  const [newSubject, setNewSubject] = useState({ name: '', grade: '', code: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [editedProfile, setEditedProfile] = useState({});
@@ -139,32 +138,6 @@ const TeacherProfile = () => {
       }
     } catch (error) {
       setError('Ошибка сервера');
-    }
-  };
-
-  const handleAddSubject = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch('/api/v1/teachers/subjects/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${user.token}`
-        },
-        body: JSON.stringify(newSubject)
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setProfile(prev => ({
-          ...prev,
-          subjects: [...prev.subjects, data]
-        }));
-        setShowSubjectModal(false);
-        setNewSubject({ name: '', grade: '', code: '' });
-      }
-    } catch (error) {
-      setError('Ошибка при добавлении предмета');
     }
   };
 
@@ -320,26 +293,6 @@ const TeacherProfile = () => {
               )}
             </div>
           </Form>
-
-          <div className="subjects-section mt-4">
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <h4>Предметы</h4>
-              <Button variant="success" onClick={() => setShowSubjectModal(true)}>
-                Добавить предмет
-              </Button>
-            </div>
-            <ListGroup>
-              {profile.subjects.map((subject, index) => (
-                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
-                  <div>
-                    <strong>{subject.name}</strong> - {subject.grade} класс
-                    <small className="text-muted ms-2">({subject.code})</small>
-                  </div>
-                  <Button variant="outline-danger" size="sm">Удалить</Button>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
-          </div>
         </Card.Body>
       </Card>
 
@@ -377,44 +330,6 @@ const TeacherProfile = () => {
               />
             </Form.Group>
             <Button type="submit">Сохранить</Button>
-          </Form>
-        </Modal.Body>
-      </Modal>
-
-      <Modal show={showSubjectModal} onHide={() => setShowSubjectModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Добавление предмета</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form onSubmit={handleAddSubject}>
-            <Form.Group className="mb-3">
-              <Form.Label>Название предмета</Form.Label>
-              <Form.Control
-                type="text"
-                value={newSubject.name}
-                onChange={(e) => setNewSubject({...newSubject, name: e.target.value})}
-                required
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Класс</Form.Label>
-              <Form.Control
-                type="text"
-                value={newSubject.grade}
-                onChange={(e) => setNewSubject({...newSubject, grade: e.target.value})}
-                required
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Индекс класса</Form.Label>
-              <Form.Control
-                type="text"
-                value={newSubject.code}
-                onChange={(e) => setNewSubject({...newSubject, code: e.target.value})}
-                required
-              />
-            </Form.Group>
-            <Button type="submit">Добавить</Button>
           </Form>
         </Modal.Body>
       </Modal>
