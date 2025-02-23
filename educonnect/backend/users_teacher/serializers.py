@@ -101,10 +101,11 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
         return instance
 
     def to_representation(self, instance):
-        data = {
+        # Возвращаем данные в том же формате, что и получаем
+        return {
             'username': instance.user.username,
-            'firstName': instance.user.first_name,
-            'lastName': instance.user.last_name,
+            'first_name': instance.user.first_name,
+            'last_name': instance.user.last_name,
             'email': instance.user.email,
             'telegram': instance.telegram or '',
             'viber': instance.viber or '',
@@ -112,8 +113,6 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
             'specialization': instance.specialization or '',
             'subjects': self.get_subjects(instance)
         }
-        logger.debug(f"Returning serialized data: {data}")
-        return data
 
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
