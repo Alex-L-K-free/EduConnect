@@ -80,18 +80,12 @@ const TeacherProfile = () => {
     const updateData = {
       firstName: editedProfile.firstName,
       lastName: editedProfile.lastName,
-      email: editedProfile.email,
+      email: editedProfile.email || '',
       telegram: editedProfile.telegram || '',
       viber: editedProfile.viber || '',
       about: editedProfile.about || '',
       specialization: editedProfile.specialization || ''
     };
-
-    const validationErrors = validateProfile(updateData);
-    if (validationErrors.length > 0) {
-      setError(validationErrors.join(', '));
-      return;
-    }
 
     console.log('Отправляемые данные:', updateData);
 
@@ -107,7 +101,6 @@ const TeacherProfile = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Ошибка от сервера:', errorData);
         throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
 

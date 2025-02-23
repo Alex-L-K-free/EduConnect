@@ -70,30 +70,24 @@ def teacher_profile(request):
     if request.method == 'PUT':
         logger.debug(f"Received PUT request data: {request.data}")
         
-        data = request.data.copy()
-        user_data = {}
-        
-        # Преобразуем camelCase в snake_case для полей пользователя
-        field_mapping = {
-            'firstName': 'first_name',
-            'lastName': 'last_name',
-            'email': 'email'
+        # Подготавливаем данные для сериализатора
+        data = {
+            'user': {
+                'first_name': request.data.get('firstName'),
+                'last_name': request.data.get('lastName'),
+                'email': request.data.get('email')
+            },
+            'telegram': request.data.get('telegram'),
+            'viber': request.data.get('viber'),
+            'about': request.data.get('about'),
+            'specialization': request.data.get('specialization')
         }
         
-        # Извлекаем данные пользователя
-        for frontend_field, backend_field in field_mapping.items():
-            if frontend_field in data:
-                user_data[backend_field] = data[frontend_field]
-                data.pop(frontend_field)
-        
-        # Добавляем данные пользователя в общий словарь
-        if user_data:
-            data['user'] = user_data
-
         logger.debug(f"Prepared data for serializer: {data}")
         
         serializer = TeacherProfileSerializer(teacher, data=data, partial=True)
         if serializer.is_valid():
+            logger.debug(f"Serializer is valid. Validated data: {serializer.validated_data}")
             try:
                 updated_teacher = serializer.save()
                 response_data = TeacherProfileSerializer(updated_teacher).data
@@ -105,12 +99,9 @@ def teacher_profile(request):
                     {'error': str(e)},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-        else:
-            logger.error(f"Serializer validation errors: {serializer.errors}")
-            return Response(
-                serializer.errors,
-                status=status.HTTP_400_BAD_ERROR
-            )
+        
+        logger.error(f"Serializer validation errors: {serializer.errors}")
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # GET request
     serializer = TeacherProfileSerializer(teacher)
