@@ -6,8 +6,11 @@ const SidebarAdmin = ({ activePage, onNavigate }) => {
     <div className="sidebar">
       <h6>Администратор</h6>
       <ul>
-        <li className={activePage === 'home' ? 'active' : ''}>
-          <a href="/">Главная</a>
+        <li 
+          className={activePage === 'main' ? 'active' : ''}
+          onClick={() => onNavigate('main')}
+        >
+          <a href="#!">Главная</a>
         </li>
         <li className={activePage === 'teacher' ? 'active' : ''}>
           <button 
