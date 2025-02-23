@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Modal, Button, Form } from 'react-bootstrap';
+import { Modal, Button, Form, Alert } from 'react-bootstrap';
 // import axios from 'axios';
 import { useUser } from '../UserContext'; // Импортируем контекст
 import { useNavigate } from 'react-router-dom'; // Импортируем useNavigate
 import './LoginModal.css'; // Импортируем стили
 
 const LoginModal = ({ show, onHide }) => {
-  const { setUser } = useUser(); // Получаем функцию для установки пользователя
+  const { login } = useUser(); // Используем login вместо setUser
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -35,11 +35,7 @@ const LoginModal = ({ show, onHide }) => {
         localStorage.setItem('username', data.username);
         
         // Обновляем состояние пользователя в контексте
-        setUser({
-          username: data.username,
-          role: data.role,
-          token: data.token
-        });
+        login(data);
         
         onHide();
 
@@ -72,7 +68,7 @@ const LoginModal = ({ show, onHide }) => {
         <Modal.Title>Вход</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {error && <div className="alert alert-danger">{error}</div>}
+        {error && <Alert variant="danger">{error}</Alert>}
         <Form onSubmit={handleSubmit}>
           <Form.Group controlId="formBasicUsername">
             <Form.Label>Логин</Form.Label>
