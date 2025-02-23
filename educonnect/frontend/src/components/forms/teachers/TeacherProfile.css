@@ -1,0 +1,59 @@
+.teacher-profile {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.teacher-profile .card {
+  box-shadow: var(--shadow-sm);
+  border: none;
+  border-radius: 12px;
+}
+
+.teacher-profile .card-header {
+  background: var(--gradient-primary);
+  color: white;
+  border-radius: 12px 12px 0 0;
+  padding: 1rem;
+}
+
+.teacher-profile .form-control:disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+}
+
+.teacher-profile .subjects-section {
+  border-top: 1px solid #dee2e6;
+  padding-top: 20px;
+}
+
+.teacher-profile .list-group-item {
+  transition: all 0.3s ease;
+}
+
+.teacher-profile .list-group-item:hover {
+  background-color: #f8f9fa;
+}
+
+.teacher-profile .btn-outline-danger {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.teacher-profile .list-group-item:hover .btn-outline-danger {
+  opacity: 1;
+}
+
+.modal-content {
+  border-radius: 12px;
+}
+
+.modal-header {
+  background: var(--gradient-primary);
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.modal-header .close {
+  color: white;
+}
