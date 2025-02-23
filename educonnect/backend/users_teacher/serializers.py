@@ -61,7 +61,6 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
     firstName = serializers.CharField(source='user.first_name')
     lastName = serializers.CharField(source='user.last_name')
-    middleName = serializers.CharField(source='user.middle_name', allow_blank=True)
     email = serializers.EmailField(source='user.email')
     subjects = serializers.SerializerMethodField()
     telegram = serializers.CharField(allow_blank=True)
@@ -70,8 +69,10 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TeacherUser
-        fields = ['username', 'firstName', 'lastName', 'middleName', 'email', 
-                 'telegram', 'viber', 'about', 'subjects', 'specialization']
+        fields = [
+            'username', 'firstName', 'lastName', 'email',
+            'telegram', 'viber', 'about', 'subjects', 'specialization'
+        ]
 
     def get_subjects(self, obj):
         teacher_subjects = TeacherSubject.objects.filter(teacher=obj.user)
@@ -85,20 +86,34 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
         ]
 
     def update(self, instance, validated_data):
-        user_data = validated_data.pop('user', {})
+        # Получаем вложенные данные пользователя
+        user_data = {}
+        if 'user' in validated_data:
+            user_data = validated_data.pop('user')
+        
+        # Обновляем поля пользователя
         user = instance.user
-
-        # Обновляем данные пользователя
-        for attr, value in user_data.items():
-            setattr(user, attr, value)
+        if 'first_name' in user_data:
+            user.first_name = user_data['first_name']
+        if 'last_name' in user_data:
+            user.last_name = user_data['last_name']
+        if 'email' in user_data:
+            user.email = user_data['email']
         user.save()
 
-        # Обновляем данные учителя
+        # Обновляем поля учителя
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
 
         return instance
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['firstName'] = instance.user.first_name
+        representation['lastName'] = instance.user.last_name
+        representation['email'] = instance.user.email
+        return representation
 
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:

@@ -72,11 +72,29 @@ def teacher_profile(request):
         return Response(serializer.data)
 
     elif request.method == 'PUT':
-        serializer = TeacherProfileSerializer(teacher, data=request.data, partial=True)
+        # Подготавливаем данные для обновления
+        data = request.data.copy()
+        if 'firstName' in data or 'lastName' in data or 'email' in data:
+            data['user'] = {
+                'first_name': data.pop('firstName', teacher.user.first_name),
+                'last_name': data.pop('lastName', teacher.user.last_name),
+                'email': data.pop('email', teacher.user.email)
+            }
+
+        serializer = TeacherProfileSerializer(teacher, data=data, partial=True)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                serializer.save()
+                return Response(serializer.data)
+            except Exception as e:
+                return Response(
+                    {'error': str(e)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
