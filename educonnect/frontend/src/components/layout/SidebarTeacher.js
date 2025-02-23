@@ -4,7 +4,7 @@ import './Sidebar.css'; // Импортируйте стили для Sidebar
 const SidebarTeacher = ({ activePage, onNavigate }) => {
   return (
     <div className="sidebar">
-      <h2>Учитель</h2>
+      {/* <h2>Учитель</h2> */}
       <ul>
         <li 
           className={activePage === 'main' ? 'active' : ''}
@@ -12,6 +12,13 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
         >
           <a href="#!">Главная</a>
         </li>
+        
+        <li 
+          className={activePage === 'cabinet' ? 'active' : ''}
+          onClick={() => onNavigate('cabinet')}>
+          <a href="#!">Мой кабинет</a>
+        </li>  
+
         <li 
           className={activePage === 'profile' ? 'active' : ''}
           onClick={() => onNavigate('profile')}>
