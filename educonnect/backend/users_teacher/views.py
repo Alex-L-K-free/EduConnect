@@ -79,13 +79,13 @@ def teacher_profile(request):
         user_data = {}
         
         # Извлекаем данные пользователя
-        if 'firstName' in data:
-            user_data['first_name'] = data.pop('firstName')
-        if 'lastName' in data:
-            user_data['last_name'] = data.pop('lastName')
-        if 'email' in data:
-            user_data['email'] = data.pop('email')
-            
+        for field in ['firstName', 'lastName', 'email']:
+            if field in data:
+                # Преобразуем camelCase в snake_case для Django
+                django_field = ''.join(['_' + c.lower() if c.isupper() else c 
+                                      for c in field]).lstrip('_')
+                user_data[django_field] = data.pop(field)
+        
         if user_data:
             data['user'] = user_data
 
@@ -95,6 +95,8 @@ def teacher_profile(request):
         if serializer.is_valid():
             try:
                 updated_teacher = serializer.save()
+                # Принудительно обновляем пользователя в базе данных
+                updated_teacher.user.save()
                 logger.debug(f"Successfully updated teacher profile: {updated_teacher}")
                 return Response(serializer.data)
             except Exception as e:

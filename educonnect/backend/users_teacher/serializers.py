@@ -59,9 +59,9 @@ class TeacherListSerializer(serializers.ModelSerializer):
 
 class TeacherProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
-    firstName = serializers.CharField(source='user.first_name')
-    lastName = serializers.CharField(source='user.last_name')
-    email = serializers.EmailField(source='user.email')
+    firstName = serializers.CharField(source='user.first_name', required=False)
+    lastName = serializers.CharField(source='user.last_name', required=False)
+    email = serializers.EmailField(source='user.email', required=False)
     subjects = serializers.SerializerMethodField()
     telegram = serializers.CharField(allow_blank=True, required=False)
     viber = serializers.CharField(allow_blank=True, required=False)
@@ -90,19 +90,27 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
         logger.debug(f"Updating teacher profile with data: {validated_data}")
         
         # Обновляем данные пользователя
-        user = instance.user
         if 'user' in validated_data:
             user_data = validated_data.pop('user')
-            for key, value in user_data.items():
-                setattr(user, key, value)
+            user = instance.user
+            
+            # Явно обновляем каждое поле пользователя
+            if 'first_name' in user_data:
+                user.first_name = user_data['first_name']
+            if 'last_name' in user_data:
+                user.last_name = user_data['last_name']
+            if 'email' in user_data:
+                user.email = user_data['email']
+            
             user.save()
             logger.debug(f"Updated user data: {user_data}")
 
         # Обновляем данные учителя
-        for key, value in validated_data.items():
-            setattr(instance, key, value)
-        instance.save()
-        logger.debug(f"Updated teacher data: {validated_data}")
+        if validated_data:
+            for key, value in validated_data.items():
+                setattr(instance, key, value)
+            instance.save()
+            logger.debug(f"Updated teacher data: {validated_data}")
 
         return instance
 
