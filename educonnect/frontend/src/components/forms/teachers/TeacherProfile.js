@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Form, Button, Card, ListGroup, Modal } from 'react-bootstrap';
 import { useUser } from '../../../UserContext';
 import './TeacherProfile.css';
@@ -25,7 +25,7 @@ const TeacherProfile = () => {
   const [success, setSuccess] = useState('');
   const [editedProfile, setEditedProfile] = useState({});
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const response = await fetch('http://127.0.0.1:8000/api/v1/teachers/profile/', {
         headers: {
@@ -46,29 +46,13 @@ const TeacherProfile = () => {
       console.error('Error fetching profile:', error);
       setError('Ошибка при загрузке профиля');
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     if (user && user.token) {
       fetchProfile();
     }
-  }, [user]);
-
-  const validateProfile = (data) => {
-    const errors = [];
-    
-    if (!data.firstName?.trim()) {
-      errors.push('Имя обязательно для заполнения');
-    }
-    if (!data.lastName?.trim()) {
-      errors.push('Фамилия обязательна для заполнения');
-    }
-    if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-      errors.push('Некорректный формат email');
-    }
-    
-    return errors;
-  };
+  }, [user, fetchProfile]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

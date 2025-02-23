@@ -59,8 +59,8 @@ class TeacherListSerializer(serializers.ModelSerializer):
 
 class TeacherProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
-    firstName = serializers.CharField(source='user.first_name')
-    lastName = serializers.CharField(source='user.last_name')
+    firstName = serializers.CharField(source='user.first_name', write_only=False)
+    lastName = serializers.CharField(source='user.last_name', write_only=False)
     email = serializers.EmailField(source='user.email', required=False)
     subjects = serializers.SerializerMethodField()
     telegram = serializers.CharField(allow_blank=True, required=False)
@@ -89,42 +89,20 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         logger.debug(f"Starting update with validated data: {validated_data}")
         
-        # Получаем данные пользователя
-        user = instance.user
-        
-        # Обновляем поля пользователя из validated_data
+        # Обновляем поля пользователя
         if 'user' in validated_data:
             user_data = validated_data.pop('user')
-            logger.debug(f"Updating user with data: {user_data}")
-            
-            # Обновляем first_name и last_name
-            if 'first_name' in user_data:
-                user.first_name = user_data['first_name']
-            if 'last_name' in user_data:
-                user.last_name = user_data['last_name']
-            if 'email' in user_data:
-                user.email = user_data['email']
-                
-            user.save()
-            logger.debug(f"Updated user fields: {user.first_name}, {user.last_name}, {user.email}")
+            for attr, value in user_data.items():
+                setattr(instance.user, attr, value)
+            instance.user.save()
+            logger.debug(f"Updated user data: {user_data}")
 
         # Обновляем поля учителя
-        if 'telegram' in validated_data:
-            instance.telegram = validated_data['telegram']
-        if 'viber' in validated_data:
-            instance.viber = validated_data['viber']
-        if 'about' in validated_data:
-            instance.about = validated_data['about']
-        if 'specialization' in validated_data:
-            instance.specialization = validated_data['specialization']
-            
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
         instance.save()
-        logger.debug(f"Updated teacher fields: {instance.telegram}, {instance.viber}, {instance.about}, {instance.specialization}")
+        logger.debug(f"Updated teacher data: {validated_data}")
 
-        # Обновляем instance из базы данных
-        instance.refresh_from_db()
-        user.refresh_from_db()
-        
         return instance
 
     def to_representation(self, instance):
