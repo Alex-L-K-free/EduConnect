@@ -14,6 +14,20 @@ class TeacherUser(models.Model):
         max_length=100,
         blank=True
     )
+    telegram = models.CharField(
+        'Telegram',
+        max_length=100,
+        blank=True
+    )
+    viber = models.CharField(
+        'Viber',
+        max_length=100,
+        blank=True
+    )
+    about = models.TextField(
+        'О себе',
+        blank=True
+    )
     
     class Meta:
         verbose_name = 'Учитель'

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from education_core.models import User
 from .models import TeacherUser
+from subjects.models import Subject, TeacherSubject
 import logging
 
 logger = logging.getLogger(__name__)
@@ -54,4 +55,52 @@ class TeacherListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TeacherUser
-        fields = ['id', 'username', 'firstName', 'lastName'] 
+        fields = ['id', 'username', 'firstName', 'lastName']
+
+class TeacherProfileSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+    firstName = serializers.CharField(source='user.first_name')
+    lastName = serializers.CharField(source='user.last_name')
+    middleName = serializers.CharField(source='user.middle_name', allow_blank=True)
+    email = serializers.EmailField(source='user.email')
+    subjects = serializers.SerializerMethodField()
+    telegram = serializers.CharField(allow_blank=True)
+    viber = serializers.CharField(allow_blank=True)
+    about = serializers.CharField(allow_blank=True)
+
+    class Meta:
+        model = TeacherUser
+        fields = ['username', 'firstName', 'lastName', 'middleName', 'email', 
+                 'telegram', 'viber', 'about', 'subjects', 'specialization']
+
+    def get_subjects(self, obj):
+        teacher_subjects = TeacherSubject.objects.filter(teacher=obj.user)
+        return [
+            {
+                'id': ts.subject.id,
+                'name': ts.subject.name,
+                'grade': ts.subject.grade,
+                'code': ts.subject.code
+            } for ts in teacher_subjects
+        ]
+
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop('user', {})
+        user = instance.user
+
+        # Обновляем данные пользователя
+        for attr, value in user_data.items():
+            setattr(user, attr, value)
+        user.save()
+
+        # Обновляем данные учителя
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
+
+class SubjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subject
+        fields = ['id', 'name', 'grade', 'code'] 
