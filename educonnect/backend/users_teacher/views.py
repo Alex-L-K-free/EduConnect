@@ -67,23 +67,26 @@ def teacher_profile(request):
             status=status.HTTP_404_NOT_FOUND
         )
 
-    if request.method == 'GET':
-        serializer = TeacherProfileSerializer(teacher)
-        return Response(serializer.data)
-
-    elif request.method == 'PUT':
+    if request.method == 'PUT':
         logger.debug(f"Received PUT request data: {request.data}")
         
         data = request.data.copy()
         user_data = {}
         
-        # Извлекаем данные пользователя
-        for field in ['firstName', 'lastName', 'email']:
-            if field in data:
-                django_field = ''.join(['_' + c.lower() if c.isupper() else c 
-                                      for c in field]).lstrip('_')
-                user_data[django_field] = data.pop(field)
+        # Преобразуем camelCase в snake_case для полей пользователя
+        field_mapping = {
+            'firstName': 'first_name',
+            'lastName': 'last_name',
+            'email': 'email'
+        }
         
+        # Извлекаем данные пользователя
+        for frontend_field, backend_field in field_mapping.items():
+            if frontend_field in data:
+                user_data[backend_field] = data[frontend_field]
+                data.pop(frontend_field)
+        
+        # Добавляем данные пользователя в общий словарь
         if user_data:
             data['user'] = user_data
 
@@ -92,24 +95,26 @@ def teacher_profile(request):
         serializer = TeacherProfileSerializer(teacher, data=data, partial=True)
         if serializer.is_valid():
             try:
-                serializer.save()
-                # Обновляем данные в базе
-                teacher.refresh_from_db()
-                teacher.user.refresh_from_db()
-                
-                # Возвращаем обновленные данные
-                return Response(TeacherProfileSerializer(teacher).data)
+                updated_teacher = serializer.save()
+                response_data = TeacherProfileSerializer(updated_teacher).data
+                logger.debug(f"Updated profile response: {response_data}")
+                return Response(response_data)
             except Exception as e:
                 logger.error(f"Error updating teacher profile: {str(e)}")
                 return Response(
                     {'error': str(e)},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-        logger.error(f"Serializer validation errors: {serializer.errors}")
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        else:
+            logger.error(f"Serializer validation errors: {serializer.errors}")
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_ERROR
+            )
+
+    # GET request
+    serializer = TeacherProfileSerializer(teacher)
+    return Response(serializer.data)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

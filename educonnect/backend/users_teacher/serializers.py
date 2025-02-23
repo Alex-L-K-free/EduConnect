@@ -87,28 +87,36 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
         ]
 
     def update(self, instance, validated_data):
-        logger.debug(f"Updating teacher profile with data: {validated_data}")
+        logger.debug(f"Starting update with validated data: {validated_data}")
         
-        # Получаем данные пользователя
-        user_data = validated_data.pop('user', {})
-        user = instance.user
-
-        # Обновляем поля пользователя
-        if user_data:
-            user.first_name = user_data.get('first_name', user.first_name)
-            user.last_name = user_data.get('last_name', user.last_name)
-            user.email = user_data.get('email', user.email)
+        # Обновляем данные пользователя
+        if 'user' in validated_data:
+            user_data = validated_data.pop('user')
+            user = instance.user
+            
+            # Явно обновляем каждое поле
+            if 'first_name' in user_data:
+                user.first_name = user_data['first_name']
+            if 'last_name' in user_data:
+                user.last_name = user_data['last_name']
+            if 'email' in user_data:
+                user.email = user_data['email']
+            
             user.save()
             logger.debug(f"Updated user data: {user_data}")
 
-        # Обновляем поля учителя
-        instance.telegram = validated_data.get('telegram', instance.telegram)
-        instance.viber = validated_data.get('viber', instance.viber)
-        instance.about = validated_data.get('about', instance.about)
-        instance.specialization = validated_data.get('specialization', instance.specialization)
+        # Обновляем данные учителя
+        for field in ['telegram', 'viber', 'about', 'specialization']:
+            if field in validated_data:
+                setattr(instance, field, validated_data[field])
+        
         instance.save()
         logger.debug(f"Updated teacher data: {validated_data}")
 
+        # Обновляем instance из базы данных
+        instance.refresh_from_db()
+        instance.user.refresh_from_db()
+        
         return instance
 
     def to_representation(self, instance):

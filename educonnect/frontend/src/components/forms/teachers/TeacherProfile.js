@@ -23,6 +23,7 @@ const TeacherProfile = () => {
   const [newSubject, setNewSubject] = useState({ name: '', grade: '', code: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [editedProfile, setEditedProfile] = useState({});
 
   const fetchProfile = async () => {
     try {
@@ -40,6 +41,7 @@ const TeacherProfile = () => {
       const data = await response.json();
       console.log('Полученные данные профиля:', data);
       setProfile(data);
+      setEditedProfile(data);
     } catch (error) {
       console.error('Error fetching profile:', error);
       setError('Ошибка при загрузке профиля');
@@ -52,8 +54,47 @@ const TeacherProfile = () => {
     }
   }, [user]);
 
+  const validateProfile = (data) => {
+    const errors = [];
+    
+    if (!data.firstName?.trim()) {
+      errors.push('Имя обязательно для заполнения');
+    }
+    if (!data.lastName?.trim()) {
+      errors.push('Фамилия обязательна для заполнения');
+    }
+    if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+      errors.push('Некорректный формат email');
+    }
+    
+    return errors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!isEditing) {
+      return;
+    }
+
+    const updateData = {
+      firstName: editedProfile.firstName,
+      lastName: editedProfile.lastName,
+      email: editedProfile.email,
+      telegram: editedProfile.telegram || '',
+      viber: editedProfile.viber || '',
+      about: editedProfile.about || '',
+      specialization: editedProfile.specialization || ''
+    };
+
+    const validationErrors = validateProfile(updateData);
+    if (validationErrors.length > 0) {
+      setError(validationErrors.join(', '));
+      return;
+    }
+
+    console.log('Отправляемые данные:', updateData);
+
     try {
       const response = await fetch('http://127.0.0.1:8000/api/v1/teachers/profile/', {
         method: 'PUT',
@@ -61,29 +102,35 @@ const TeacherProfile = () => {
           'Content-Type': 'application/json',
           'Authorization': `Token ${user.token}`
         },
-        body: JSON.stringify(profile)
+        body: JSON.stringify(updateData)
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json();
+        console.error('Ошибка от сервера:', errorData);
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
 
       const updatedProfile = await response.json();
+      console.log('Полученные обновленные данные:', updatedProfile);
+      
       setProfile(updatedProfile);
+      setEditedProfile(updatedProfile);
       setIsEditing(false);
       setSuccess('Профиль успешно обновлен');
     } catch (error) {
       console.error('Error updating profile:', error);
-      setError('Ошибка при обновлении профиля');
+      setError(error.message || 'Ошибка при обновлении профиля');
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setProfile(prev => ({
+    setEditedProfile(prev => ({
       ...prev,
       [name]: value
     }));
+    setSuccess('');
   };
 
   const handlePasswordChange = async (e) => {
@@ -149,10 +196,18 @@ const TeacherProfile = () => {
       <Card>
         <Card.Header>
           <h2>Профиль учителя</h2>
-          {error && <div className="alert alert-danger">{error}</div>}
-          {success && <div className="alert alert-success">{success}</div>}
         </Card.Header>
         <Card.Body>
+          {error && (
+            <div className="alert alert-danger" role="alert">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="alert alert-success" role="alert">
+              {success}
+            </div>
+          )}
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3">
               <Form.Label>Логин</Form.Label>
@@ -169,7 +224,7 @@ const TeacherProfile = () => {
               <Form.Control
                 type="text"
                 name="firstName"
-                value={profile.firstName}
+                value={isEditing ? editedProfile.firstName : profile.firstName}
                 onChange={handleChange}
                 disabled={!isEditing}
               />
@@ -180,7 +235,7 @@ const TeacherProfile = () => {
               <Form.Control
                 type="text"
                 name="lastName"
-                value={profile.lastName}
+                value={isEditing ? editedProfile.lastName : profile.lastName}
                 onChange={handleChange}
                 disabled={!isEditing}
               />
@@ -191,7 +246,7 @@ const TeacherProfile = () => {
               <Form.Control
                 type="email"
                 name="email"
-                value={profile.email}
+                value={isEditing ? editedProfile.email : profile.email}
                 onChange={handleChange}
                 disabled={!isEditing}
               />
@@ -201,8 +256,9 @@ const TeacherProfile = () => {
               <Form.Label>Telegram</Form.Label>
               <Form.Control
                 type="text"
-                value={profile.telegram}
-                onChange={(e) => handleChange(e)}
+                name="telegram"
+                value={isEditing ? editedProfile.telegram : profile.telegram}
+                onChange={handleChange}
                 disabled={!isEditing}
               />
             </Form.Group>
@@ -211,8 +267,9 @@ const TeacherProfile = () => {
               <Form.Label>Viber</Form.Label>
               <Form.Control
                 type="text"
-                value={profile.viber}
-                onChange={(e) => handleChange(e)}
+                name="viber"
+                value={isEditing ? editedProfile.viber : profile.viber}
+                onChange={handleChange}
                 disabled={!isEditing}
               />
             </Form.Group>
@@ -222,26 +279,67 @@ const TeacherProfile = () => {
               <Form.Control
                 as="textarea"
                 rows={3}
-                value={profile.about}
-                onChange={(e) => handleChange(e)}
+                name="about"
+                value={isEditing ? editedProfile.about : profile.about}
+                onChange={handleChange}
                 disabled={!isEditing}
               />
             </Form.Group>
 
-            <div className="d-flex justify-content-between">
+            <Form.Group className="mb-3">
+              <Form.Label>Специализация</Form.Label>
+              <Form.Control
+                type="text"
+                name="specialization"
+                value={isEditing ? editedProfile.specialization : profile.specialization}
+                onChange={handleChange}
+                disabled={!isEditing}
+              />
+            </Form.Group>
+
+            <div className="d-flex justify-content-between mt-4">
               {!isEditing ? (
-                <Button variant="primary" onClick={() => setIsEditing(true)}>
-                  Редактировать
-                </Button>
-              ) : (
                 <>
-                  <Button variant="success" type="submit">
-                    Сохранить
+                  <Button 
+                    variant="primary" 
+                    type="button"
+                    onClick={() => {
+                      setIsEditing(true);
+                      setSuccess('');
+                      setError('');
+                    }}
+                  >
+                    Редактировать
                   </Button>
-                  <Button variant="secondary" onClick={() => setIsEditing(false)}>
-                    Отмена
+                  <Button 
+                    variant="outline-primary"
+                    type="button"
+                    onClick={() => setShowPasswordModal(true)}
+                  >
+                    Изменить пароль
                   </Button>
                 </>
+              ) : (
+                <div className="d-flex gap-2">
+                  <Button 
+                    variant="success" 
+                    type="submit"
+                  >
+                    Сохранить
+                  </Button>
+                  <Button 
+                    variant="secondary"
+                    type="button"
+                    onClick={() => {
+                      setIsEditing(false);
+                      setSuccess('');
+                      setError('');
+                      fetchProfile();
+                    }}
+                  >
+                    Отмена
+                  </Button>
+                </div>
               )}
             </div>
           </Form>
@@ -268,7 +366,6 @@ const TeacherProfile = () => {
         </Card.Body>
       </Card>
 
-      {/* Модальное окно изменения пароля */}
       <Modal show={showPasswordModal} onHide={() => setShowPasswordModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Изменение пароля</Modal.Title>
@@ -307,7 +404,6 @@ const TeacherProfile = () => {
         </Modal.Body>
       </Modal>
 
-      {/* Модальное окно добавления предмета */}
       <Modal show={showSubjectModal} onHide={() => setShowSubjectModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Добавление предмета</Modal.Title>
