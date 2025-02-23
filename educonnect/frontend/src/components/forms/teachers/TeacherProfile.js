@@ -7,8 +7,8 @@ const TeacherProfile = () => {
   const { user } = useUser();
   const [profile, setProfile] = useState({
     username: '',
-    firstName: '',
-    lastName: '',
+    first_name: '',
+    last_name: '',
     email: '',
     telegram: '',
     viber: '',
@@ -62,8 +62,8 @@ const TeacherProfile = () => {
     }
 
     const updateData = {
-      firstName: editedProfile.firstName,
-      lastName: editedProfile.lastName,
+      first_name: editedProfile.first_name,
+      last_name: editedProfile.last_name,
       email: editedProfile.email || '',
       telegram: editedProfile.telegram || '',
       viber: editedProfile.viber || '',
@@ -200,8 +200,8 @@ const TeacherProfile = () => {
               <Form.Label>Имя</Form.Label>
               <Form.Control
                 type="text"
-                name="firstName"
-                value={isEditing ? editedProfile.firstName : profile.firstName}
+                name="first_name"
+                value={isEditing ? editedProfile.first_name : profile.first_name}
                 onChange={handleChange}
                 disabled={!isEditing}
               />
@@ -211,8 +211,8 @@ const TeacherProfile = () => {
               <Form.Label>Фамилия</Form.Label>
               <Form.Control
                 type="text"
-                name="lastName"
-                value={isEditing ? editedProfile.lastName : profile.lastName}
+                name="last_name"
+                value={isEditing ? editedProfile.last_name : profile.last_name}
                 onChange={handleChange}
                 disabled={!isEditing}
               />

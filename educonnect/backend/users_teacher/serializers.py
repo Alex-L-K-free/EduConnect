@@ -59,8 +59,8 @@ class TeacherListSerializer(serializers.ModelSerializer):
 
 class TeacherProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
-    firstName = serializers.CharField(source='user.first_name', write_only=False)
-    lastName = serializers.CharField(source='user.last_name', write_only=False)
+    first_name = serializers.CharField(source='user.first_name')
+    last_name = serializers.CharField(source='user.last_name')
     email = serializers.EmailField(source='user.email', required=False)
     subjects = serializers.SerializerMethodField()
     telegram = serializers.CharField(allow_blank=True, required=False)
@@ -71,7 +71,7 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = TeacherUser
         fields = [
-            'username', 'firstName', 'lastName', 'email',
+            'username', 'first_name', 'last_name', 'email',
             'telegram', 'viber', 'about', 'subjects', 'specialization'
         ]
 
@@ -87,21 +87,16 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
         ]
 
     def update(self, instance, validated_data):
-        logger.debug(f"Starting update with validated data: {validated_data}")
-        
-        # Обновляем поля пользователя
         if 'user' in validated_data:
             user_data = validated_data.pop('user')
+            user = instance.user
             for attr, value in user_data.items():
-                setattr(instance.user, attr, value)
-            instance.user.save()
-            logger.debug(f"Updated user data: {user_data}")
+                setattr(user, attr, value)
+            user.save()
 
-        # Обновляем поля учителя
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
-        logger.debug(f"Updated teacher data: {validated_data}")
 
         return instance
 
