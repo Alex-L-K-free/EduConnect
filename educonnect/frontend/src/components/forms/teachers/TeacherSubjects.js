@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, ListGroup, Button, Modal, Form, Alert } from 'react-bootstrap';
 import { useUser } from '../../../UserContext';
 import './TeacherSubjects.css';
@@ -11,11 +11,7 @@ const TeacherSubjects = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const response = await fetch('http://127.0.0.1:8000/api/v1/teachers/subjects/', {
         headers: {
@@ -34,7 +30,11 @@ const TeacherSubjects = () => {
       console.error('Error fetching profile:', error);
       setError('Ошибка при загрузке предметов');
     }
-  };
+  }, [user.token]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const handleAddSubject = async (e) => {
     e.preventDefault();
