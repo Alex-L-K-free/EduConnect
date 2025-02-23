@@ -70,24 +70,26 @@ def teacher_profile(request):
     if request.method == 'PUT':
         logger.debug(f"Received PUT request data: {request.data}")
         
-        # Подготавливаем данные для сериализатора
-        data = {
-            'user': {
-                'first_name': request.data.get('firstName'),
-                'last_name': request.data.get('lastName'),
-                'email': request.data.get('email')
-            },
-            'telegram': request.data.get('telegram'),
-            'viber': request.data.get('viber'),
-            'about': request.data.get('about'),
-            'specialization': request.data.get('specialization')
+        # Обновляем данные пользователя
+        user = teacher.user
+        if 'first_name' in request.data:
+            user.first_name = request.data['first_name']
+        if 'last_name' in request.data:
+            user.last_name = request.data['last_name']
+        if 'email' in request.data:
+            user.email = request.data['email']
+        user.save()
+        
+        # Обновляем данные учителя
+        teacher_data = {
+            'telegram': request.data.get('telegram', teacher.telegram),
+            'viber': request.data.get('viber', teacher.viber),
+            'about': request.data.get('about', teacher.about),
+            'specialization': request.data.get('specialization', teacher.specialization)
         }
         
-        logger.debug(f"Prepared data for serializer: {data}")
-        
-        serializer = TeacherProfileSerializer(teacher, data=data, partial=True)
+        serializer = TeacherProfileSerializer(teacher, data=teacher_data, partial=True)
         if serializer.is_valid():
-            logger.debug(f"Serializer is valid. Validated data: {serializer.validated_data}")
             try:
                 updated_teacher = serializer.save()
                 response_data = TeacherProfileSerializer(updated_teacher).data
