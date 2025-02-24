@@ -4,7 +4,7 @@ from education_core.models import User
 class Subject(models.Model):
     name = models.CharField('Название', max_length=100)
     grade = models.CharField('Класс', max_length=20)
-    code = models.CharField('Код предмета', max_length=20, unique=True)
+    code = models.CharField('Код предмета', max_length=50, unique=True)
     created_at = models.DateTimeField('Дата создания', auto_now_add=True)
     updated_at = models.DateTimeField('Дата обновления', auto_now=True)
     
@@ -13,6 +13,12 @@ class Subject(models.Model):
         ordering = ['name']
         verbose_name = 'Предмет'
         verbose_name_plural = 'Предметы'
+    
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            base_code = self.code
+            self.code = f"{self.name.lower().replace(' ', '_')}-{self.grade}-{base_code}"
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return f"{self.name} - {self.grade} класс"
