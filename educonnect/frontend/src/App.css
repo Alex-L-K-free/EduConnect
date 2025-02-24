@@ -349,10 +349,30 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(46, 125, 50, 0.15);
   transition: all 0.3s ease;
-  margin-bottom: 1rem;
+  height: calc(100vh - 64px); /* Высота от навбара до футера */
+  margin: 0;
+  margin-left: 200px; /* Отступ от сайдбара */
+  width: calc(100% - 200px); /* Ширина от сайдбара до правого края */
+  position: fixed;
+  top: 40px; /* Высота навбара */
+  right: 0;
+  overflow-y: auto;
+}
+
+.card-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--gradient-primary);
+}
+
+.card-body {
+  padding: 1.5rem;
+  height: calc(100% - 60px); /* Высота с учетом header */
+  overflow-y: auto;
 }
 
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(46, 125, 50, 0.2);
+  transform: none; /* Убираем анимацию при наведении */
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.15);
 }
