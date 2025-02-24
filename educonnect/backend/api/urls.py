@@ -24,5 +24,6 @@ urlpatterns = [
     path('teachers/change-password/', change_password, name='change-password'),
     path('teachers/subjects/', manage_subjects, name='manage-subjects'),
     path('users/me/', current_user, name='current-user'),
+    path('subjects/', include('subjects.urls', namespace='subjects')),
     # Здесь будем добавлять другие URL-паттерны
 ] 

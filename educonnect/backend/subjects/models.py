@@ -3,7 +3,7 @@ from education_core.models import User
 
 class Subject(models.Model):
     name = models.CharField('Название', max_length=100)
-    description = models.TextField('Описание')
+    grade = models.CharField('Класс', max_length=20)
     code = models.CharField('Код предмета', max_length=20, unique=True)
     created_at = models.DateTimeField('Дата создания', auto_now_add=True)
     updated_at = models.DateTimeField('Дата обновления', auto_now=True)
@@ -15,7 +15,7 @@ class Subject(models.Model):
         verbose_name_plural = 'Предметы'
     
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.grade} класс"
 
 class SubjectEnrollment(models.Model):
     subject = models.ForeignKey(Subject, verbose_name='Предмет', on_delete=models.CASCADE, related_name='enrollments')
