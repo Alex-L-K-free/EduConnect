@@ -1,10 +1,10 @@
 import React from 'react';
-import './Sidebar.css'; // Импортируйте стили для Sidebar
+// import './Sidebar.css'; // Импортируйте стили для Sidebar
 
 const Sidebar = ({ activePage }) => {
   return (
     <div className="sidebar">
-      <h2>главная</h2>
+      {/* <h2>главная</h2>
       <ul>
         <li className={activePage === 'home' ? 'active' : ''}>
           <a href="/">Главная</a>
@@ -18,7 +18,7 @@ const Sidebar = ({ activePage }) => {
         <li className={activePage === 'student' ? 'active' : ''}>
           <a href="/student">Панель ученика</a>
         </li>
-      </ul>
+      </ul> */}
     </div>
   );
 };

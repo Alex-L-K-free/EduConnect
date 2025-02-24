@@ -2,12 +2,13 @@ import React from 'react';
 import backgroundImage from '../assets/images/background.jpg';
 import './HomePage.css';
 // import './Sidebar.css'; // Импортируйте стили для Sidebar
-// import Sidebar from './layout/Sidebar';
+import Sidebar from './layout/Sidebar';
 // import eduConnectLogo from '../assets/images/educonnect-logo.png';
 
 const HomePage = () => {
   return (
     <div className="home-page">
+      <Sidebar />
       <div className="background-image" 
         style={{ backgroundImage: `url(${backgroundImage})` }} 
       />
