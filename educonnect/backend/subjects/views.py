@@ -41,10 +41,9 @@ def subject_list(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['DELETE'])
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def subject_detail(request, subject_id):
-    logger.debug(f"Delete subject {subject_id} request from user {request.user.username}")
     try:
         subject = Subject.objects.get(id=subject_id)
     except Subject.DoesNotExist:
@@ -53,22 +52,41 @@ def subject_detail(request, subject_id):
             status=status.HTTP_404_NOT_FOUND
         )
 
-    # Проверяем роль пользователя
-    if request.user.role not in [User.TEACHER, User.ADMIN]:
-        return Response(
-            {'error': 'У вас нет прав на удаление предметов'},
-            status=status.HTTP_403_FORBIDDEN
-        )
+    if request.method == 'DELETE':
+        if request.user.role == User.TEACHER:
+            if not TeacherSubject.objects.filter(teacher=request.user, subject=subject).exists():
+                return Response(
+                    {'error': 'У вас нет прав на удаление этого предмета'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        
+        subject.delete()
+        return Response({'message': 'Предмет успешно удален'}, status=status.HTTP_204_NO_CONTENT)
 
-    if request.user.role == User.TEACHER:
-        if not TeacherSubject.objects.filter(teacher=request.user, subject=subject).exists():
-            return Response(
-                {'error': 'У вас нет прав на удаление этого предмета'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-    
-    subject.delete()
-    return Response({'message': 'Предмет успешно удален'}, status=status.HTTP_204_NO_CONTENT)
+    elif request.method == 'PUT':
+        if request.user.role == User.TEACHER:
+            if not TeacherSubject.objects.filter(teacher=request.user, subject=subject).exists():
+                return Response(
+                    {'error': 'У вас нет прав на редактирование этого предмета'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+        serializer = SubjectSerializer(subject, data=request.data, context={'request': request})
+        if serializer.is_valid():
+            try:
+                serializer.save()
+                return Response(serializer.data)
+            except Exception as e:
+                return Response(
+                    {'error': str(e)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response(
+        {'error': 'Метод не поддерживается'},
+        status=status.HTTP_405_METHOD_NOT_ALLOWED
+    )
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -95,33 +113,3 @@ def enroll_subject(request, subject_id):
             {'error': 'Предмет не найден'},
             status=status.HTTP_404_NOT_FOUND
         )
-
-@api_view(['PUT'])
-@permission_classes([IsAuthenticated])
-def subject_detail(request, subject_id):
-    try:
-        subject = Subject.objects.get(id=subject_id)
-    except Subject.DoesNotExist:
-        return Response(
-            {'error': 'Предмет не найден'},
-            status=status.HTTP_404_NOT_FOUND
-        )
-
-    if request.user.role == User.TEACHER:
-        if not TeacherSubject.objects.filter(teacher=request.user, subject=subject).exists():
-            return Response(
-                {'error': 'У вас нет прав на редактирование этого предмета'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-
-    serializer = SubjectSerializer(subject, data=request.data, context={'request': request})
-    if serializer.is_valid():
-        try:
-            serializer.save()
-            return Response(serializer.data)
-        except Exception as e:
-            return Response(
-                {'error': str(e)},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

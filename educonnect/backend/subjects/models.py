@@ -15,8 +15,16 @@ class Subject(models.Model):
         verbose_name_plural = 'Предметы'
     
     def save(self, *args, **kwargs):
-        if not self.pk:
+        if not self.pk:  # Только при создании
             base_code = self.code
+            self.code = f"{self.name.lower().replace(' ', '_')}-{self.grade}-{base_code}"
+        elif not self.code.startswith(f"{self.name.lower().replace(' ', '_')}-"):
+            # При обновлении, если код не соответствует формату
+            parts = self.code.split('-')
+            if len(parts) >= 3:
+                base_code = parts[-1]
+            else:
+                base_code = self.code
             self.code = f"{self.name.lower().replace(' ', '_')}-{self.grade}-{base_code}"
         super().save(*args, **kwargs)
     
