@@ -17,6 +17,8 @@ const SubjectsList = ({ mode = 'teacher' }) => {
   const [editingSubject, setEditingSubject] = useState(null);
 
   const fetchSubjects = useCallback(async () => {
+    if (!user || !user.token) return;
+
     try {
       const response = await fetch('http://127.0.0.1:8000/api/v1/subjects/', {
         headers: {
@@ -32,11 +34,13 @@ const SubjectsList = ({ mode = 'teacher' }) => {
     } catch (error) {
       setError('Ошибка при загрузке предметов');
     }
-  }, [user.token]);
+  }, [user]);
 
   useEffect(() => {
-    fetchSubjects();
-  }, [fetchSubjects]);
+    if (user && user.token) {
+      fetchSubjects();
+    }
+  }, [fetchSubjects, user]);
 
   const handleAddSubject = async (e) => {
     e.preventDefault();
