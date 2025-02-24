@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import SidebarTeacher from './layout/SidebarTeacher';
 import TeacherProfile from './forms/teachers/TeacherProfile';
-import TeacherSubjects from './forms/teachers/TeacherSubjects';
+import TeacherSubjects from './forms/subjects/SubjectsList';
 
 const TeacherDashboard = () => {
   const [currentView, setCurrentView] = useState('main');

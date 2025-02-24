@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, ListGroup, Button, Modal, Form, Alert } from 'react-bootstrap';
 import { useUser } from '../../../UserContext';
-import './TeacherSubjects.css';
+import './SubjectsList.css';
 
 const TeacherSubjects = () => {
   const { user } = useUser();
