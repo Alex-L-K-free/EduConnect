@@ -33,7 +33,7 @@ class Subject(models.Model):
 
 class SubjectEnrollment(models.Model):
     subject = models.ForeignKey(Subject, verbose_name='Предмет', on_delete=models.CASCADE, related_name='enrollments')
-    student = models.ForeignKey(User, verbose_name='Студент', on_delete=models.CASCADE, related_name='subject_enrollments')
+    student = models.ForeignKey(User, verbose_name='Ученик', on_delete=models.CASCADE, related_name='subject_enrollments')
     enrolled_at = models.DateTimeField('Дата записи', auto_now_add=True)
     
     class Meta:
@@ -44,11 +44,11 @@ class SubjectEnrollment(models.Model):
 
 class TeacherSubject(models.Model):
     subject = models.ForeignKey(Subject, verbose_name='Предмет', on_delete=models.CASCADE, related_name='teachers')
-    teacher = models.ForeignKey(User, verbose_name='Преподаватель', on_delete=models.CASCADE, related_name='teaching_subjects')
+    teacher = models.ForeignKey(User, verbose_name='Учитель', on_delete=models.CASCADE, related_name='teaching_subjects')
     assigned_at = models.DateTimeField('Дата назначения', auto_now_add=True)
     
     class Meta:
         db_table = 'teacher_subjects'
         unique_together = ['subject', 'teacher']
-        verbose_name = 'Назначение преподавателя'
-        verbose_name_plural = 'Назначения преподавателей'
+        verbose_name = 'Назначение учителя'
+        verbose_name_plural = 'Назначения учителя'

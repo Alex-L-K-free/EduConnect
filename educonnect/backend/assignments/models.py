@@ -22,12 +22,12 @@ class Assignment(models.Model):
 
 class AssignmentSubmission(models.Model):
     assignment = models.ForeignKey(Assignment, verbose_name='Задание', on_delete=models.CASCADE, related_name='submissions')
-    student = models.ForeignKey(User, verbose_name='Студент', on_delete=models.CASCADE, related_name='assignment_submissions')
+    student = models.ForeignKey(User, verbose_name='Ученик', on_delete=models.CASCADE, related_name='assignment_submissions')
     submitted_at = models.DateTimeField('Дата отправки', auto_now_add=True)
     file = models.FileField('Файл', upload_to='submissions/', null=True, blank=True)
     comment = models.TextField('Комментарий', blank=True)
     score = models.PositiveIntegerField('Оценка', null=True, blank=True)
-    feedback = models.TextField('Отзыв преподавателя', blank=True)
+    feedback = models.TextField('Отзыв учителя', blank=True)
     graded_at = models.DateTimeField('Дата оценки', null=True, blank=True)
     
     class Meta:

@@ -182,7 +182,7 @@ const SubjectsList = ({ mode = 'teacher' }) => {
                   <br />
                   <small className="text-muted">
                     Код: {subject.code}
-                    {subject.teacher_name && ` | Преподаватель: ${subject.teacher_name}`}
+                    {subject.teacher_name && ` | Учитель: ${subject.teacher_name}`}
                   </small>
                 </div>
                 <div>
