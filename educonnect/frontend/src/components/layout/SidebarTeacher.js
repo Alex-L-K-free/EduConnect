@@ -54,11 +54,17 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
               >
                 <a href="#!">Мои предметы</a>
               </li>
+              <li 
+                className={activePage === 'student' ? 'active' : ''}
+                onClick={(e) => handleSubmenuClick('student', e)}
+              >
+                <a href="#!">Мои ученики</a>
+              </li>
             </ul>
           )}
         </li>
         {/* <li className={activePage === 'student' ? 'active' : ''}>
-          <a href="/student">ученика</a>
+          <a href="/student">Мои ученики</a>
         </li> */}
          {/* Добавьте другие элементы навигации для ученика */}
       </ul>
