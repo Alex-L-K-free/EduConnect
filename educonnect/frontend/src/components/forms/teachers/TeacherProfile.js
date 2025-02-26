@@ -27,14 +27,9 @@ const TeacherProfile = () => {
     last_name: '',
     middle_name: '',
     school_name: '',
-    // email: '',
-    // telegram: '',
-    // viber: '',
     about: '',
-    contacts: {},
-    // specialization: '',
-    // subjects: []
-  });
+    contacts: {}
+ });
   const [isEditing, setIsEditing] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [newPassword, setNewPassword] = useState({ current: '', new: '', confirm: '' });
@@ -102,12 +97,8 @@ const TeacherProfile = () => {
       last_name: editedProfile.last_name,
       middle_name: editedProfile.middle_name,
       school_name: editedProfile.school_name,
-      // email: editedProfile.email || '',
-      // telegram: editedProfile.telegram || '',
-      // viber: editedProfile.viber || '',
       about: editedProfile.about || '',
       contacts: editedContacts
-      // specialization: editedProfile.specialization || ''
     };
 
     console.log('Отправляемые данные:', updateData);
@@ -265,39 +256,6 @@ const TeacherProfile = () => {
               />
             </Form.Group>
             
-            {/* <Form.Group className="mb-3">
-              <Form.Label>Email</Form.Label>
-              <Form.Control
-                type="email"
-                name="email"
-                value={isEditing ? editedProfile.email : profile.email}
-                onChange={handleChange}
-                disabled={!isEditing}
-              />
-            </Form.Group> */}
-
-            {/* <Form.Group className="mb-3">
-              <Form.Label>Telegram</Form.Label>
-              <Form.Control
-                type="text"
-                name="telegram"
-                value={isEditing ? editedProfile.telegram : profile.telegram}
-                onChange={handleChange}
-                disabled={!isEditing}
-              />
-            </Form.Group> */}
-
-            {/* <Form.Group className="mb-3">
-              <Form.Label>Viber</Form.Label>
-              <Form.Control
-                type="text"
-                name="viber"
-                value={isEditing ? editedProfile.viber : profile.viber}
-                onChange={handleChange}
-                disabled={!isEditing}
-              />
-            </Form.Group> */}
-
             {/* <Form onSubmit={handleSubmit}> */}
             <Form.Group className="mb-3">
               <Form.Label>Контактные данные</Form.Label>
