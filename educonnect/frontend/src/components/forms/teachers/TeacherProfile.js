@@ -10,12 +10,14 @@ const TeacherProfile = () => {
     username: '',
     first_name: '',
     last_name: '',
+    middle_name: '',
+    school_name: '',
     email: '',
     telegram: '',
     viber: '',
     about: '',
-    specialization: '',
-    subjects: []
+    // specialization: '',
+    // subjects: []
   });
   const [isEditing, setIsEditing] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -63,11 +65,12 @@ const TeacherProfile = () => {
     const updateData = {
       first_name: editedProfile.first_name,
       last_name: editedProfile.last_name,
+      middle_name: editedProfile.middle_name,
       email: editedProfile.email || '',
       telegram: editedProfile.telegram || '',
       viber: editedProfile.viber || '',
       about: editedProfile.about || '',
-      specialization: editedProfile.specialization || ''
+      // specialization: editedProfile.specialization || ''
     };
 
     console.log('Отправляемые данные:', updateData);
@@ -170,6 +173,17 @@ const TeacherProfile = () => {
             </Form.Group>
             
             <Form.Group className="mb-3">
+              <Form.Label>Фамилия</Form.Label>
+              <Form.Control
+                type="text"
+                name="last_name"
+                value={isEditing ? editedProfile.last_name : profile.last_name}
+                onChange={handleChange}
+                disabled={!isEditing}
+              />
+            </Form.Group>
+            
+            <Form.Group className="mb-3">
               <Form.Label>Имя</Form.Label>
               <Form.Control
                 type="text"
@@ -181,16 +195,39 @@ const TeacherProfile = () => {
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Фамилия</Form.Label>
+              <Form.Label>Отчество</Form.Label>
               <Form.Control
                 type="text"
-                name="last_name"
-                value={isEditing ? editedProfile.last_name : profile.last_name}
+                name="middle_name"
+                value={isEditing ? editedProfile.middle_name : profile.middle_name}
                 onChange={handleChange}
                 disabled={!isEditing}
               />
             </Form.Group>
 
+            <Form.Group className="mb-3">
+              <Form.Label>Наименование школы</Form.Label>
+              <Form.Control
+                type="text"
+                name="school_name"
+                value={isEditing ? editedProfile.school_name : profile.school_name}
+                onChange={handleChange}
+                disabled={!isEditing}
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>О себе</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={1}
+                name="about"
+                value={isEditing ? editedProfile.about : profile.about}
+                onChange={handleChange}
+                disabled={!isEditing}
+              />
+            </Form.Group>
+            
             <Form.Group className="mb-3">
               <Form.Label>Email</Form.Label>
               <Form.Control
@@ -224,19 +261,9 @@ const TeacherProfile = () => {
               />
             </Form.Group>
 
-            <Form.Group className="mb-3">
-              <Form.Label>О себе</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                name="about"
-                value={isEditing ? editedProfile.about : profile.about}
-                onChange={handleChange}
-                disabled={!isEditing}
-              />
-            </Form.Group>
+            
 
-            <Form.Group className="mb-3">
+            {/* <Form.Group className="mb-3">
               <Form.Label>Специализация</Form.Label>
               <Form.Control
                 type="text"
@@ -245,7 +272,7 @@ const TeacherProfile = () => {
                 onChange={handleChange}
                 disabled={!isEditing}
               />
-            </Form.Group>
+            </Form.Group> */}
 
             <div className="d-flex justify-content-between mt-4">
               {!isEditing ? (
