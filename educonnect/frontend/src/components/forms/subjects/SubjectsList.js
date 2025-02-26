@@ -178,7 +178,7 @@ const SubjectsList = ({ mode = 'teacher' }) => {
                 className="d-flex justify-content-between align-items-center"
               >
                 <div>
-                  <strong>{subject.name}</strong> - {subject.grade} {subject.code} класс
+                  <strong>{subject.name}</strong> - {subject.grade} класс
                   <br />
                   <small className="text-muted">
                     Код: {subject.code}
