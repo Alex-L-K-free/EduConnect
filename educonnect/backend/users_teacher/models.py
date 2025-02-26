@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from education_core.models import User
 
 User = get_user_model()
 
@@ -12,10 +13,13 @@ class TeacherUser(models.Model):
         primary_key=True,
         related_name='teacher_profile'
     )
+    middle_name = models.CharField(max_length=100, blank=True, default='')
+    school_name = models.CharField(max_length=200, blank=True, default='')
+    about = models.TextField(blank=True, default='')
     telegram = models.CharField(max_length=100, blank=True, default='')
     viber = models.CharField(max_length=100, blank=True, default='')
-    about = models.TextField(blank=True, default='')
     specialization = models.CharField(max_length=200, blank=True, default='')
+    contacts = models.JSONField(blank=True, default=dict)
 
     class Meta:
         verbose_name = 'Teacher Profile'

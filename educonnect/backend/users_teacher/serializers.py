@@ -67,12 +67,16 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
     viber = serializers.CharField(allow_blank=True, required=False)
     about = serializers.CharField(allow_blank=True, required=False)
     specialization = serializers.CharField(allow_blank=True, required=False)
+    middle_name = serializers.CharField(required=False)
+    school_name = serializers.CharField(required=False)
+    contacts = serializers.JSONField(required=False)
 
     class Meta:
         model = TeacherUser
         fields = [
             'username', 'first_name', 'last_name', 'email',
-            'telegram', 'viber', 'about', 'subjects', 'specialization'
+            'telegram', 'viber', 'about', 'subjects', 'specialization',
+            'middle_name', 'school_name', 'contacts'
         ]
 
     def get_subjects(self, obj):
@@ -87,12 +91,10 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
         ]
 
     def update(self, instance, validated_data):
-        if 'user' in validated_data:
-            user_data = validated_data.pop('user')
-            user = instance.user
-            for attr, value in user_data.items():
-                setattr(user, attr, value)
-            user.save()
+        user_data = validated_data.pop('user', {})
+        for attr, value in user_data.items():
+            setattr(instance.user, attr, value)
+        instance.user.save()
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -111,7 +113,10 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
             'viber': instance.viber or '',
             'about': instance.about or '',
             'specialization': instance.specialization or '',
-            'subjects': self.get_subjects(instance)
+            'subjects': self.get_subjects(instance),
+            'middle_name': instance.middle_name or '',
+            'school_name': instance.school_name or '',
+            'contacts': instance.contacts or {}
         }
 
 class SubjectSerializer(serializers.ModelSerializer):

@@ -68,41 +68,11 @@ def teacher_profile(request):
         )
 
     if request.method == 'PUT':
-        logger.debug(f"Received PUT request data: {request.data}")
-        
-        # Обновляем данные пользователя
-        user = teacher.user
-        if 'first_name' in request.data:
-            user.first_name = request.data['first_name']
-        if 'last_name' in request.data:
-            user.last_name = request.data['last_name']
-        if 'email' in request.data:
-            user.email = request.data['email']
-        user.save()
-        
-        # Обновляем данные учителя
-        teacher_data = {
-            'telegram': request.data.get('telegram', teacher.telegram),
-            'viber': request.data.get('viber', teacher.viber),
-            'about': request.data.get('about', teacher.about),
-            'specialization': request.data.get('specialization', teacher.specialization)
-        }
-        
-        serializer = TeacherProfileSerializer(teacher, data=teacher_data, partial=True)
+        serializer = TeacherProfileSerializer(teacher, data=request.data, partial=True)
         if serializer.is_valid():
-            try:
-                updated_teacher = serializer.save()
-                response_data = TeacherProfileSerializer(updated_teacher).data
-                logger.debug(f"Updated profile response: {response_data}")
-                return Response(response_data)
-            except Exception as e:
-                logger.error(f"Error updating teacher profile: {str(e)}")
-                return Response(
-                    {'error': str(e)},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        
-        logger.error(f"Serializer validation errors: {serializer.errors}")
+            updated_teacher = serializer.save()
+            return Response(serializer.data)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # GET request
