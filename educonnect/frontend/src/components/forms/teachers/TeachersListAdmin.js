@@ -20,8 +20,9 @@ const TeachersListAdmin = ({ teachers, onAddTeacher }) => {
         <thead>
           <tr>
             <th>Логин</th>
-            <th>Имя</th>
             <th>Фамилия</th>
+            <th>Имя</th>
+            <th>Отчество</th>
             <th>Действия</th>
           </tr>
         </thead>
@@ -29,8 +30,9 @@ const TeachersListAdmin = ({ teachers, onAddTeacher }) => {
           {teachers.map((teacher) => (
             <tr key={teacher.id}>
               <td>{teacher.username}</td>
+              <td>{teacher.lastName}</td> 
               <td>{teacher.firstName}</td>
-              <td>{teacher.lastName}</td>
+              <td>{teacher.middle_name}</td>
               <td>
                 <Button variant="outline-primary" size="sm">
                   Редактировать

@@ -6,10 +6,9 @@ const TeacherRegistrationForm = ({ onSuccess }) => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    // email: '',
-    firstName: '',
     lastName: '',
-    // specialization: ''
+    firstName: '',
+    middleName: '',
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -47,8 +46,9 @@ const TeacherRegistrationForm = ({ onSuccess }) => {
         setFormData({
           username: '',
           password: '',
-          firstName: '',
           lastName: '',
+          firstName: '',
+          middleName: '',
         });
         if (onSuccess) {
           onSuccess(data);
@@ -91,17 +91,17 @@ const TeacherRegistrationForm = ({ onSuccess }) => {
           />
         </Form.Group>
 
-        {/* <Form.Group className="mb-3">
-          <Form.Label>Email</Form.Label>
+        <Form.Group className="mb-3">
+          <Form.Label>Фамилия</Form.Label>
           <Form.Control
-            type="email"
-            name="email"
-            value={formData.email}
+            type="text"
+            name="lastName"
+            value={formData.lastName}
             onChange={handleChange}
             required
           />
-        </Form.Group> */}
-
+        </Form.Group>
+        
         <Form.Group className="mb-3">
           <Form.Label>Имя</Form.Label>
           <Form.Control
@@ -114,26 +114,15 @@ const TeacherRegistrationForm = ({ onSuccess }) => {
         </Form.Group>
 
         <Form.Group className="mb-3">
-          <Form.Label>Фамилия</Form.Label>
+          <Form.Label>Отчество</Form.Label>
           <Form.Control
             type="text"
-            name="lastName"
-            value={formData.lastName}
+            name="middleName"
+            value={formData.middleName}
             onChange={handleChange}
             required
           />
         </Form.Group>
-
-        {/* <Form.Group className="mb-3">
-          <Form.Label>Специализация</Form.Label>
-          <Form.Control
-            type="text"
-            name="specialization"
-            value={formData.specialization}
-            onChange={handleChange}
-            required
-          />
-        </Form.Group> */}
 
         <Button variant="primary" type="submit">
           Зарегистрировать учителя
