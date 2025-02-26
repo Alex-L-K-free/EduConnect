@@ -7,7 +7,7 @@ class SubjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subject
-        fields = ['id', 'name', 'grade', 'code', 'teacher_name', 'is_enrolled']
+        fields = ['id', 'name', 'grade', 'index', 'code', 'teacher_name', 'is_enrolled']
 
     def get_teacher_name(self, obj):
         teacher = obj.teachers.first()

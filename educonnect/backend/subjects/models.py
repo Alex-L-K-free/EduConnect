@@ -4,7 +4,8 @@ from education_core.models import User
 class Subject(models.Model):
     name = models.CharField('Название', max_length=100)
     grade = models.CharField('Класс', max_length=20)
-    code = models.CharField('Код предмета', max_length=50, unique=True)
+    index = models.CharField(max_length=1, verbose_name='Индекс класса', blank=True, null=True)
+    code = models.CharField('Код предмета', max_length=50, unique=True, editable=False)
     created_at = models.DateTimeField('Дата создания', auto_now_add=True)
     updated_at = models.DateTimeField('Дата обновления', auto_now=True)
     
@@ -15,17 +16,8 @@ class Subject(models.Model):
         verbose_name_plural = 'Предметы'
     
     def save(self, *args, **kwargs):
-        if not self.pk:  # Только при создании
-            base_code = self.code
-            self.code = f"{self.name.lower().replace(' ', '_')}-{self.grade}-{base_code}"
-        elif not self.code.startswith(f"{self.name.lower().replace(' ', '_')}-"):
-            # При обновлении, если код не соответствует формату
-            parts = self.code.split('-')
-            if len(parts) >= 3:
-                base_code = parts[-1]
-            else:
-                base_code = self.code
-            self.code = f"{self.name.lower().replace(' ', '_')}-{self.grade}-{base_code}"
+        # Формируем код предмета автоматически
+        self.code = f"{self.name.lower().replace(' ', '_')}-{self.grade}-{self.index}"
         super().save(*args, **kwargs)
     
     def __str__(self):

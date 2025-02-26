@@ -10,7 +10,7 @@ const SubjectsList = ({ mode = 'teacher' }) => {
   const [newSubject, setNewSubject] = useState({ 
     name: '', 
     grade: '', 
-    code: '' 
+    index: ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -51,7 +51,11 @@ const SubjectsList = ({ mode = 'teacher' }) => {
           'Authorization': `Token ${user.token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(newSubject)
+        body: JSON.stringify({
+          name: newSubject.name,
+          grade: newSubject.grade,
+          index: newSubject.index,
+        })
       });
 
       if (!response.ok) {
@@ -60,7 +64,7 @@ const SubjectsList = ({ mode = 'teacher' }) => {
       }
 
       setShowSubjectModal(false);
-      setNewSubject({ name: '', grade: '', code: '' });
+      setNewSubject({ name: '', grade: '', index: '' });
       setSuccess('Предмет успешно добавлен');
       fetchSubjects();
     } catch (error) {
@@ -77,7 +81,11 @@ const SubjectsList = ({ mode = 'teacher' }) => {
           'Authorization': `Token ${user.token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(newSubject)
+        body: JSON.stringify({
+          name: newSubject.name,
+          grade: newSubject.grade,
+          index: newSubject.index,
+        })
       });
 
       if (!response.ok) {
@@ -87,7 +95,7 @@ const SubjectsList = ({ mode = 'teacher' }) => {
 
       setShowSubjectModal(false);
       setEditingSubject(null);
-      setNewSubject({ name: '', grade: '', code: '' });
+      setNewSubject({ name: '', grade: '', index: '' });
       setSuccess('Предмет успешно обновлен');
       fetchSubjects();
     } catch (error) {
@@ -124,7 +132,7 @@ const SubjectsList = ({ mode = 'teacher' }) => {
     setNewSubject({
       name: subject.name,
       grade: subject.grade,
-      code: subject.code
+      index: subject.index,
     });
     setShowSubjectModal(true);
   };
@@ -178,7 +186,7 @@ const SubjectsList = ({ mode = 'teacher' }) => {
                 className="d-flex justify-content-between align-items-center"
               >
                 <div>
-                  <strong>{subject.name}</strong> - {subject.grade} класс
+                  <strong>{subject.name}</strong> - {subject.grade} {subject.index} класс
                   <br />
                   <small className="text-muted">
                     Код: {subject.code}
@@ -224,7 +232,7 @@ const SubjectsList = ({ mode = 'teacher' }) => {
       <Modal show={showSubjectModal} onHide={() => {
         setShowSubjectModal(false);
         setEditingSubject(null);
-        setNewSubject({ name: '', grade: '', code: '' });
+        setNewSubject({ name: '', grade: '', index: '' });
       }}>
         <Modal.Header closeButton>
           <Modal.Title>
@@ -255,8 +263,8 @@ const SubjectsList = ({ mode = 'teacher' }) => {
               <Form.Label>Индекс класса</Form.Label>
               <Form.Control
                 type="text"
-                value={newSubject.code}
-                onChange={(e) => setNewSubject({...newSubject, code: e.target.value})}
+                value={newSubject.index}
+                onChange={(e) => setNewSubject({...newSubject, index: e.target.value})}
                 required
               />
             </Form.Group>
