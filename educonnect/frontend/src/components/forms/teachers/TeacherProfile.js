@@ -176,7 +176,7 @@ const TeacherProfile = () => {
     <div className="teacher-profile">
       <Card>
         <Card.Header>
-          <h2>Профиль учителя</h2>
+          <h3>Профиль учителя</h3>
         </Card.Header>
         <Card.Body>
           {error && (
@@ -374,5 +374,18 @@ const TeacherProfile = () => {
     </div>
   );
 };
+
+
+// // Изменение масштаба при изменении размера окна
+// window.addEventListener('resize', () => {
+//   const scaleFactor = 1 / window.devicePixelRatio;
+//   document.documentElement.style.setProperty('--scale-factor', scaleFactor);
+// });
+
+// // Инициализация при загрузке страницы
+// document.addEventListener('DOMContentLoaded', () => {
+//   const scaleFactor = 1 / window.devicePixelRatio;
+//   document.documentElement.style.setProperty('--scale-factor', scaleFactor);
+// });
 
 export default TeacherProfile;

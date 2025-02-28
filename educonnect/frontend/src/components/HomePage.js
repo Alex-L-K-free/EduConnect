@@ -28,4 +28,16 @@ const HomePage = () => {
   );
 };
 
-export default HomePage; 
+// Изменение масштаба при изменении размера окна
+window.addEventListener('resize', () => {
+  const scaleFactor = 1 / window.devicePixelRatio;
+  document.documentElement.style.setProperty('--scale-factor', scaleFactor);
+});
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', () => {
+  const scaleFactor = 1 / window.devicePixelRatio;
+  document.documentElement.style.setProperty('--scale-factor', scaleFactor);
+});
+
+export default HomePage;

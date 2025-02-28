@@ -146,7 +146,8 @@
   backdrop-filter: blur(10px);
   transform-style: preserve-3d;
   perspective: 1000px;
-  height: calc(100vh - 100px); /* Высота от навбара до футера */
+  /*height: calc(100vh - 100px); !* Высота от навбара до футера *!*/
+  height: calc(100vh - 34px - 32px); /* Высота от header до footer */
   position: fixed; /* Фиксируем сайдбар */
   top: 32px; /* Отступ от верха равен высоте навбара */
   left: 0; /* Прижимаем к левому краю */
@@ -164,7 +165,7 @@
 /* Main Content */
 .main-content {
   flex: 1;
-  padding: 20px;
+  padding: 0px;
   background-color: #f9f9f9;
   overflow: auto;
   margin-left: 200px; /* Отступ слева равен ширине сайдбара */

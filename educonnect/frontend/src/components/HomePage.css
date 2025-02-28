@@ -1,7 +1,8 @@
 .home-page {
   position: relative;
   width: 100%;
-  height: calc(100vh - var(--header-height) - var(--footer-height));
+  /* height: calc(100vh - var(--header-height) - var(--footer-height)); */
+  height: calc(100vh - 34px - 32px);
   overflow: hidden;
 }
 
@@ -11,6 +12,8 @@
   left: 0;
   right: 0;
   bottom: 0;
+  width: 100vw;
+  height: calc(100vh - var(--header-height) - var(--footer-height));
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -28,7 +31,15 @@
   padding: 1rem;
 }
 
+:root {
+  --scale-factor: 1;
+}
+
 .content-box {
+  transform: scale(var(--scale-factor));
+  transform-origin: center;
+  transition: transform 0.3s ease;
+
   background: rgba(0, 0, 0, 0.7);
   padding: 3rem;
   border-radius: 15px;
@@ -38,6 +49,16 @@
   backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
+/*.content-box {*/
+/*  background: rgba(0, 0, 0, 0.7);*/
+/*  padding: 3rem;*/
+/*  border-radius: 15px;*/
+/*  max-width: 800px;*/
+/*  width: 90%;*/
+/*  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);*/
+/*  backdrop-filter: blur(5px);*/
+/*  border: 1px solid rgba(255, 255, 255, 0.1);*/
+/*}*/
 
 .home-page h1 {
   color: #ffffff;
@@ -45,6 +66,7 @@
   margin-bottom: 1.5rem;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   font-weight: 600;
+  text-align: center;
 }
 
 .home-page h2 {

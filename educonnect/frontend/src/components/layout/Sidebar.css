@@ -1,3 +1,9 @@
+.sidebar-logo {
+  width: 100%; /* Или установите фиксированную ширину, например, 150px */
+  height: auto; /* Сохраняем пропорции */
+  margin-bottom: 20px; /* Отступ снизу */
+}
+
 .sidebar h2 {
   color: var(--primary-dark);
   margin-bottom: 20px;
