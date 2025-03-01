@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, ListGroup, Button, Form, Alert } from 'react-bootstrap';
 import { useUser } from '../../../UserContext';
+import * as XLSX from 'xlsx';
 import './StudentsList.css';
 
 const initialStudentState = {
@@ -24,6 +25,7 @@ const StudentsList = () => {
     const [indices, setIndices] = useState([]);
     const [teacherSubjects, setTeacherSubjects] = useState([]);
     const [editingStudent, setEditingStudent] = useState(null);
+    const fileInputRef = useRef(null);
 
     // Получаем список предметов учителя
     const fetchTeacherSubjects = useCallback(async () => {
@@ -207,6 +209,69 @@ const StudentsList = () => {
         }
     };
 
+    const handleFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = e.target.result;
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+                // Проверяем наличие необходимых полей
+                if (!jsonData.length || !jsonData[0].hasOwnProperty('Фамилия') || 
+                    !jsonData[0].hasOwnProperty('Имя')) {
+                    setError('Файл должен содержать столбцы "Фамилия" и "Имя"');
+                    return;
+                }
+
+                // Подготавливаем данные студента из текущей формы
+                const baseStudent = {
+                    subject: newStudent.subject,
+                    grade: newStudent.grade,
+                    index: newStudent.index
+                };
+
+                // Добавляем всех студентов из файла
+                Promise.all(jsonData.map(row => 
+                    fetch('http://127.0.0.1:8000/api/v1/students/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Token ${user.token}`,
+                        },
+                        body: JSON.stringify({
+                            ...baseStudent,
+                            lastName: row['Фамилия'],
+                            firstName: row['Имя'],
+                            middleName: row['Отчество'] || ''
+                        })
+                    }).then(response => response.json())
+                ))
+                .then(results => {
+                    setStudents(prev => [...prev, ...results]);
+                    setSuccess(`Успешно добавлено ${results.length} учеников`);
+                    if (fileInputRef.current) {
+                        fileInputRef.current.value = '';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error importing students:', error);
+                    setError('Ошибка при импорте учеников');
+                });
+
+            } catch (error) {
+                console.error('Error reading file:', error);
+                setError('Ошибка при чтении файла');
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    };
+
     return (
         <div className="students-list">
             <Card>
@@ -297,6 +362,16 @@ const StudentsList = () => {
                                             placeholder="Отчество"
                                             value={newStudent.middleName}
                                             onChange={(e) => setNewStudent({...newStudent, middleName: e.target.value})}
+                                        />
+                                    </Form.Group>
+
+                                    <Form.Group className="mb-0">
+                                        <Form.Control
+                                            type="file"
+                                            accept=".xlsx,.xls"
+                                            onChange={handleFileUpload}
+                                            ref={fileInputRef}
+                                            style={{ width: 'auto' }}
                                         />
                                     </Form.Group>
 
