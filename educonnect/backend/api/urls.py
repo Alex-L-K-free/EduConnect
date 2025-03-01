@@ -25,5 +25,6 @@ urlpatterns = [
     path('teachers/subjects/', manage_subjects, name='manage-subjects'),
     path('users/me/', current_user, name='current-user'),
     path('subjects/', include('subjects.urls', namespace='subjects')),
+    path('students/', include('users_student.urls', namespace='students')),
     # Здесь будем добавлять другие URL-паттерны
 ] 
