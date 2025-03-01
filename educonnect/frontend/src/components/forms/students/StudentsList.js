@@ -22,19 +22,54 @@ const StudentsList = () => {
     const [subjects, setSubjects] = useState([]);
     const [grades, setGrades] = useState([]);
     const [indices, setIndices] = useState([]);
+    const [teacherSubjects, setTeacherSubjects] = useState([]);
 
-    // Получаем список предметов, классов и индексов из существующих учеников
+    // Получаем список предметов учителя
+    const fetchTeacherSubjects = useCallback(async () => {
+        if (!user || !user.token) return;
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/v1/subjects/', {
+                headers: {
+                    'Authorization': `Token ${user.token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) throw new Error('Ошибка при загрузке предметов');
+            
+            const data = await response.json();
+            // Преобразуем данные в нужный формат
+            const subjectsData = data.map(subject => ({
+                name: subject.name,
+                grade: subject.grade,
+                code: subject.code
+            }));
+            setTeacherSubjects(subjectsData);
+        } catch (error) {
+            console.error('Ошибка при загрузке предметов:', error);
+        }
+    }, [user]);
+
+    // Получаем списки для выпадающих меню
     useEffect(() => {
-        if (students.length > 0) {
-            const uniqueSubjects = [...new Set(students.map(s => s.subject))];
-            const uniqueGrades = [...new Set(students.map(s => s.grade))];
-            const uniqueIndices = [...new Set(students.map(s => s.index))];
+        if (teacherSubjects.length > 0) {
+            const uniqueSubjects = [...new Set(teacherSubjects.map(s => s.name))];
+            const uniqueGrades = [...new Set(teacherSubjects.map(s => s.grade))];
+            const uniqueIndices = [...new Set(teacherSubjects.map(s => s.code.split('-')[2]))]; // Получаем индекс из кода
             
             setSubjects(uniqueSubjects.filter(Boolean));
             setGrades(uniqueGrades.filter(Boolean));
             setIndices(uniqueIndices.filter(Boolean));
         }
-    }, [students]);
+    }, [teacherSubjects]);
+
+    // Загружаем предметы при монтировании компонента
+    useEffect(() => {
+        if (user && user.token) {
+            fetchTeacherSubjects();
+        }
+    }, [fetchTeacherSubjects, user]);
 
     // Загрузка списка учеников
     const fetchStudents = useCallback(async () => {
