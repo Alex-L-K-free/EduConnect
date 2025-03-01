@@ -3,11 +3,7 @@ import { Card, ListGroup, Button, Modal, Form, Alert } from 'react-bootstrap';
 import { useUser } from '../../../UserContext';
 import './StudentsList.css';
 
-const StudentsList = ({ mode = 'teacher' }) => {
-  const { user } = useUser();
-  const [students, setStudents] = useState([]);
-  const [showStudentModal, setShowStudentModal] = useState(false);
-  const [newStudent, setNewStudent] = useState({ 
+const initialStudentState = {
     username: '',
     lastName: '',
     firstName: '',
@@ -15,7 +11,13 @@ const StudentsList = ({ mode = 'teacher' }) => {
     subject: '',
     grade: '',
     index: ''
-  });
+};
+
+const StudentsList = ({ mode = 'teacher' }) => {
+  const { user } = useUser();
+  const [students, setStudents] = useState([]);
+  const [showStudentModal, setShowStudentModal] = useState(false);
+  const [newStudent, setNewStudent] = useState(initialStudentState);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [editingStudent, setEditingStudent] = useState(null);
@@ -72,14 +74,7 @@ const StudentsList = ({ mode = 'teacher' }) => {
       const data = await response.json();
       setStudents([...students, data]);
       setShowStudentModal(false);
-      setNewStudent({
-        firstName: '',
-        lastName: '',
-        middleName: '',
-        grade: '',
-        subject: '',
-        index: ''
-      });
+      setNewStudent(initialStudentState);
       setSuccess('Ученик успешно добавлен');
     } catch (error) {
       setError('Ошибка при добавлении ученика');
@@ -106,7 +101,7 @@ const StudentsList = ({ mode = 'teacher' }) => {
 
       setShowStudentModal(false);
       setEditingStudent(null);
-      setNewStudent({ username: '', lastName: '', firstName: '',  middleName: '', subject: '', grade: '', index: '' });
+      setNewStudent(initialStudentState);
       setSuccess('Данные ученика успешно обновлены');
       fetchStudents();
     } catch (error) {
@@ -150,6 +145,12 @@ const StudentsList = ({ mode = 'teacher' }) => {
       index: student.index,
     });
     setShowStudentModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowStudentModal(false);
+    setEditingStudent(null);
+    setNewStudent(initialStudentState);
   };
 
   return (
@@ -208,11 +209,7 @@ const StudentsList = ({ mode = 'teacher' }) => {
         </Card.Body>
       </Card>
 
-      <Modal show={showStudentModal} onHide={() => {
-        setShowStudentModal(false);
-        setEditingStudent(null);
-        setNewStudent({ username: '',  lastName: '', firstName: '', middleName: '', subject: '', grade: '', index: '' });
-      }}>
+      <Modal show={showStudentModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>
             {editingStudent ? 'Редактирование ученика' : 'Добавление ученика'}
