@@ -23,6 +23,7 @@ const StudentsList = () => {
     const [grades, setGrades] = useState([]);
     const [indices, setIndices] = useState([]);
     const [teacherSubjects, setTeacherSubjects] = useState([]);
+    const [editingStudent, setEditingStudent] = useState(null);
 
     // Получаем список предметов учителя
     const fetchTeacherSubjects = useCallback(async () => {
@@ -98,11 +99,32 @@ const StudentsList = () => {
         }
     }, [fetchStudents, user]);
 
+    const handleStartEdit = (student) => {
+        setEditingStudent(student.id);
+        setNewStudent({
+            firstName: student.firstName,
+            lastName: student.lastName,
+            middleName: student.middleName || '',
+            subject: student.subject,
+            grade: student.grade,
+            index: student.index
+        });
+        setIsAdding(true);
+    };
+
     const handleAddStudent = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/v1/students/', {
-                method: 'POST',
+            let url = 'http://127.0.0.1:8000/api/v1/students/';
+            let method = 'POST';
+
+            if (editingStudent) {
+                url += `${editingStudent}/`;
+                method = 'PUT';
+            }
+
+            const response = await fetch(url, {
+                method: method,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Token ${user.token}`,
@@ -111,16 +133,23 @@ const StudentsList = () => {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to add student');
+                throw new Error(editingStudent ? 'Failed to update student' : 'Failed to add student');
             }
 
             const data = await response.json();
-            setStudents([...students, data]);
+            if (editingStudent) {
+                setStudents(students.map(s => s.id === editingStudent ? data : s));
+                setSuccess('Данные ученика успешно обновлены');
+            } else {
+                setStudents([...students, data]);
+                setSuccess('Ученик успешно добавлен');
+            }
+            
             setNewStudent(initialStudentState);
             setIsAdding(false);
-            setSuccess('Ученик успешно добавлен');
+            setEditingStudent(null);
         } catch (error) {
-            setError('Ошибка при добавлении ученика');
+            setError(editingStudent ? 'Ошибка при обновлении ученика' : 'Ошибка при добавлении ученика');
             console.error('Error:', error);
         }
     };
@@ -155,14 +184,15 @@ const StudentsList = () => {
                 <Card.Header>
                     <div className="d-flex justify-content-between align-items-center">
                         <h5 className="mb-0">Мои ученики</h5>
-                        <Button 
-                            variant="primary" 
-                            size="sm" 
-                            onClick={() => setIsAdding(true)}
-                            disabled={isAdding}
-                        >
-                            Добавить ученика
-                        </Button>
+                        {!isAdding && (
+                            <Button 
+                                variant="primary" 
+                                size="sm" 
+                                onClick={() => setIsAdding(true)}
+                            >
+                                Добавить ученика
+                            </Button>
+                        )}
                     </div>
                 </Card.Header>
                 <Card.Body>
@@ -242,7 +272,7 @@ const StudentsList = () => {
                                     </Form.Group>
 
                                     <Button type="submit" variant="success" size="sm">
-                                        Сохранить
+                                        {editingStudent ? 'Сохранить изменения' : 'Сохранить'}
                                     </Button>
                                     <Button 
                                         variant="secondary" 
@@ -250,6 +280,7 @@ const StudentsList = () => {
                                         onClick={() => {
                                             setIsAdding(false);
                                             setNewStudent(initialStudentState);
+                                            setEditingStudent(null);
                                         }}
                                     >
                                         Отмена
@@ -272,13 +303,23 @@ const StudentsList = () => {
                                         {student.username ? ` Логин: ${student.username}` : ' Не зарегистрирован'}
                                     </small>
                                 </div>
-                                <Button
-                                    variant="outline-danger"
-                                    size="sm"
-                                    onClick={() => handleDeleteStudent(student.id)}
-                                >
-                                    Удалить
-                                </Button>
+                                <div>
+                                    <Button
+                                        variant="outline-primary"
+                                        size="sm"
+                                        className="me-2"
+                                        onClick={() => handleStartEdit(student)}
+                                    >
+                                        Редактировать
+                                    </Button>
+                                    <Button
+                                        variant="outline-danger"
+                                        size="sm"
+                                        onClick={() => handleDeleteStudent(student.id)}
+                                    >
+                                        Удалить
+                                    </Button>
+                                </div>
                             </ListGroup.Item>
                         ))}
                     </ListGroup>
