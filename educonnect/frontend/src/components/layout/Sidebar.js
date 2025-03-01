@@ -7,8 +7,9 @@ const Sidebar = ({ activePage }) => {
   return (
     <div className="sidebar">
       {/* <img src={logo} alt="Логотип" className="sidebar-logo" /> */}
-      {/*<img src={logo} alt="Логотип" className="sidebar-logo"/>*/}
-        {/*<img src={logo} alt="Логотип" className="sidebar-logo"/> Добавляем логотип*/}
+      <div className="registration-warning">
+       <h6> Необходимо войти или зарегистрироваться для продолжения!</h6>
+      </div>
       {/* <h2>главная</h2>
       <ul>
         <li className={activePage === 'home' ? 'active' : ''}>

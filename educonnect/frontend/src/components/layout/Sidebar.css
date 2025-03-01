@@ -126,4 +126,18 @@
 
 .cabinet-item.open .submenu {
   max-height: 200px; /* Достаточная высота для содержимого */
+}
+
+.registration-warning {
+  color: red; /* Цвет текста */
+  font-weight: bold; /* Жирный шрифт */
+  animation: blink 1s infinite; /* Мигающий эффект */
+  margin-top: 20px; /* Отступ сверху */
+  text-align: center; /* Выравнивание по центру */
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
 } 
