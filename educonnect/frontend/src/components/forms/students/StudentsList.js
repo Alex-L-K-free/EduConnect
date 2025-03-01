@@ -100,14 +100,15 @@ const StudentsList = () => {
     }, [fetchStudents, user]);
 
     const handleStartEdit = (student) => {
+        console.log('Starting edit for student:', student);
         setEditingStudent(student.id);
         setNewStudent({
-            firstName: student.firstName,
-            lastName: student.lastName,
+            firstName: student.firstName || '',
+            lastName: student.lastName || '',
             middleName: student.middleName || '',
-            subject: student.subject,
-            grade: student.grade,
-            index: student.index
+            subject: student.subject || '',
+            grade: student.grade || '',
+            index: student.index || ''
         });
         setIsAdding(true);
     };
@@ -123,25 +124,53 @@ const StudentsList = () => {
                 method = 'PUT';
             }
 
+            const studentData = {
+                firstName: newStudent.firstName,
+                lastName: newStudent.lastName,
+                middleName: newStudent.middleName || '',
+                subject: newStudent.subject,
+                grade: newStudent.grade,
+                index: newStudent.index
+            };
+
+            console.log('Sending data:', studentData);
+            console.log('To URL:', url);
+            console.log('Method:', method);
+
             const response = await fetch(url, {
                 method: method,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Token ${user.token}`,
                 },
-                body: JSON.stringify(newStudent),
+                body: JSON.stringify(studentData),
             });
 
+            const data = await response.json();
+            console.log('Response data:', data);
+
             if (!response.ok) {
+                console.error('Server error:', data);
                 throw new Error(editingStudent ? 'Failed to update student' : 'Failed to add student');
             }
 
-            const data = await response.json();
             if (editingStudent) {
-                setStudents(students.map(s => s.id === editingStudent ? data : s));
+                setStudents(prevStudents => {
+                    const updated = prevStudents.map(student => {
+                        if (student.id === editingStudent) {
+                            console.log('Updating student:', student.id);
+                            console.log('Old data:', student);
+                            console.log('New data:', data);
+                            return { ...student, ...data };
+                        }
+                        return student;
+                    });
+                    console.log('Updated students list:', updated);
+                    return updated;
+                });
                 setSuccess('Данные ученика успешно обновлены');
             } else {
-                setStudents([...students, data]);
+                setStudents(prevStudents => [...prevStudents, data]);
                 setSuccess('Ученик успешно добавлен');
             }
             

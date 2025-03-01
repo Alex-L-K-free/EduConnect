@@ -12,12 +12,14 @@ class StudentSerializer(serializers.ModelSerializer):
         return student
 
     def update(self, instance, validated_data):
-        # Обновляем только данные ученика
+        # Явно обновляем каждое поле
+        instance.firstName = validated_data.get('firstName', instance.firstName)
+        instance.lastName = validated_data.get('lastName', instance.lastName)
+        instance.middleName = validated_data.get('middleName', instance.middleName)
         instance.grade = validated_data.get('grade', instance.grade)
-        instance.index = validated_data.get('index', instance.index)
         instance.subject = validated_data.get('subject', instance.subject)
+        instance.index = validated_data.get('index', instance.index)
         instance.save()
-        
         return instance
 
     def to_representation(self, instance):

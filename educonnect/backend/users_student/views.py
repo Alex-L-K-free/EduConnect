@@ -41,10 +41,13 @@ def student_detail(request, pk):
         return Response(serializer.data)
 
     elif request.method == 'PUT':
+        print("Received data for update:", request.data)  # Отладочная информация
         serializer = StudentSerializer(student, data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            updated_student = serializer.save()
+            print("Updated student:", StudentSerializer(updated_student).data)  # Отладочная информация
             return Response(serializer.data)
+        print("Validation errors:", serializer.errors)  # Отладочная информация
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
