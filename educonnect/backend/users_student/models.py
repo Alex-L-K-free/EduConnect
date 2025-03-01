@@ -4,7 +4,17 @@ from education_core.models import User
 # Create your models here.
 
 class StudentUser(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    # Автоматически создаваемый ID будет первичным ключом
+    user = models.OneToOneField(
+        User, 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True,
+        related_name='student_profile'
+    )
+    firstName = models.CharField('Имя', max_length=150)
+    lastName = models.CharField('Фамилия', max_length=150)
+    middleName = models.CharField('Отчество', max_length=150, blank=True)
     grade = models.CharField('Класс', max_length=10)
     index = models.CharField('Индекс класса', max_length=5)
     subject = models.CharField('Предмет', max_length=100, blank=True)
@@ -14,4 +24,7 @@ class StudentUser(models.Model):
         verbose_name_plural = 'Ученики'
         
     def __str__(self):
-        return f"{self.user.get_full_name()} - {self.grade}{self.index}"
+        name = f"{self.lastName} {self.firstName}"
+        if self.middleName:
+            name += f" {self.middleName}"
+        return f"{name} - {self.grade}{self.index}"

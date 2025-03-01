@@ -18,17 +18,15 @@ def student_list(request):
         return Response(serializer.data)
     
     elif request.method == 'POST':
-        if request.user.role != User.TEACHER:
-            return Response(
-                {'error': 'Только учитель может добавлять учеников'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
+        print("Received data:", request.data)
         serializer = StudentSerializer(data=request.data)
         if serializer.is_valid():
+            print("Data is valid")
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            print("Validation errors:", serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
@@ -43,12 +41,6 @@ def student_detail(request, pk):
         return Response(serializer.data)
 
     elif request.method == 'PUT':
-        if request.user.role != User.TEACHER:
-            return Response(
-                {'error': 'Только учитель может редактировать учеников'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
         serializer = StudentSerializer(student, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -56,11 +48,5 @@ def student_detail(request, pk):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
-        if request.user.role != User.TEACHER:
-            return Response(
-                {'error': 'Только учитель может удалять учеников'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
-        student.user.delete()  # Это также удалит связанного студента
+        student.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

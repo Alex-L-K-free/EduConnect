@@ -52,23 +52,38 @@ const StudentsList = ({ mode = 'teacher' }) => {
       const response = await fetch('http://127.0.0.1:8000/api/v1/students/', {
         method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Token ${user.token}`,
-          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(newStudent)
+        body: JSON.stringify({
+          firstName: newStudent.firstName,
+          lastName: newStudent.lastName,
+          middleName: newStudent.middleName || '',
+          grade: newStudent.grade,
+          subject: newStudent.subject || '',
+          index: newStudent.index
+        }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Ошибка при добавлении ученика');
+        throw new Error('Failed to add student');
       }
 
+      const data = await response.json();
+      setStudents([...students, data]);
       setShowStudentModal(false);
-      setNewStudent({ username: '', lastName: '', firstName: '',  middleName: '', subject: '', grade: '', index: '',  });
+      setNewStudent({
+        firstName: '',
+        lastName: '',
+        middleName: '',
+        grade: '',
+        subject: '',
+        index: ''
+      });
       setSuccess('Ученик успешно добавлен');
-      fetchStudents();
     } catch (error) {
-      setError(error.message);
+      setError('Ошибка при добавлении ученика');
+      console.error('Error:', error);
     }
   };
 

@@ -44,7 +44,7 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     
     # API URLs будут добавляться здесь
-    path('api/v1/', include('api.urls', namespace='api')),
+    path('api/v1/', include('api.urls')),
 ]
 
 if settings.DEBUG:
