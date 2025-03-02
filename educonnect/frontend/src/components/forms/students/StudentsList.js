@@ -607,13 +607,23 @@ const StudentsList = () => {
                                         onChange={() => handleSelectStudent(student.id)}
                                         className="me-3"
                                     />
+                                    <div className="student-login me-3">
+                                        {student.username ? (
+                                            <span className="login-badge registered">
+                                                {student.username}
+                                            </span>
+                                        ) : (
+                                            <span className="login-badge not-registered">
+                                                Не зарегистрирован
+                                            </span>
+                                        )}
+                                    </div>
                                     <div>
                                         <strong>{student.lastName} {student.firstName} {student.middleName}</strong>
                                         <br />
                                         <small className="text-muted">
                                             Предмет: {student.subject} | 
-                                            Класс: {student.grade}{student.index} |
-                                            {student.username ? ` Логин: ${student.username}` : ' Не зарегистрирован'}
+                                            Класс: {student.grade}{student.index}
                                         </small>
                                     </div>
                                 </div>
