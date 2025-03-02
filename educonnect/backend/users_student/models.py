@@ -4,6 +4,12 @@ from education_core.models import User
 # Create your models here.
 
 class StudentUser(models.Model):
+    STUDENT = 'student'
+    
+    ROLE_CHOICES = [
+        (STUDENT, 'Ученик'),
+    ]
+    
     # Автоматически создаваемый ID будет первичным ключом
     user = models.OneToOneField(
         User, 
@@ -18,6 +24,12 @@ class StudentUser(models.Model):
     grade = models.CharField('Класс', max_length=10)
     index = models.CharField('Индекс класса', max_length=5)
     subject = models.CharField('Предмет', max_length=100, blank=True)
+    role = models.CharField(
+        'Роль',
+        max_length=10,
+        choices=ROLE_CHOICES,
+        default=STUDENT
+    )
     
     class Meta:
         verbose_name = 'Ученик'
