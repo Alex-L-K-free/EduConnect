@@ -598,9 +598,9 @@ const StudentsList = () => {
                         {filteredStudents.map((student) => (
                             <ListGroup.Item 
                                 key={student.id}
-                                className="d-flex justify-content-between align-items-center"
+                                className="student-row"
                             >
-                                <div className="d-flex align-items-center">
+                                <div className="d-flex align-items-center flex-grow-1">
                                     <Form.Check
                                         type="checkbox"
                                         checked={selectedStudents.includes(student.id)}
@@ -618,16 +618,22 @@ const StudentsList = () => {
                                             </span>
                                         )}
                                     </div>
-                                    <div>
+                                    <div className="student-name">
                                         <strong>{student.lastName} {student.firstName} {student.middleName}</strong>
-                                        <br />
-                                        <small className="text-muted">
-                                            Предмет: {student.subject} | 
-                                            Класс: {student.grade}{student.index}
-                                        </small>
+                                    </div>
+                                    <div className="student-details">
+                                        <div className="detail-badge subject">
+                                            {student.subject}
+                                        </div>
+                                        <div className="detail-badge grade">
+                                            {student.grade}
+                                        </div>
+                                        <div className="detail-badge index">
+                                            {student.index}
+                                        </div>
                                     </div>
                                 </div>
-                                <div>
+                                <div className="student-actions">
                                     <Button
                                         variant="outline-primary"
                                         size="sm"
