@@ -395,6 +395,22 @@ const StudentsList = () => {
         return matchesSearch && matchesFilters;
     }).sort((a, b) => a.lastName.localeCompare(b.lastName));
 
+    // Добавляем функции подсчета
+    const getUniqueStudentsCount = (students) => {
+        const uniqueNames = new Set(
+            students.map(s => `${s.lastName} ${s.firstName} ${s.middleName}`.trim())
+        );
+        return uniqueNames.size;
+    };
+
+    const getUniqueSubjectsCount = (students) => {
+        return new Set(students.map(s => s.subject)).size;
+    };
+
+    const getUniqueClassesCount = (students) => {
+        return new Set(students.map(s => `${s.grade}${s.index}`)).size;
+    };
+
     return (
         <div className="students-list">
             <Card>
@@ -587,12 +603,32 @@ const StudentsList = () => {
                     
                     <ListGroup>
                         <ListGroup.Item className="list-header">
-                            <Form.Check
-                                type="checkbox"
-                                checked={selectAll}
-                                onChange={(e) => handleSelectAll(e.target.checked)}
-                                label="Выбрать всех"
-                            />
+                            <div className="list-header-content">
+                                <div className="header-section checkbox-section">
+                                    <Form.Check
+                                        type="checkbox"
+                                        checked={selectAll}
+                                        onChange={(e) => handleSelectAll(e.target.checked)}
+                                        label="Выбрать всех"
+                                    />
+                                </div>
+                                <div className="header-section name-section">
+                                    <div className="counter-badge">
+                                        {getUniqueStudentsCount(filteredStudents)} учеников
+                                    </div>
+                                </div>
+                                <div className="header-section subject-section">
+                                    <div className="counter-badge">
+                                        {getUniqueSubjectsCount(filteredStudents)} предметов
+                                    </div>
+                                </div>
+                                <div className="header-section class-section">
+                                    <div className="counter-badge">
+                                        {getUniqueClassesCount(filteredStudents)} классов
+                                    </div>
+                                </div>
+                                <div className="header-section actions-section"></div>
+                            </div>
                         </ListGroup.Item>
                         
                         {filteredStudents.map((student) => (
