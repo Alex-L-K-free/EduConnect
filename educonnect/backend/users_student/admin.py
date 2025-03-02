@@ -3,6 +3,7 @@ from .models import StudentUser
 
 @admin.register(StudentUser)
 class StudentUserAdmin(admin.ModelAdmin):
-    list_display = ('user', 'grade')
-    list_filter = ('grade',)
-    search_fields = ('user__username', 'user__email', 'user__first_name', 'user__last_name', 'grade')
+    # list_display = ('user', 'grade')
+    list_display = ('user__username', 'lastName', 'firstName', 'middleName', 'subject', 'grade', 'index', 'user__role')
+    list_filter = ('user__username', 'lastName', 'firstName', 'middleName', 'subject', 'grade', 'index', 'user__role')
+    search_fields = ('user__username', 'lastName', 'firstName', 'middleName', 'subject', 'grade', 'index', 'user__role')
