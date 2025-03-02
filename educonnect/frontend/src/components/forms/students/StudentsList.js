@@ -26,6 +26,14 @@ const StudentsList = () => {
     const [teacherSubjects, setTeacherSubjects] = useState([]);
     const [editingStudent, setEditingStudent] = useState(null);
     const fileInputRef = useRef(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [filterCriteria, setFilterCriteria] = useState({
+        name: '',
+        subject: '',
+        grade: '',
+        index: ''
+    });
 
     // Получаем список предметов учителя
     const fetchTeacherSubjects = useCallback(async () => {
@@ -304,6 +312,28 @@ const StudentsList = () => {
         reader.readAsArrayBuffer(file);
     };
 
+    // Функция фильтрации студентов
+    const filteredStudents = students.filter(student => {
+        const fullName = `${student.lastName} ${student.firstName} ${student.middleName}`.toLowerCase();
+        const searchLower = searchTerm.toLowerCase();
+        const matchesSearch = searchTerm === '' || 
+            fullName.includes(searchLower) ||
+            student.subject.toLowerCase().includes(searchLower) ||
+            `${student.grade}${student.index}`.toLowerCase().includes(searchLower);
+
+        const matchesFilters = 
+            (filterCriteria.name === '' || 
+                fullName.includes(filterCriteria.name.toLowerCase())) &&
+            (filterCriteria.subject === '' || 
+                student.subject.toLowerCase().includes(filterCriteria.subject.toLowerCase())) &&
+            (filterCriteria.grade === '' || 
+                student.grade.includes(filterCriteria.grade)) &&
+            (filterCriteria.index === '' || 
+                student.index.toLowerCase().includes(filterCriteria.index.toLowerCase()));
+
+        return matchesSearch && matchesFilters;
+    }).sort((a, b) => a.lastName.localeCompare(b.lastName));
+
     return (
         <div className="students-list">
             <Card>
@@ -324,7 +354,69 @@ const StudentsList = () => {
                 <Card.Body>
                     {error && <Alert variant="danger">{error}</Alert>}
                     {success && <Alert variant="success">{success}</Alert>}
-                    
+
+                    <Button
+                        variant="link"
+                        className="d-flex align-items-center mb-3"
+                        onClick={() => setIsExpanded(!isExpanded)}
+                    >
+                        <i className={`fas fa-chevron-${isExpanded ? 'down' : 'right'} me-2`}></i>
+                        Поиск и фильтры
+                    </Button>
+
+                    {isExpanded && (
+                        <div className="search-filters mb-3">
+                            <Form className="mb-3">
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Быстрый поиск..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="mb-3"
+                                />
+                                
+                                <div className="filter-grid">
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Поиск по ФИО"
+                                        value={filterCriteria.name}
+                                        onChange={(e) => setFilterCriteria({
+                                            ...filterCriteria,
+                                            name: e.target.value
+                                        })}
+                                    />
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Предмет"
+                                        value={filterCriteria.subject}
+                                        onChange={(e) => setFilterCriteria({
+                                            ...filterCriteria,
+                                            subject: e.target.value
+                                        })}
+                                    />
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Класс"
+                                        value={filterCriteria.grade}
+                                        onChange={(e) => setFilterCriteria({
+                                            ...filterCriteria,
+                                            grade: e.target.value
+                                        })}
+                                    />
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Индекс"
+                                        value={filterCriteria.index}
+                                        onChange={(e) => setFilterCriteria({
+                                            ...filterCriteria,
+                                            index: e.target.value
+                                        })}
+                                    />
+                                </div>
+                            </Form>
+                        </div>
+                    )}
+
                     <ListGroup>
                         {isAdding && (
                             <ListGroup.Item>
@@ -425,7 +517,7 @@ const StudentsList = () => {
                             </ListGroup.Item>
                         )}
 
-                        {students.map((student) => (
+                        {filteredStudents.map((student) => (
                             <ListGroup.Item 
                                 key={student.id}
                                 className="d-flex justify-content-between align-items-center"
