@@ -111,6 +111,25 @@ const StudentsList = () => {
         }
     }, [fetchStudents, user]);
 
+    // Добавляем useEffect для автоматического скрытия уведомлений
+    useEffect(() => {
+        if (success) {
+            const timer = setTimeout(() => {
+                setSuccess('');
+            }, 3000); // Уведомление исчезнет через 3 секунды
+            return () => clearTimeout(timer);
+        }
+    }, [success]);
+
+    useEffect(() => {
+        if (error) {
+            const timer = setTimeout(() => {
+                setError('');
+            }, 3000); // Уведомление об ошибке исчезнет через 3 секунды
+            return () => clearTimeout(timer);
+        }
+    }, [error]);
+
     const handleStartEdit = (student) => {
         console.log('Starting edit for student:', student);
         setEditingStudent(student.id);
@@ -359,10 +378,114 @@ const StudentsList = () => {
                         )}
                     </div>
                 </Card.Header>
-                <Card.Body>
-                    {error && <Alert variant="danger">{error}</Alert>}
-                    {success && <Alert variant="success">{success}</Alert>}
 
+                {/* Выносим уведомления в отдельный блок */}
+                <div className="notifications">
+                    {error && <Alert variant="danger" className="fade-alert">{error}</Alert>}
+                    {success && <Alert variant="success" className="fade-alert">{success}</Alert>}
+                </div>
+
+                {/* Фиксированная панель добавления ученика */}
+                <div className="fixed-add-panel">
+                    {isAdding && (
+                        <Form onSubmit={handleAddStudent} className="d-flex gap-2 align-items-end">
+                            <Form.Group className="mb-0 flex-grow-1">
+                                <Form.Select 
+                                    value={newStudent.subject}
+                                    onChange={(e) => setNewStudent({...newStudent, subject: e.target.value})}
+                                    required={!fileInputRef.current?.files?.length}
+                                >
+                                    <option value="">Выберите предмет</option>
+                                    {subjects.map(subject => (
+                                        <option key={subject} value={subject}>{subject}</option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+
+                            <Form.Group className="mb-0">
+                                <Form.Select 
+                                    value={newStudent.grade}
+                                    onChange={(e) => setNewStudent({...newStudent, grade: e.target.value})}
+                                    required={!fileInputRef.current?.files?.length}
+                                >
+                                    <option value="">Класс</option>
+                                    {grades.map(grade => (
+                                        <option key={grade} value={grade}>{grade}</option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+
+                            <Form.Group className="mb-0">
+                                <Form.Select 
+                                    value={newStudent.index}
+                                    onChange={(e) => setNewStudent({...newStudent, index: e.target.value})}
+                                    required={!fileInputRef.current?.files?.length}
+                                >
+                                    <option value="">Индекс</option>
+                                    {indices.map(index => (
+                                        <option key={index} value={index}>{index}</option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+
+                            <Form.Group className="mb-0 flex-grow-1">
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Фамилия"
+                                    value={newStudent.lastName}
+                                    onChange={(e) => setNewStudent({...newStudent, lastName: e.target.value})}
+                                    required={!fileInputRef.current?.files?.length}
+                                />
+                            </Form.Group>
+
+                            <Form.Group className="mb-0 flex-grow-1">
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Имя"
+                                    value={newStudent.firstName}
+                                    onChange={(e) => setNewStudent({...newStudent, firstName: e.target.value})}
+                                    required={!fileInputRef.current?.files?.length}
+                                />
+                            </Form.Group>
+
+                            <Form.Group className="mb-0 flex-grow-1">
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Отчество"
+                                    value={newStudent.middleName}
+                                    onChange={(e) => setNewStudent({...newStudent, middleName: e.target.value})}
+                                />
+                            </Form.Group>
+
+                            <Form.Group className="mb-0">
+                                <Form.Control
+                                    type="file"
+                                    accept=".xlsx,.xls"
+                                    onChange={handleFileUpload}
+                                    ref={fileInputRef}
+                                    style={{ width: 'auto' }}
+                                />
+                            </Form.Group>
+
+                            <Button type="submit" variant="success" size="sm">
+                                {editingStudent ? 'Сохранить изменения' : 'Сохранить'}
+                            </Button>
+                            <Button 
+                                variant="secondary" 
+                                size="sm"
+                                onClick={() => {
+                                    setIsAdding(false);
+                                    setNewStudent(initialStudentState);
+                                    setEditingStudent(null);
+                                }}
+                            >
+                                Отмена
+                            </Button>
+                        </Form>
+                    )}
+                </div>
+
+                <Card.Body>
                     <Button
                         variant="link"
                         className="d-flex align-items-center mb-3"
@@ -426,105 +549,6 @@ const StudentsList = () => {
                     )}
 
                     <ListGroup>
-                        {isAdding && (
-                            <ListGroup.Item>
-                                <Form onSubmit={handleAddStudent} className="d-flex gap-2 align-items-end">
-                                    <Form.Group className="mb-0 flex-grow-1">
-                                        <Form.Select 
-                                            value={newStudent.subject}
-                                            onChange={(e) => setNewStudent({...newStudent, subject: e.target.value})}
-                                            required={!fileInputRef.current?.files?.length}
-                                        >
-                                            <option value="">Выберите предмет</option>
-                                            {subjects.map(subject => (
-                                                <option key={subject} value={subject}>{subject}</option>
-                                            ))}
-                                        </Form.Select>
-                                    </Form.Group>
-
-                                    <Form.Group className="mb-0">
-                                        <Form.Select 
-                                            value={newStudent.grade}
-                                            onChange={(e) => setNewStudent({...newStudent, grade: e.target.value})}
-                                            required={!fileInputRef.current?.files?.length}
-                                        >
-                                            <option value="">Класс</option>
-                                            {grades.map(grade => (
-                                                <option key={grade} value={grade}>{grade}</option>
-                                            ))}
-                                        </Form.Select>
-                                    </Form.Group>
-
-                                    <Form.Group className="mb-0">
-                                        <Form.Select 
-                                            value={newStudent.index}
-                                            onChange={(e) => setNewStudent({...newStudent, index: e.target.value})}
-                                            required={!fileInputRef.current?.files?.length}
-                                        >
-                                            <option value="">Индекс</option>
-                                            {indices.map(index => (
-                                                <option key={index} value={index}>{index}</option>
-                                            ))}
-                                        </Form.Select>
-                                    </Form.Group>
-
-                                    <Form.Group className="mb-0 flex-grow-1">
-                                        <Form.Control
-                                            type="text"
-                                            placeholder="Фамилия"
-                                            value={newStudent.lastName}
-                                            onChange={(e) => setNewStudent({...newStudent, lastName: e.target.value})}
-                                            required={!fileInputRef.current?.files?.length}
-                                        />
-                                    </Form.Group>
-
-                                    <Form.Group className="mb-0 flex-grow-1">
-                                        <Form.Control
-                                            type="text"
-                                            placeholder="Имя"
-                                            value={newStudent.firstName}
-                                            onChange={(e) => setNewStudent({...newStudent, firstName: e.target.value})}
-                                            required={!fileInputRef.current?.files?.length}
-                                        />
-                                    </Form.Group>
-
-                                    <Form.Group className="mb-0 flex-grow-1">
-                                        <Form.Control
-                                            type="text"
-                                            placeholder="Отчество"
-                                            value={newStudent.middleName}
-                                            onChange={(e) => setNewStudent({...newStudent, middleName: e.target.value})}
-                                        />
-                                    </Form.Group>
-
-                                    <Form.Group className="mb-0">
-                                        <Form.Control
-                                            type="file"
-                                            accept=".xlsx,.xls"
-                                            onChange={handleFileUpload}
-                                            ref={fileInputRef}
-                                            style={{ width: 'auto' }}
-                                        />
-                                    </Form.Group>
-
-                                    <Button type="submit" variant="success" size="sm">
-                                        {editingStudent ? 'Сохранить изменения' : 'Сохранить'}
-                                    </Button>
-                                    <Button 
-                                        variant="secondary" 
-                                        size="sm"
-                                        onClick={() => {
-                                            setIsAdding(false);
-                                            setNewStudent(initialStudentState);
-                                            setEditingStudent(null);
-                                        }}
-                                    >
-                                        Отмена
-                                    </Button>
-                                </Form>
-                            </ListGroup.Item>
-                        )}
-
                         {filteredStudents.map((student) => (
                             <ListGroup.Item 
                                 key={student.id}

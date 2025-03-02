@@ -193,3 +193,46 @@
     background: var(--secondary-color);
     border: none;
 }
+
+/* Стили для исчезающих уведомлений */
+.notifications {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    min-width: 300px;
+}
+
+.fade-alert {
+    animation: fadeIn 0.3s ease-in, fadeOut 0.5s ease-out 2.5s forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-20px); }
+}
+
+/* Стили для фиксированной панели добавления */
+.fixed-add-panel {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: white;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 1rem;
+}
+
+.fixed-add-panel form {
+    margin: 0;
+}
+
+/* Корректируем отступы для основного контента */
+.students-list .card-body {
+    padding-top: 0;
+}
