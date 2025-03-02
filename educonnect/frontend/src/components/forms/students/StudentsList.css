@@ -103,10 +103,10 @@
 }
 
 .search-filters {
-  background-color: #f8f9fa;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  margin-bottom: 0;
 }
 
 .filter-grid {
@@ -217,7 +217,7 @@
     to { opacity: 0; transform: translateY(-20px); }
 }
 
-/* Стили для фиксированной панели добавления */
+/* Обновляем стили для фиксированных панелей */
 .fixed-add-panel {
     position: sticky;
     top: 0;
@@ -225,14 +225,33 @@
     background: white;
     padding: 1rem;
     border-bottom: 1px solid var(--border-color);
+    margin-bottom: 0;
+    display: none; /* По умолчанию скрыта */
+}
+
+.fixed-add-panel.visible {
+    display: block;
+    height: var(--add-panel-height);
+}
+
+/* Стили для фиксированной панели поиска */
+.fixed-search-panel {
+    position: sticky;
+    top: 0; /* По умолчанию сразу под заголовком */
+    z-index: 99;
+    background: white;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
     margin-bottom: 1rem;
+    transition: top 0.3s ease;
 }
 
-.fixed-add-panel form {
-    margin: 0;
+/* Когда панель добавления видима */
+.fixed-add-panel.visible + .fixed-search-panel {
+    top: var(--add-panel-height);
 }
 
-/* Корректируем отступы для основного контента */
-.students-list .card-body {
-    padding-top: 0;
+/* Добавляем CSS-переменную для высоты панели добавления */
+:root {
+    --add-panel-height: 80px;
 }

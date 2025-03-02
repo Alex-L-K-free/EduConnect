@@ -27,7 +27,7 @@ const StudentsList = () => {
     const [editingStudent, setEditingStudent] = useState(null);
     const fileInputRef = useRef(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [isExpanded, setIsExpanded] = useState(false);
+    // const [isExpanded, setIsExpanded] = useState(false);
     const [filterCriteria, setFilterCriteria] = useState({
         name: '',
         subject: '',
@@ -379,14 +379,14 @@ const StudentsList = () => {
                     </div>
                 </Card.Header>
 
-                {/* Выносим уведомления в отдельный блок */}
+                {/* Уведомления */}
                 <div className="notifications">
                     {error && <Alert variant="danger" className="fade-alert">{error}</Alert>}
                     {success && <Alert variant="success" className="fade-alert">{success}</Alert>}
                 </div>
 
-                {/* Фиксированная панель добавления ученика */}
-                <div className="fixed-add-panel">
+                {/* Фиксированная панель добавления */}
+                <div className={`fixed-add-panel ${isAdding ? 'visible' : ''}`}>
                     {isAdding && (
                         <Form onSubmit={handleAddStudent} className="d-flex gap-2 align-items-end">
                             <Form.Group className="mb-0 flex-grow-1">
@@ -485,69 +485,59 @@ const StudentsList = () => {
                     )}
                 </div>
 
-                <Card.Body>
-                    <Button
-                        variant="link"
-                        className="d-flex align-items-center mb-3"
-                        onClick={() => setIsExpanded(!isExpanded)}
-                    >
-                        <i className={`fas fa-chevron-${isExpanded ? 'down' : 'right'} me-2`}></i>
-                        Поиск и фильтры
-                    </Button>
-
-                    {isExpanded && (
-                        <div className="search-filters mb-3">
-                            <Form className="mb-3">
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Быстрый поиск..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="mb-3"
-                                />
-                                
-                                <div className="filter-grid">
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Поиск по ФИО"
-                                        value={filterCriteria.name}
-                                        onChange={(e) => setFilterCriteria({
-                                            ...filterCriteria,
-                                            name: e.target.value
-                                        })}
-                                    />
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Предмет"
-                                        value={filterCriteria.subject}
-                                        onChange={(e) => setFilterCriteria({
-                                            ...filterCriteria,
-                                            subject: e.target.value
-                                        })}
-                                    />
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Класс"
-                                        value={filterCriteria.grade}
-                                        onChange={(e) => setFilterCriteria({
-                                            ...filterCriteria,
-                                            grade: e.target.value
-                                        })}
-                                    />
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Индекс"
-                                        value={filterCriteria.index}
-                                        onChange={(e) => setFilterCriteria({
-                                            ...filterCriteria,
-                                            index: e.target.value
-                                        })}
-                                    />
-                                </div>
-                            </Form>
+                {/* Фиксированная панель поиска и фильтров */}
+                <div className="fixed-search-panel">
+                    <Form className="mb-3">
+                        <Form.Control
+                            type="text"
+                            placeholder="Быстрый поиск..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="mb-3"
+                        />
+                        
+                        <div className="filter-grid">
+                            <Form.Control
+                                type="text"
+                                placeholder="Поиск по ФИО"
+                                value={filterCriteria.name}
+                                onChange={(e) => setFilterCriteria({
+                                    ...filterCriteria,
+                                    name: e.target.value
+                                })}
+                            />
+                            <Form.Control
+                                type="text"
+                                placeholder="Предмет"
+                                value={filterCriteria.subject}
+                                onChange={(e) => setFilterCriteria({
+                                    ...filterCriteria,
+                                    subject: e.target.value
+                                })}
+                            />
+                            <Form.Control
+                                type="text"
+                                placeholder="Класс"
+                                value={filterCriteria.grade}
+                                onChange={(e) => setFilterCriteria({
+                                    ...filterCriteria,
+                                    grade: e.target.value
+                                })}
+                            />
+                            <Form.Control
+                                type="text"
+                                placeholder="Индекс"
+                                value={filterCriteria.index}
+                                onChange={(e) => setFilterCriteria({
+                                    ...filterCriteria,
+                                    index: e.target.value
+                                })}
+                            />
                         </div>
-                    )}
+                    </Form>
+                </div>
 
+                <Card.Body>
                     <ListGroup>
                         {filteredStudents.map((student) => (
                             <ListGroup.Item 
@@ -585,14 +575,9 @@ const StudentsList = () => {
                     </ListGroup>
                 </Card.Body>
             </Card>
-
-            {/* Добавляем модальное окно подтверждения */}
-            <Modal 
-                show={showConfirmModal} 
-                onHide={() => setShowConfirmModal(false)}
-                centered
-                className="confirm-modal"
-            >
+            
+            {/* Модальное окно подтверждения */}
+            <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered className="confirm-modal">
                 <Modal.Header closeButton>
                     <Modal.Title>Подтвердите действие</Modal.Title>
                 </Modal.Header>
