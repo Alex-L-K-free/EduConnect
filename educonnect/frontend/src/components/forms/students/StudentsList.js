@@ -411,6 +411,41 @@ const StudentsList = () => {
         return new Set(students.map(s => `${s.grade}${s.index}`)).size;
     };
 
+    // Обновляем функцию генерации кода ученика с проверкой на наличие user
+    const generateStudentCode = (student) => {
+        // Проверяем наличие user и его свойств
+        if (!user || !user.lastName || !user.firstName || !user.middleName) {
+            return (
+                <div className="student-code">
+                    <span className="code-label">Код: </span>
+                    <span className="code-value">
+                        {`${student.subject}-${student.grade}-${student.index}`}
+                    </span>
+                </div>
+            );
+        }
+
+        // Получаем код предмета и информацию об учителе из teacherSubjects
+        const subjectInfo = teacherSubjects.find(
+            s => s.name === student.subject && 
+                s.grade === student.grade
+        );
+
+        return (
+            <div className="student-code">
+                <span className="code-label">Код: </span>
+                <span className="code-value">
+                    {subjectInfo ? subjectInfo.code : `${student.subject}-${student.grade}-${student.index}`}
+                </span>
+                <span className="code-separator"> | </span>
+                <span className="teacher-label">Учитель: </span>
+                <span className="teacher-value">
+                    {user.lastName} {user.firstName} {user.middleName}
+                </span>
+            </div>
+        );
+    };
+
     return (
         <div className="students-list">
             <Card>
@@ -631,7 +666,7 @@ const StudentsList = () => {
                             </div>
                         </ListGroup.Item>
                         
-                        {filteredStudents.map((student) => (
+                        {filteredStudents.map((student, index) => (
                             <ListGroup.Item 
                                 key={student.id}
                                 className="student-row"
@@ -656,6 +691,7 @@ const StudentsList = () => {
                                     </div>
                                     <div className="student-name">
                                         <strong>{student.lastName} {student.firstName} {student.middleName}</strong>
+                                        {generateStudentCode(student)}
                                     </div>
                                     <div className="student-details">
                                         <div className="detail-badge subject">

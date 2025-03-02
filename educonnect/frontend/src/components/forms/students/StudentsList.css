@@ -337,6 +337,12 @@
 .student-name {
     min-width: 300px;
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.student-name strong {
+    line-height: 1.2;
 }
 
 .student-details {
@@ -461,4 +467,28 @@
 
 .list-header .form-check {
     margin-bottom: 0.5rem;
+}
+
+/* Добавляем стили для кода ученика */
+.student-code {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+    font-family: monospace;
+}
+
+.code-label,
+.teacher-label {
+    color: #495057;
+    font-weight: 500;
+}
+
+.code-value,
+.teacher-value {
+    color: #6c757d;
+}
+
+.code-separator {
+    color: #adb5bd;
+    margin: 0 0.5rem;
 }
