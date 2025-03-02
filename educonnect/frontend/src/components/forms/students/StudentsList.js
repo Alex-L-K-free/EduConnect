@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Card, ListGroup, Button, Form, Alert } from 'react-bootstrap';
+import { Card, ListGroup, Button, Form, Alert, Modal } from 'react-bootstrap';
 import { useUser } from '../../../UserContext';
 import * as XLSX from 'xlsx';
 import './StudentsList.css';
@@ -34,6 +34,8 @@ const StudentsList = () => {
         grade: '',
         index: ''
     });
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [studentToDelete, setStudentToDelete] = useState(null);
 
     // Получаем список предметов учителя
     const fetchTeacherSubjects = useCallback(async () => {
@@ -194,8 +196,6 @@ const StudentsList = () => {
     };
 
     const handleDeleteStudent = async (studentId) => {
-        if (!window.confirm('Вы уверены, что хотите удалить этого ученика?')) return;
-        
         try {
             const response = await fetch(`http://127.0.0.1:8000/api/v1/students/${studentId}/`, {
                 method: 'DELETE',
@@ -212,6 +212,8 @@ const StudentsList = () => {
 
             setSuccess('Ученик успешно удален');
             fetchStudents();
+            setShowConfirmModal(false);
+            setStudentToDelete(null);
         } catch (error) {
             setError(error.message);
         }
@@ -333,6 +335,12 @@ const StudentsList = () => {
 
         return matchesSearch && matchesFilters;
     }).sort((a, b) => a.lastName.localeCompare(b.lastName));
+
+    // Функция для открытия модального окна подтверждения
+    const confirmDelete = (student) => {
+        setStudentToDelete(student);
+        setShowConfirmModal(true);
+    };
 
     return (
         <div className="students-list">
@@ -543,7 +551,7 @@ const StudentsList = () => {
                                     <Button
                                         variant="outline-danger"
                                         size="sm"
-                                        onClick={() => handleDeleteStudent(student.id)}
+                                        onClick={() => confirmDelete(student)}
                                     >
                                         Удалить
                                     </Button>
@@ -553,6 +561,42 @@ const StudentsList = () => {
                     </ListGroup>
                 </Card.Body>
             </Card>
+
+            {/* Добавляем модальное окно подтверждения */}
+            <Modal 
+                show={showConfirmModal} 
+                onHide={() => setShowConfirmModal(false)}
+                centered
+                className="confirm-modal"
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Подтвердите действие</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {studentToDelete && (
+                        <p>
+                            Вы уверены, что хотите удалить ученика{' '}
+                            <strong>
+                                {studentToDelete.lastName} {studentToDelete.firstName} {studentToDelete.middleName}
+                            </strong>?
+                        </p>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button 
+                        variant="secondary" 
+                        onClick={() => setShowConfirmModal(false)}
+                    >
+                        Отмена
+                    </Button>
+                    <Button 
+                        variant="danger" 
+                        onClick={() => studentToDelete && handleDeleteStudent(studentToDelete.id)}
+                    >
+                        Удалить
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 };

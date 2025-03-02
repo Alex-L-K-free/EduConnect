@@ -133,3 +133,63 @@
 .btn-link[aria-expanded="true"] i {
   transform: rotate(180deg);
 }
+
+/* Стили для модального окна подтверждения */
+.confirm-modal .modal-content {
+    border: none;
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+}
+
+.confirm-modal .modal-header {
+    background: var(--gradient-primary);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    padding: 1rem 1.5rem;
+}
+
+.confirm-modal .modal-title {
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+
+.confirm-modal .modal-header .btn-close {
+    color: white;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+
+.confirm-modal .modal-header .btn-close:hover {
+    opacity: 1;
+}
+
+.confirm-modal .modal-body {
+    padding: 1.5rem;
+    font-size: 1rem;
+}
+
+.confirm-modal .modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.confirm-modal .btn {
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.confirm-modal .btn:hover {
+    transform: translateY(-1px);
+}
+
+.confirm-modal .btn-danger {
+    background: var(--danger-color);
+    border: none;
+}
+
+.confirm-modal .btn-secondary {
+    background: var(--secondary-color);
+    border: none;
+}
