@@ -36,6 +36,8 @@ const StudentsList = () => {
     });
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [studentToDelete, setStudentToDelete] = useState(null);
+    const [selectedStudents, setSelectedStudents] = useState([]);
+    const [selectAll, setSelectAll] = useState(false);
 
     // Получаем список предметов учителя
     const fetchTeacherSubjects = useCallback(async () => {
@@ -214,25 +216,63 @@ const StudentsList = () => {
         }
     };
 
+    const handleSelectAll = (checked) => {
+        setSelectAll(checked);
+        setSelectedStudents(checked ? filteredStudents.map(s => s.id) : []);
+    };
+
+    const handleSelectStudent = (studentId) => {
+        setSelectedStudents(prev => {
+            const newSelection = prev.includes(studentId)
+                ? prev.filter(id => id !== studentId)
+                : [...prev, studentId];
+            setSelectAll(newSelection.length === filteredStudents.length);
+            return newSelection;
+        });
+    };
+
+    const handleBulkDelete = () => {
+        if (selectedStudents.length === 0) return;
+        
+        const studentsToDelete = students.filter(s => selectedStudents.includes(s.id));
+        const names = studentsToDelete.map(s => `${s.lastName} ${s.firstName}`).join(', ');
+        
+        setStudentToDelete({ bulk: true, names, ids: selectedStudents });
+        setShowConfirmModal(true);
+    };
+
     const handleDeleteStudent = async (studentId) => {
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/v1/students/${studentId}/`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Token ${user.token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Ошибка при удалении ученика');
+            if (Array.isArray(studentId)) {
+                // Массовое удаление
+                await Promise.all(studentId.map(id =>
+                    fetch(`http://127.0.0.1:8000/api/v1/students/${id}/`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Token ${user.token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                ));
+                setSuccess('Выбранные ученики успешно удалены');
+            } else {
+                // Удаление одного ученика
+                const response = await fetch(`http://127.0.0.1:8000/api/v1/students/${studentId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Token ${user.token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (!response.ok) throw new Error('Ошибка при удалении ученика');
+                setSuccess('Ученик успешно удален');
             }
-
-            setSuccess('Ученик успешно удален');
+            
             fetchStudents();
             setShowConfirmModal(false);
             setStudentToDelete(null);
+            setSelectedStudents([]);
+            setSelectAll(false);
         } catch (error) {
             setError(error.message);
         }
@@ -354,12 +394,6 @@ const StudentsList = () => {
 
         return matchesSearch && matchesFilters;
     }).sort((a, b) => a.lastName.localeCompare(b.lastName));
-
-    // Функция для открытия модального окна подтверждения
-    const confirmDelete = (student) => {
-        setStudentToDelete(student);
-        setShowConfirmModal(true);
-    };
 
     return (
         <div className="students-list">
@@ -538,20 +572,50 @@ const StudentsList = () => {
                 </div>
 
                 <Card.Body>
+                    {selectedStudents.length > 0 && (
+                        <div className="bulk-actions">
+                            <Button
+                                variant="danger"
+                                size="sm"
+                                onClick={handleBulkDelete}
+                                className="me-2"
+                            >
+                                Удалить выбранных ({selectedStudents.length})
+                            </Button>
+                        </div>
+                    )}
+                    
                     <ListGroup>
+                        <ListGroup.Item className="list-header">
+                            <Form.Check
+                                type="checkbox"
+                                checked={selectAll}
+                                onChange={(e) => handleSelectAll(e.target.checked)}
+                                label="Выбрать всех"
+                            />
+                        </ListGroup.Item>
+                        
                         {filteredStudents.map((student) => (
                             <ListGroup.Item 
                                 key={student.id}
                                 className="d-flex justify-content-between align-items-center"
                             >
-                                <div>
-                                    <strong>{student.lastName} {student.firstName} {student.middleName}</strong>
-                                    <br />
-                                    <small className="text-muted">
-                                        Предмет: {student.subject} | 
-                                        Класс: {student.grade}{student.index} |
-                                        {student.username ? ` Логин: ${student.username}` : ' Не зарегистрирован'}
-                                    </small>
+                                <div className="d-flex align-items-center">
+                                    <Form.Check
+                                        type="checkbox"
+                                        checked={selectedStudents.includes(student.id)}
+                                        onChange={() => handleSelectStudent(student.id)}
+                                        className="me-3"
+                                    />
+                                    <div>
+                                        <strong>{student.lastName} {student.firstName} {student.middleName}</strong>
+                                        <br />
+                                        <small className="text-muted">
+                                            Предмет: {student.subject} | 
+                                            Класс: {student.grade}{student.index} |
+                                            {student.username ? ` Логин: ${student.username}` : ' Не зарегистрирован'}
+                                        </small>
+                                    </div>
                                 </div>
                                 <div>
                                     <Button
@@ -565,7 +629,7 @@ const StudentsList = () => {
                                     <Button
                                         variant="outline-danger"
                                         size="sm"
-                                        onClick={() => confirmDelete(student)}
+                                        onClick={() => handleDeleteStudent(student.id)}
                                     >
                                         Удалить
                                     </Button>
@@ -582,7 +646,12 @@ const StudentsList = () => {
                     <Modal.Title>Подтвердите действие</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    {studentToDelete && (
+                    {studentToDelete?.bulk ? (
+                        <p>
+                            Вы уверены, что хотите удалить следующих учеников:<br/>
+                            <strong>{studentToDelete.names}</strong>?
+                        </p>
+                    ) : studentToDelete && (
                         <p>
                             Вы уверены, что хотите удалить ученика{' '}
                             <strong>
@@ -592,15 +661,14 @@ const StudentsList = () => {
                     )}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button 
-                        variant="secondary" 
-                        onClick={() => setShowConfirmModal(false)}
-                    >
+                    <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
                         Отмена
                     </Button>
                     <Button 
                         variant="danger" 
-                        onClick={() => studentToDelete && handleDeleteStudent(studentToDelete.id)}
+                        onClick={() => studentToDelete && handleDeleteStudent(
+                            studentToDelete.bulk ? studentToDelete.ids : studentToDelete.id
+                        )}
                     >
                         Удалить
                     </Button>
