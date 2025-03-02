@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class TeacherUserAdmin(admin.ModelAdmin):
-    list_display = ('get_username', 'get_first_name', 'get_last_name', 'get_email', 'telegram', 'viber', 'about', 'specialization')
+    list_display = ('get_username', 'get_last_name', 'get_first_name', 'middle_name', 'school_name', 'telegram', 'viber', 'about', 'specialization')
     search_fields = ('user__username', 'user__first_name', 'user__last_name', 'user__email', 'telegram', 'viber', 'about', 'specialization')
     
     fieldsets = (
