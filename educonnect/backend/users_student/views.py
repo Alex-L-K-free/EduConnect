@@ -111,32 +111,21 @@ def register_student(request):
             )
 
         # Проверяем, не зарегистрирован ли уже хотя бы один из записей
-        if any(student.user for student in students):
+        if any(student.username for student in students):
             return Response(
                 {'error': 'Этот ученик уже зарегистрирован'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Проверяем существование пользователя с таким username
-        username = request.data.get('username')
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            # Если пользователь не существует, создаем нового
-            user = User.objects.create_user(
-                username=username,
-                password=request.data.get('password'),
-                first_name=students.first().firstName,
-                last_name=students.first().lastName,
-                role=User.STUDENT
-            )
-
-        # Связываем пользователя со всеми записями ученика
-        students.update(user=user)
+        # Обновляем данные ученика с логином и паролем
+        student = students.first()
+        student.username = request.data.get('username')
+        student.set_password(request.data.get('password'))
+        student.save()
 
         return Response({
             'message': 'Регистрация успешно завершена',
-            'username': user.username
+            'username': student.username
         }, status=status.HTTP_201_CREATED)
 
     except Exception as e:
