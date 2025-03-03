@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import './StudentsRegistrationModal.css';
+import axios from 'axios';
 
 const StudentsRegistrationModal = ({ show, onHide, onStudentUpdate }) => {
   const navigate = useNavigate();
@@ -15,6 +16,10 @@ const StudentsRegistrationModal = ({ show, onHide, onStudentUpdate }) => {
   });
   const [error, setError] = useState('');
   const [isVerified, setIsVerified] = useState(false);
+  const [message, setMessage] = useState({ text: '', type: '' });
+
+  // Настраиваем базовый URL для axios
+  axios.defaults.baseURL = 'http://127.0.0.1:8000';
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -62,52 +67,41 @@ const StudentsRegistrationModal = ({ show, onHide, onStudentUpdate }) => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    
     // Проверяем верификацию
     if (!isVerified) {
-      setError('Необходимо проверить данные ученика');
+      setMessage({ text: 'Необходимо проверить данные ученика', type: 'error' });
       return;
     }
 
     // Проверка совпадения паролей
     if (formData.password !== formData.confirmPassword) {
-      setError('Пароли не совпадают');
+      setMessage({ text: 'Пароли не совпадают', type: 'error' });
       return;
     }
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/v1/students/register/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: formData.username,
-          password: formData.password,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          middle_name: formData.middleName || '',
-          role: 'student'
-        })
+      const response = await axios.post('/api/v1/students/register/', {
+        username: formData.username,
+        password: formData.password,
+        last_name: formData.lastName,
+        first_name: formData.firstName
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        // Обновляем список студентов с новыми данными
-        const updatedStudent = data.student;
-        onStudentUpdate(updatedStudent);
-        onHide();
-        navigate('/login');
-      } else {
-        setError(data.error || 'Ошибка при регистрации');
+      if (response.status === 201) {
+        setMessage({ text: 'Регистрация успешно завершена', type: 'success' });
+        setTimeout(() => {
+          onHide();
+        }, 1500);
       }
-    } catch (err) {
-      setError('Ошибка сервера');
-      console.error('Registration error:', err);
+    } catch (error) {
+      console.error('Registration error:', error);
+      setMessage({
+        text: error.response?.data?.error || 'Ошибка при регистрации',
+        type: 'error'
+      });
     }
   };
 
