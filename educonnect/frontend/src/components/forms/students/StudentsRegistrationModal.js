@@ -3,7 +3,7 @@ import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import './StudentsRegistrationModal.css';
 
-const StudentsRegistrationModal = ({ show, onHide }) => {
+const StudentsRegistrationModal = ({ show, onHide, onStudentUpdate }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
@@ -79,26 +79,27 @@ const StudentsRegistrationModal = ({ show, onHide }) => {
     }
 
     try {
-      const requestData = {
-        username: formData.username,
-        password: formData.password,
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        middle_name: formData.middleName || '',
-        role: 'student'
-      };
-
       const response = await fetch('http://127.0.0.1:8000/api/v1/students/register/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(requestData)
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          middle_name: formData.middleName || '',
+          role: 'student'
+        })
       });
 
       const data = await response.json();
 
       if (response.ok) {
+        // Обновляем список студентов с новыми данными
+        const updatedStudent = data.student;
+        onStudentUpdate(updatedStudent);
         onHide();
         navigate('/login');
       } else {

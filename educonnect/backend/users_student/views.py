@@ -2,10 +2,15 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from education_core.models import User
 from .models import StudentUser
 from .serializers import StudentSerializer
+from django.db.models import Q
+from education_core.constants import (
+    STUDENT_FIRST_NAME, STUDENT_LAST_NAME, STUDENT_MIDDLE_NAME,
+    EXISTS, MESSAGE
+)
 
 # Create your views here.
 
@@ -53,3 +58,90 @@ def student_detail(request, pk):
     elif request.method == 'DELETE':
         student.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def verify_student(request):
+    """
+    Проверяет существование ученика в списке по ФИО
+    """
+    try:
+        lastName = request.data.get('lastName', '').strip()
+        firstName = request.data.get('firstName', '').strip()
+        middleName = request.data.get('middleName', '').strip()
+
+        # Формируем базовый запрос
+        query = Q(lastName=lastName) & Q(firstName=firstName)
+        
+        # Добавляем отчество в запрос, если оно предоставлено
+        if middleName:
+            query &= Q(middleName=middleName)
+
+        # Проверяем существование ученика
+        student_exists = StudentUser.objects.filter(query).exists()
+
+        return Response({
+            EXISTS: student_exists,
+            MESSAGE: 'Ученик найден в списке' if student_exists else 'Ученик не найден в списке'
+        })
+
+    except Exception as e:
+        return Response(
+            {'error': f'Ошибка при проверке данных: {str(e)}'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def register_student(request):
+    """
+    Регистрация существующего ученика (присвоение логина и пароля)
+    """
+    try:
+        # Проверяем существование ученика в списке
+        students = StudentUser.objects.filter(
+            lastName=request.data.get('last_name'),
+            firstName=request.data.get('first_name')
+        )
+
+        if not students.exists():
+            return Response(
+                {'error': 'Ученик не найден в списке класса'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Проверяем, не зарегистрирован ли уже хотя бы один из записей
+        if any(student.user for student in students):
+            return Response(
+                {'error': 'Этот ученик уже зарегистрирован'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Проверяем существование пользователя с таким username
+        username = request.data.get('username')
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            # Если пользователь не существует, создаем нового
+            user = User.objects.create_user(
+                username=username,
+                password=request.data.get('password'),
+                first_name=students.first().firstName,
+                last_name=students.first().lastName,
+                role=User.STUDENT
+            )
+
+        # Связываем пользователя со всеми записями ученика
+        students.update(user=user)
+
+        return Response({
+            'message': 'Регистрация успешно завершена',
+            'username': user.username
+        }, status=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        print(f"Error in register_student: {str(e)}")
+        return Response(
+            {'error': f'Ошибка при регистрации: {str(e)}'},
+            status=status.HTTP_400_BAD_REQUEST
+        )

@@ -18,7 +18,7 @@ class User(AbstractUser):
         (STUDENT, 'Ученик'),
     ]
     
-    email = models.EmailField('Email', unique=True)
+    email = models.EmailField('Email', blank=True, null=True)
     phone = models.CharField('Телефон', max_length=16, validators=[phone_validator], blank=True)
     role = models.CharField('Роль', max_length=10, choices=ROLE_CHOICES)
     avatar = models.ImageField('Фото профиля', upload_to='avatars/', null=True, blank=True)
