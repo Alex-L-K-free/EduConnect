@@ -79,19 +79,21 @@ const StudentsRegistrationModal = ({ show, onHide }) => {
     }
 
     try {
+      const requestData = {
+        username: formData.username,
+        password: formData.password,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        middle_name: formData.middleName || '',
+        role: 'student'
+      };
+
       const response = await fetch('http://127.0.0.1:8000/api/v1/students/register/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          username: formData.username,
-          password: formData.password,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          middle_name: formData.middleName || '',
-          role: 'student'
-        })
+        body: JSON.stringify(requestData)
       });
 
       const data = await response.json();

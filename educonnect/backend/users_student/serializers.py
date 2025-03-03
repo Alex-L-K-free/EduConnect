@@ -3,9 +3,17 @@ from .models import StudentUser
 from education_core.models import User
 
 class StudentSerializer(serializers.ModelSerializer):
+    username = serializers.SerializerMethodField()
+    
     class Meta:
         model = StudentUser
-        fields = ['id', 'firstName', 'lastName', 'middleName', 'grade', 'subject', 'index']
+        fields = ['id', 'username', 'firstName', 'lastName', 'middleName', 
+                 'grade', 'index', 'subject', 'role']
+
+    def get_username(self, obj):
+        if obj.user:
+            return obj.user.username
+        return 'Не зарегистрирован'
 
     def create(self, validated_data):
         student = StudentUser.objects.create(**validated_data)

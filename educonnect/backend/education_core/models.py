@@ -22,6 +22,8 @@ class User(AbstractUser):
     phone = models.CharField('Телефон', max_length=16, validators=[phone_validator], blank=True)
     role = models.CharField('Роль', max_length=10, choices=ROLE_CHOICES)
     avatar = models.ImageField('Фото профиля', upload_to='avatars/', null=True, blank=True)
+    first_name = models.CharField('Имя', max_length=150, blank=True)
+    last_name = models.CharField('Фамилия', max_length=150, blank=True)
     
     class Meta:
         db_table = 'users'

@@ -33,11 +33,15 @@ class LoginView(APIView):
         username = request.data.get('username')
         password = request.data.get('password')
         user = authenticate(username=username, password=password)
-
-        if user is not None:
-            token, created = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key, 'username': user.username, 'role': user.role})
-        return Response({'error': 'Неверные учетные данные'}, status=400)
+        
+        if user:
+            token = Token.objects.get_or_create(user=user)[0]
+            return Response({
+                'token': token.key,
+                'username': user.username,
+                'role': user.role
+            })
+        return Response({'error': 'Invalid credentials'}, status=400)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
