@@ -19,6 +19,7 @@ class StudentUser(models.Model):
     index = models.CharField('Индекс класса', max_length=5)
     subject = models.CharField('Предмет', max_length=100, blank=True)
     role = models.CharField('Роль', max_length=10, choices=ROLE_CHOICES, default=STUDENT)
+    teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='students', null=True, blank=True)
     
     class Meta:
         verbose_name = 'Ученик'

@@ -34,4 +34,6 @@ FIELD_MAPPINGS = {
     STUDENT_FIRST_NAME: FIRST_NAME,
     STUDENT_LAST_NAME: LAST_NAME,
     STUDENT_MIDDLE_NAME: MIDDLE_NAME,
-} 
+}
+
+TEACHER = 'teacher'  # Добавьте это определение 

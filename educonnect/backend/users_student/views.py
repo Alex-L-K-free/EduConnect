@@ -18,7 +18,8 @@ from education_core.constants import (
 @permission_classes([IsAuthenticated])
 def student_list(request):
     if request.method == 'GET':
-        students = StudentUser.objects.all()
+        # Получаем только учеников, принадлежащих текущему учителю
+        students = StudentUser.objects.filter(teacher=request.user)
         serializer = StudentSerializer(students, many=True)
         return Response(serializer.data)
     
@@ -92,45 +93,39 @@ def verify_student(request):
         )
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def register_student(request):
-    """
-    Регистрация существующего ученика (присвоение логина и пароля)
-    """
-    try:
-        # Проверяем существование ученика в списке
-        students = StudentUser.objects.filter(
-            lastName=request.data.get('last_name'),
-            firstName=request.data.get('first_name')
-        )
-
-        if not students.exists():
-            return Response(
-                {'error': 'Ученик не найден в списке класса'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # Проверяем, не зарегистрирован ли уже хотя бы один из записей
-        if any(student.username for student in students):
-            return Response(
-                {'error': 'Этот ученик уже зарегистрирован'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # Обновляем данные ученика с логином и паролем
-        student = students.first()
-        student.username = request.data.get('username')
-        student.set_password(request.data.get('password'))
-        student.save()
-
-        return Response({
-            'message': 'Регистрация успешно завершена',
-            'username': student.username
-        }, status=status.HTTP_201_CREATED)
-
-    except Exception as e:
-        print(f"Error in register_student: {str(e)}")
+    # Проверяем, что запрос делает учитель
+    if request.user.role != User.TEACHER:
         return Response(
-            {'error': f'Ошибка при регистрации: {str(e)}'},
-            status=status.HTTP_400_BAD_REQUEST
+            {'error': 'Только учитель может регистрировать учеников'},
+            status=status.HTTP_403_FORBIDDEN
         )
+
+    try:
+        serializer = StudentSerializer(data=request.data)
+        if serializer.is_valid():
+            student = serializer.save(teacher=request.user)  # Присваиваем текущего учителя
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_student(request):
+    # Проверяем, что запрос делает учитель
+    if request.user.role != User.TEACHER:
+        return Response(
+            {'error': 'Только учитель может добавлять учеников'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    try:
+        serializer = StudentSerializer(data=request.data)
+        if serializer.is_valid():
+            student = serializer.save(teacher=request.user)  # Присваиваем текущего учителя
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

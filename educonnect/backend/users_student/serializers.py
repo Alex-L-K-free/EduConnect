@@ -7,7 +7,7 @@ class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudentUser
         fields = ['id', 'username', 'firstName', 'lastName', 'middleName', 
-                 'subject', 'grade', 'index', 'role']
+                 'subject', 'grade', 'index', 'role', 'teacher']
 
     def get_username(self, obj):
         return obj.username if obj.username else 'Не зарегистрирован'
