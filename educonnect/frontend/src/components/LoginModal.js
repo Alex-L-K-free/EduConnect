@@ -55,6 +55,8 @@ const LoginModal = ({ show, onHide }) => {
           default:
             setError('Неизвестная роль пользователя');
         }
+
+        window.location.reload(); // Перезагружаем страницу после успешного входа
       } else {
         setError(data.error || 'Ошибка при входе');
       }

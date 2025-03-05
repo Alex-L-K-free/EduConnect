@@ -27,7 +27,6 @@ const StudentsList = () => {
     const [editingStudent, setEditingStudent] = useState(null);
     const fileInputRef = useRef(null);
     const [searchTerm, setSearchTerm] = useState('');
-    // const [isExpanded, setIsExpanded] = useState(false);
     const [filterCriteria, setFilterCriteria] = useState({
         name: '',
         subject: '',
@@ -38,6 +37,14 @@ const StudentsList = () => {
     const [studentToDelete, setStudentToDelete] = useState(null);
     const [selectedStudents, setSelectedStudents] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
+
+    console.log('Current user:', user);
+
+    if (user) {
+        console.log('User ID:', user.id); // Логируем ID пользователя
+    } else {
+        console.log('User is not logged in or not initialized');
+    }
 
     // Получаем список предметов учителя
     const fetchTeacherSubjects = useCallback(async () => {
@@ -163,9 +170,11 @@ const StudentsList = () => {
                 middleName: newStudent.middleName || '',
                 subject: newStudent.subject,
                 grade: newStudent.grade,
-                index: newStudent.index
+                index: newStudent.index,
+                teacher: user.id
             };
 
+            console.log('Current user ID:', user.id);
             console.log('Sending data:', studentData);
             console.log('To URL:', url);
             console.log('Method:', method);
@@ -323,7 +332,8 @@ const StudentsList = () => {
                         middleName: middleNameKey && row[middleNameKey] ? row[middleNameKey].toString().trim() : '',
                         subject: newStudent.subject,
                         grade: newStudent.grade,
-                        index: newStudent.index
+                        index: newStudent.index,
+                        teacher: user.id
                     };
 
                     console.log('Отправляем данные студента:', studentData);

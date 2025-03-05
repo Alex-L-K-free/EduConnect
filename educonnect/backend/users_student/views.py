@@ -114,7 +114,6 @@ def register_student(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_student(request):
-    # Проверяем, что запрос делает учитель
     if request.user.role != User.TEACHER:
         return Response(
             {'error': 'Только учитель может добавлять учеников'},
@@ -124,7 +123,7 @@ def add_student(request):
     try:
         serializer = StudentSerializer(data=request.data)
         if serializer.is_valid():
-            student = serializer.save(teacher=request.user)  # Присваиваем текущего учителя
+            student = serializer.save(teacher=request.user)  # Убедитесь, что это поле заполняется
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
