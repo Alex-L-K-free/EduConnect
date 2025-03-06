@@ -100,21 +100,22 @@ def register_student(request):
     last_name = request.data.get('last_name')
     middle_name = request.data.get('middle_name', '')
 
-    # Ищем существующего ученика
-    try:
-        student = StudentUser.objects.get(firstName=first_name, lastName=last_name, middleName=middle_name)
-    except StudentUser.DoesNotExist:
+    # Ищем существующих учеников
+    students = StudentUser.objects.filter(firstName=first_name, lastName=last_name, middleName=middle_name)
+
+    if not students.exists():
         return Response({'error': 'Ученик с такими данными не найден'}, status=status.HTTP_404_NOT_FOUND)
 
-    # Обновляем логин и пароль
+    # Обновляем логин и пароль для всех найденных учеников
     username = request.data.get('username')
     password = request.data.get('password')
 
-    student.username = username
-    student.set_password(password)  # Устанавливаем новый пароль
-    student.save()
+    for student in students:
+        student.username = username
+        student.set_password(password)  # Устанавливаем новый пароль
+        student.save()
 
-    return Response({'message': 'Логин успешно связан с учеником'}, status=status.HTTP_200_OK)
+    return Response({'message': 'Логин успешно связан с учениками'}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
