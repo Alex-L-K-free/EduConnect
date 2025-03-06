@@ -67,14 +67,8 @@ const StudentsRegistrationModal = ({ show, onHide, onStudentUpdate }) => {
     }
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    
-    // Проверяем верификацию
-    if (!isVerified) {
-      setMessage({ text: 'Необходимо проверить данные ученика', type: 'error' });
-      return;
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
     // Проверка совпадения паролей
     if (formData.password !== formData.confirmPassword) {
@@ -83,23 +77,33 @@ const StudentsRegistrationModal = ({ show, onHide, onStudentUpdate }) => {
     }
 
     try {
-      const response = await axios.post('/api/v1/students/register/', {
-        username: formData.username,
-        password: formData.password,
-        last_name: formData.lastName,
-        first_name: formData.firstName
+      const response = await fetch('http://127.0.0.1:8000/api/v1/students/register/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          middle_name: formData.middleName
+        })
       });
 
-      if (response.status === 201) {
-        setMessage({ text: 'Регистрация успешно завершена', type: 'success' });
-        setTimeout(() => {
-          onHide();
-        }, 1500);
+      if (!response.ok) {
+        throw new Error('Ошибка при регистрации ученика');
       }
+
+      const data = await response.json();
+      setMessage({ text: 'Регистрация успешно завершена', type: 'success' });
+      setTimeout(() => {
+        onHide();
+      }, 1500);
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('Ошибка регистрации:', error);
       setMessage({
-        text: error.response?.data?.error || 'Ошибка при регистрации',
+        text: error.message || 'Ошибка при регистрации',
         type: 'error'
       });
     }
@@ -113,6 +117,7 @@ const StudentsRegistrationModal = ({ show, onHide, onStudentUpdate }) => {
       <Modal.Body>
         {error && <Alert variant="danger">{error}</Alert>}
         {isVerified && <Alert variant="success">Данные ученика подтверждены</Alert>}
+        {message.text && <Alert variant={message.type}>{message.text}</Alert>}
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3" controlId="formLastName">
             <Form.Label>Фамилия</Form.Label>
@@ -181,6 +186,7 @@ const StudentsRegistrationModal = ({ show, onHide, onStudentUpdate }) => {
                   onChange={handleChange}
                   placeholder="Введите пароль"
                   required
+                  autoComplete="new-password"
                 />
               </Form.Group>
 
@@ -193,6 +199,7 @@ const StudentsRegistrationModal = ({ show, onHide, onStudentUpdate }) => {
                   onChange={handleChange}
                   placeholder="Подтвердите пароль"
                   required
+                  autoComplete="new-password"
                 />
               </Form.Group>
             </>

@@ -8,6 +8,12 @@ class StudentSerializer(serializers.ModelSerializer):
         model = StudentUser
         fields = ['id', 'username', 'firstName', 'lastName', 'middleName', 
                  'subject', 'grade', 'index', 'role', 'teacher']
+        extra_kwargs = {
+            'username': {'required': True, 'allow_blank': False},
+            'password': {'required': True, 'write_only': True},
+            'lastName': {'required': True, 'allow_blank': False},
+            'firstName': {'required': True, 'allow_blank': False},
+        }
 
     def get_username(self, obj):
         return obj.username if obj.username else 'Не зарегистрирован'

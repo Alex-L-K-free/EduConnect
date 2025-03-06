@@ -93,23 +93,28 @@ def verify_student(request):
         )
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def register_student(request):
-    # Проверяем, что запрос делает учитель
-    if request.user.role != User.TEACHER:
-        return Response(
-            {'error': 'Только учитель может регистрировать учеников'},
-            status=status.HTTP_403_FORBIDDEN
-        )
+    # Проверяем, что данные о ФИО переданы
+    first_name = request.data.get('first_name')
+    last_name = request.data.get('last_name')
+    middle_name = request.data.get('middle_name', '')
 
+    # Ищем существующего ученика
     try:
-        serializer = StudentSerializer(data=request.data)
-        if serializer.is_valid():
-            student = serializer.save(teacher=request.user)  # Присваиваем текущего учителя
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        student = StudentUser.objects.get(firstName=first_name, lastName=last_name, middleName=middle_name)
+    except StudentUser.DoesNotExist:
+        return Response({'error': 'Ученик с такими данными не найден'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Обновляем логин и пароль
+    username = request.data.get('username')
+    password = request.data.get('password')
+
+    student.username = username
+    student.set_password(password)  # Устанавливаем новый пароль
+    student.save()
+
+    return Response({'message': 'Логин успешно связан с учеником'}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
