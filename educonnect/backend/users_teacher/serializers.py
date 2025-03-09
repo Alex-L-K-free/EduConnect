@@ -65,7 +65,7 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
     first_name = serializers.CharField(source='user.first_name')
     last_name = serializers.CharField(source='user.last_name')
-    middle_name = serializers.CharField()
+    middle_name = serializers.CharField(required=False)
     email = serializers.EmailField(source='user.email', required=False)
     subjects = serializers.SerializerMethodField()
     telegram = serializers.CharField(allow_blank=True, required=False)
@@ -101,7 +101,8 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
         instance.user.save()
 
         for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+            if attr != 'middle_name':  # Исключаем middle_name из обработки
+                setattr(instance, attr, value)
         instance.save()
 
         return instance
@@ -112,7 +113,7 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
             'username': instance.user.username,
             'first_name': instance.user.first_name,
             'last_name': instance.user.last_name,
-            'middle_name': instance.middle_name,
+            'middle_name': instance.user.middle_name,
             'email': instance.user.email,
             'telegram': instance.telegram or '',
             'viber': instance.viber or '',
