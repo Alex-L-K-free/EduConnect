@@ -5,14 +5,14 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class TeacherUserAdmin(admin.ModelAdmin):
-    list_display = ('get_username', 'get_last_name', 'get_first_name', 'middle_name', 'school_name', 'telegram', 'viber', 'about', 'specialization')
-    search_fields = ('user__username', 'user__first_name', 'user__last_name', 'user__email', 'telegram', 'viber', 'about', 'specialization')
+    list_display = ('get_username', 'get_last_name', 'get_first_name', 'get_middle_name', 'school_name', 'telegram', 'viber', 'about', 'specialization')
+    search_fields = ('user__username', 'user__first_name', 'user__last_name', 'user__middle_name','user__email', 'telegram', 'viber', 'about', 'specialization')
     
     fieldsets = (
         ('Основная информация', {
             'fields': (
                 'user',
-                ('get_first_name_display', 'get_last_name_display'),
+                ('get_first_name_display', 'get_last_name_display', 'get_middle_name_display'),
                 'get_email_display',
             )
         }),
@@ -30,7 +30,7 @@ class TeacherUserAdmin(admin.ModelAdmin):
         }),
     )
 
-    readonly_fields = ('get_first_name_display', 'get_last_name_display', 'get_email_display')
+    readonly_fields = ('get_first_name_display', 'get_last_name_display', 'get_middle_name_display', 'get_email_display')
 
     def get_username(self, obj):
         return obj.user.username
@@ -47,6 +47,11 @@ class TeacherUserAdmin(admin.ModelAdmin):
     get_last_name.short_description = 'Фамилия'
     get_last_name.admin_order_field = 'user__last_name'
 
+    def get_middle_name(self, obj):
+        return obj.user.middle_name
+    get_middle_name.short_description = 'Отчество'
+    get_middle_name.admin_order_field = 'user__middle_name'
+
     def get_email(self, obj):
         return obj.user.email
     get_email.short_description = 'Email'
@@ -59,6 +64,10 @@ class TeacherUserAdmin(admin.ModelAdmin):
     def get_last_name_display(self, obj):
         return obj.user.last_name
     get_last_name_display.short_description = 'Фамилия'
+
+    def get_middle_name_display(self, obj):
+        return obj.user.middle_name
+    get_middle_name_display.short_description = 'Отчество'
 
     def get_email_display(self, obj):
         return obj.user.email

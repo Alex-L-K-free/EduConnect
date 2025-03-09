@@ -32,7 +32,7 @@ const TeachersListAdmin = ({ teachers, onAddTeacher }) => {
               <td>{teacher.username}</td>
               <td>{teacher.lastName}</td> 
               <td>{teacher.firstName}</td>
-              <td>{teacher.middle_name}</td>
+              <td>{teacher.middleName}</td>
               <td>
                 <Button variant="outline-primary" size="sm">
                   Редактировать

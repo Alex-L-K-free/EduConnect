@@ -9,7 +9,7 @@ class AdminUserInline(admin.StackedInline):
 
 class CustomUserAdmin(UserAdmin):
     inlines = (AdminUserInline,)
-    list_display = ('username', 'email', 'first_name', 'last_name', 'role', 'is_staff')
+    list_display = ('username', 'email', 'first_name', 'last_name', 'middle_name', 'role', 'is_staff')
     list_filter = ('role', 'is_staff', 'is_superuser', 'is_active')
     fieldsets = UserAdmin.fieldsets + (
         ('Дополнительная информация', {'fields': ('role', 'phone', 'avatar')}),
@@ -19,7 +19,7 @@ class CustomUserAdmin(UserAdmin):
 class AdminUserAdmin(admin.ModelAdmin):
     list_display = ('user', 'admin_type', 'is_super_admin')
     list_filter = ('admin_type', 'is_super_admin')
-    search_fields = ('user__username', 'user__email', 'user__first_name', 'user__last_name')
+    search_fields = ('user__username', 'user__email', 'user__first_name', 'user__last_name', 'user__middle_name')
     
     def get_queryset(self, request):
         # Показываем только администраторов

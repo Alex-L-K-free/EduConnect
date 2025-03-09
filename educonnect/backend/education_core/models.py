@@ -24,6 +24,7 @@ class User(AbstractUser):
     avatar = models.ImageField('Фото профиля', upload_to='avatars/', null=True, blank=True)
     first_name = models.CharField('Имя', max_length=150, blank=True)
     last_name = models.CharField('Фамилия', max_length=150, blank=True)
+    middle_name = models.CharField('Отчество', max_length=150, blank=True)
     
     class Meta:
         db_table = 'users'

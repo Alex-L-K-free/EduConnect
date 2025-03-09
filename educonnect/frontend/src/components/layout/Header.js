@@ -36,7 +36,8 @@ const Header = () => {
           {user ? (
             <div className="d-flex align-items-center">
               <span className="me-3">
-                {user.username} ({user.role})
+                {/*{user.username} ({user.role})*/}
+                {user.last_name} {user.first_name} {user.middle_name} ({user.role})
               </span>
               <Button 
                 variant="outline-light" 

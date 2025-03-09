@@ -37,5 +37,9 @@ class TeacherUser(models.Model):
         return self.user.last_name
 
     @property
+    def middle_name(self):
+        return self.user.middle_name
+
+    @property
     def email(self):
         return self.user.email
