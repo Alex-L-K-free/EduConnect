@@ -37,7 +37,9 @@ const Header = () => {
             <div className="d-flex align-items-center">
               <span className="me-3">
                 {/*{user.username} ({user.role})*/}
-                {user.last_name} {user.first_name} {user.middle_name} ({user.role})
+                {user.last_name} {user.first_name} {user.middle_name} (
+                {user.role === 'teacher' ? 'учитель' : 
+                 user.role === 'student' ? 'ученик' : user.role})
               </span>
               <Button 
                 variant="outline-light" 
