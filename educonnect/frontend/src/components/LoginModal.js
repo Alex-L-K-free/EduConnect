@@ -11,6 +11,7 @@ const LoginModal = ({ show, onHide }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [role, setRole] = useState('student'); // Добавляем состояние для роли
   const navigate = useNavigate(); // Получаем navigate для перенаправления
   const [showRegistration, setShowRegistration] = useState(false);
 
@@ -18,8 +19,12 @@ const LoginModal = ({ show, onHide }) => {
     e.preventDefault();
     setError('');
 
+    const loginUrl = role === 'student' 
+      ? 'http://127.0.0.1:8000/api/v1/students/login/' 
+      : 'http://127.0.0.1:8000/api/v1/login/';
+
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/v1/login/', {
+      const response = await fetch(loginUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -50,7 +55,7 @@ const LoginModal = ({ show, onHide }) => {
             navigate('/teacher');
             break;
           case 'student':
-            navigate('/student');
+            navigate('/student'); // Перенаправление на страницу ученика
             break;
           default:
             setError('Неизвестная роль пользователя');
@@ -80,6 +85,13 @@ const LoginModal = ({ show, onHide }) => {
         <Modal.Body>
           {error && <Alert variant="danger">{error}</Alert>}
           <Form onSubmit={handleSubmit}>
+            <Form.Group className="mb-3" controlId="formBasicRole">
+              <Form.Label>Роль</Form.Label>
+              <Form.Select value={role} onChange={(e) => setRole(e.target.value)}>
+                <option value="student">Ученик</option>
+                <option value="teacher">Учитель</option>
+              </Form.Select>
+            </Form.Group>
             <Form.Group className="mb-3" controlId="formBasicUsername">
               <Form.Label>Логин</Form.Label>
               <Form.Control
