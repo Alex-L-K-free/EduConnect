@@ -11,7 +11,6 @@ const LoginModal = ({ show, onHide }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [role, setRole] = useState('student'); // Добавляем состояние для роли
   const navigate = useNavigate(); // Получаем navigate для перенаправления
   const [showRegistration, setShowRegistration] = useState(false);
 
@@ -19,59 +18,73 @@ const LoginModal = ({ show, onHide }) => {
     e.preventDefault();
     setError('');
 
-    const loginUrl = role === 'student' 
-      ? 'http://127.0.0.1:8000/api/v1/students/login/' 
-      : 'http://127.0.0.1:8000/api/v1/login/';
-
+    // Сначала пробуем войти как студент
     try {
-      const response = await fetch(loginUrl, {
+      const studentResponse = await fetch('http://127.0.0.1:8000/api/v1/students/login/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          username, 
-          password 
-        })
+        body: JSON.stringify({ username, password })
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Ошибка при входе');
+      if (studentResponse.ok) {
+        const data = await studentResponse.json();
+        handleSuccessfulLogin(data, 'student');
+        return;
       }
 
-      const data = await response.json();
-      console.log('Login successful:', data);
-      
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('role', data.role);
-      localStorage.setItem('username', data.username);
-      
-      login(data);
-      onHide();
+      // Если не удалось войти как студент, пробуем как учитель/админ
+      const teacherResponse = await fetch('http://127.0.0.1:8000/api/v1/login/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password })
+      });
 
-      switch (data.role) {
-        case 'student':
-          navigate('/student');
-          break;
-        case 'admin':
-          navigate('/admin');
-          break;
-        case 'teacher':
-          navigate('/teacher');
-          break;
-        default:
-          setError('Неизвестная роль пользователя');
+      if (teacherResponse.ok) {
+        const data = await teacherResponse.json();
+        handleSuccessfulLogin(data, data.role);
+        return;
       }
+
+      // Если оба запроса неуспешны
+      const errorData = await teacherResponse.json();
+      throw new Error(errorData.error || 'Неверные учетные данные');
+
     } catch (err) {
       setError(err.message);
       console.error('Login error:', err);
     }
   };
 
-  const handleRegistrationClick = () => {
+  const handleSuccessfulLogin = (data, role) => {
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('role', role);
+    localStorage.setItem('username', data.username);
+    
+    login(data);
     onHide();
+
+    switch (role) {
+      case 'student':
+        navigate('/student');
+        break;
+      case 'admin':
+        navigate('/admin');
+        break;
+      case 'teacher':
+        navigate('/teacher');
+        break;
+      default:
+        setError('Неизвестная роль пользователя');
+    }
+  };
+
+  const handleRegistrationClick = () => {
     setShowRegistration(true);
+    onHide();
   };
 
   return (
@@ -83,20 +96,14 @@ const LoginModal = ({ show, onHide }) => {
         <Modal.Body>
           {error && <Alert variant="danger">{error}</Alert>}
           <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-3" controlId="formBasicRole">
-              <Form.Label>Роль</Form.Label>
-              <Form.Select value={role} onChange={(e) => setRole(e.target.value)}>
-                <option value="student">Ученик</option>
-                <option value="teacher">Учитель</option>
-              </Form.Select>
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="formBasicUsername">
+            <Form.Group className="mb-3" controlId="formUsername">
               <Form.Label>Логин</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="Введите логин"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                required
               />
             </Form.Group>
             <Form.Group className="mb-3" controlId="formBasicPassword">
@@ -106,6 +113,7 @@ const LoginModal = ({ show, onHide }) => {
                 placeholder="Введите пароль"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </Form.Group>
             <div className="d-flex justify-content-between align-items-center">
