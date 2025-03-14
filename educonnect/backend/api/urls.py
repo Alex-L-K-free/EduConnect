@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
-from .views import LoginView, current_user
+from .views import LoginView, current_user, StudentLoginView
 from users_teacher.views import (
     teacher_profile,
     change_password,
@@ -18,6 +18,7 @@ app_name = 'api'
 urlpatterns = [
     path('', include(router.urls)),
     path('login/', LoginView.as_view(), name='login'),
+    path('students/login/', StudentLoginView.as_view(), name='student-login'),
     path('teachers/', teacher_list, name='teacher-list'),
     path('teachers/register/', register_teacher, name='register-teacher'),
     path('teachers/profile/', teacher_profile, name='teacher-profile'),

@@ -29,44 +29,42 @@ const LoginModal = ({ show, onHide }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ 
+          username, 
+          password 
+        })
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Ошибка при входе');
+      }
+
       const data = await response.json();
+      console.log('Login successful:', data);
+      
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('role', data.role);
+      localStorage.setItem('username', data.username);
+      
+      login(data);
+      onHide();
 
-      if (response.ok) {
-        console.log('Login successful:', data);
-        // Сохраняем токен и данные пользователя
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('role', data.role);
-        localStorage.setItem('username', data.username);
-        
-        // Обновляем состояние пользователя в контексте
-        login(data);
-        
-        onHide();
-
-        // Перенаправление в зависимости от роли
-        switch (data.role) {
-          case 'admin':
-            navigate('/admin');
-            break;
-          case 'teacher':
-            navigate('/teacher');
-            break;
-          case 'student':
-            navigate('/student'); // Перенаправление на страницу ученика
-            break;
-          default:
-            setError('Неизвестная роль пользователя');
-        }
-
-        window.location.reload(); // Перезагружаем страницу после успешного входа
-      } else {
-        setError(data.error || 'Ошибка при входе');
+      switch (data.role) {
+        case 'student':
+          navigate('/student');
+          break;
+        case 'admin':
+          navigate('/admin');
+          break;
+        case 'teacher':
+          navigate('/teacher');
+          break;
+        default:
+          setError('Неизвестная роль пользователя');
       }
     } catch (err) {
-      setError('Ошибка сервера');
+      setError(err.message);
       console.error('Login error:', err);
     }
   };

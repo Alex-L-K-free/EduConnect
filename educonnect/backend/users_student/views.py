@@ -5,12 +5,13 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from education_core.models import User
 from .models import StudentUser
-from .serializers import StudentSerializer
+from .serializers import StudentSerializer, StudentLoginSerializer
 from django.db.models import Q
 from education_core.constants import (
     STUDENT_FIRST_NAME, STUDENT_LAST_NAME, STUDENT_MIDDLE_NAME,
     EXISTS, MESSAGE
 )
+from django.contrib.auth import authenticate
 
 # Create your views here.
 
@@ -134,3 +135,10 @@ def add_student(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+def student_login(request):
+    serializer = StudentLoginSerializer(data=request.data)
+    if serializer.is_valid():
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
