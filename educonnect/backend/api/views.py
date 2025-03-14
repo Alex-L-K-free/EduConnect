@@ -14,6 +14,7 @@ from education_core.constants import ROLE_STUDENT
 from django.contrib.auth import get_user_model
 from users_student.models import StudentUser  # Добавьте этот импорт
 from django.contrib.auth.hashers import check_password  # Добавляем импорт
+import uuid
 
 User = get_user_model()
 
@@ -68,7 +69,6 @@ class StudentLoginView(APIView):
         password = request.data.get('password')
         
         print(f"Login attempt for username: {username}")
-        print(f"Received password: {password}")
         
         try:
             students = StudentUser.objects.filter(username=username)
@@ -82,28 +82,20 @@ class StudentLoginView(APIView):
 
             student = students.first()
             print(f"Student found: {student.username}")
-            print(f"Stored password hash: {student.password}")
             
-            # Используем check_password для проверки пароля
+            # Проверяем пароль
             if check_password(password, student.password):
-                user, created = User.objects.get_or_create(
-                    username=student.username,
-                    defaults={
-                        'first_name': student.firstName,
-                        'last_name': student.lastName,
-                        'role': ROLE_STUDENT
-                    }
-                )
+                # Генерируем простой токен на основе username
+                token = uuid.uuid4().hex
                 
-                token, _ = Token.objects.get_or_create(user=user)
                 print(f"Login successful for student: {student.username}")
 
+                # Собираем информацию о предметах и учителях
                 subjects = list(students.values_list('subject', flat=True).distinct())
                 
                 return Response({
-                    'token': token.key,
-                    'id': user.id,
-                    'username': user.username,
+                    'token': token,
+                    'username': student.username,
                     'role': 'student',
                     'first_name': student.firstName,
                     'last_name': student.lastName,
