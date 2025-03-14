@@ -17,17 +17,49 @@
   }
 
   .stats-card {
-    text-align: center;
+    height: 100%;
     
     h2 {
-      color: var(--primary-color);
+      color: var(--bs-primary);
       font-size: 2.5rem;
       margin: 0.5rem 0;
     }
 
     h5 {
-      color: var(--text-secondary);
+      color: var(--bs-secondary);
       font-size: 1rem;
+    }
+
+    .subject-item, .teacher-item {
+      padding: 0.5rem;
+      margin: 0.25rem 0;
+      background-color: #f8f9fa;
+      border-radius: 4px;
+      font-size: 0.9rem;
+
+      &:hover {
+        background-color: #e9ecef;
+      }
+    }
+  }
+
+  .table {
+    th {
+      background-color: #f8f9fa;
+    }
+
+    td {
+      vertical-align: middle;
+    }
+  }
+
+  .card-header {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+
+    h4 {
+      margin: 0;
+      color: var(--bs-primary);
     }
   }
 } 
