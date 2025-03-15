@@ -135,3 +135,69 @@ def manage_subjects(request):
                 {'error': 'Предмет не найден'},
                 status=status.HTTP_404_NOT_FOUND
             )
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def teacher_detail(request, pk):
+    # Проверяем, что запрос делает администратор
+    if request.user.role != User.ADMIN:
+        return Response(
+            {'error': 'Только администратор может управлять учителями'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    
+    try:
+        teacher = TeacherUser.objects.get(user__id=pk)
+    except TeacherUser.DoesNotExist:
+        return Response(
+            {'error': 'Учитель не найден'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    if request.method == 'GET':
+        serializer = TeacherListSerializer(teacher)
+        return Response(serializer.data)
+
+    elif request.method == 'PUT':
+        try:
+            # Обновляем данные учителя
+            user_data = {
+                'username': request.data.get('username'),
+                'first_name': request.data.get('firstName'),
+                'last_name': request.data.get('lastName'),
+                'middle_name': request.data.get('middleName')
+            }
+            
+            # Обновляем основные данные пользователя
+            User.objects.filter(id=pk).update(**{k: v for k, v in user_data.items() if v is not None})
+            
+            # Обновляем дополнительные данные учителя
+            teacher_data = {
+                'specialization': request.data.get('specialization'),
+                'about': request.data.get('about')
+            }
+            TeacherUser.objects.filter(user__id=pk).update(
+                **{k: v for k, v in teacher_data.items() if v is not None}
+            )
+            
+            # Получаем обновленные данные
+            updated_teacher = TeacherUser.objects.get(user__id=pk)
+            serializer = TeacherListSerializer(updated_teacher)
+            return Response(serializer.data)
+            
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    elif request.method == 'DELETE':
+        try:
+            # Удаляем пользователя (это также удалит связанного учителя из-за каскадного удаления)
+            teacher.user.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

@@ -7,7 +7,8 @@ from users_teacher.views import (
     change_password,
     manage_subjects,
     register_teacher,
-    teacher_list
+    teacher_list,
+    teacher_detail
 )
 
 router = DefaultRouter()
@@ -21,6 +22,7 @@ urlpatterns = [
     path('students/login/', StudentLoginView.as_view(), name='student-login'),
     path('teachers/', teacher_list, name='teacher-list'),
     path('teachers/register/', register_teacher, name='register-teacher'),
+    path('teachers/<int:pk>/', teacher_detail, name='teacher-detail'),
     path('teachers/profile/', teacher_profile, name='teacher-profile'),
     path('teachers/change-password/', change_password, name='change-password'),
     path('teachers/subjects/', manage_subjects, name='manage-subjects'),
