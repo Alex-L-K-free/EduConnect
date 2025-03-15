@@ -1,10 +1,11 @@
 // import React from 'react';
 import React, { useState } from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, Navbar, Nav, Dropdown } from 'react-bootstrap';
 import { useUser } from '../../UserContext';
 // import './Header.css';
 import LoginModal from '../LoginModal';
 import { useNavigate } from 'react-router-dom';
+import './Header.css';
 
 const Header = () => {
   const { user, logout } = useUser();
@@ -19,6 +20,7 @@ const Header = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
     localStorage.removeItem('username');
+    localStorage.removeItem('password');
     
     // Используем функцию logout из контекста
     logout();
@@ -27,41 +29,74 @@ const Header = () => {
     navigate('/');
   };
 
+  const getUserFullName = () => {
+    if (user) {
+      const fullName = `${user.last_name || ''} ${user.first_name || ''} ${user.middle_name || ''}`.trim();
+      const role = user.role === 'teacher' ? 'учитель' : 
+                  user.role === 'student' ? 'ученик' : 
+                  user.role === 'admin' ? 'администратор' : '';
+      return `${fullName} (${role})`;
+    }
+    return '';
+  };
+
+  const handleProfileClick = () => {
+    switch (user.role) {
+      case 'teacher':
+        navigate('/teacher/profile');
+        break;
+      case 'student':
+        navigate('/student/profile');
+        break;
+      case 'admin':
+        navigate('/admin/profile');
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
-    <header className="navbar">
-      <div className="container-fluid">
-        {/* <a className="navbar-brand" href="/">EduConnect</a> */}
-        <a className="navbar-brand" href="#!">EduConnect</a>
-        <div className="nav-auth">
-          {user ? (
-            <div className="d-flex align-items-center">
-              <span className="me-3">
-                {/*{user.username} ({user.role})*/}
-                {user.last_name} {user.first_name} {user.middle_name} (
-                {user.role === 'teacher' ? 'учитель' : 
-                 user.role === 'student' ? 'ученик' : user.role})
-              </span>
-              <Button 
-                variant="outline-light" 
-                size="sm" 
-                onClick={handleLogout}
+    <Navbar bg="primary" variant="dark" fixed="top">
+      <Navbar.Brand href="/">EduConnect</Navbar.Brand>
+      <Nav className="ms-auto">
+        {user ? (
+          <div className="nav-auth">
+            <Dropdown align="end">
+              <Dropdown.Toggle 
+                variant="transparent" 
+                id="user-dropdown"
+                className="user-dropdown-toggle"
               >
-                Выход
-              </Button>
-            </div>
-          ) : (
-            <Button 
-              variant="outline-light" 
-              size="sm" 
-              onClick={handleShow}
-            >
-              Вход
-            </Button>
-          )}
-        </div>
-      </div>
-      <LoginModal show={showLogin} onHide={handleClose} />
-    </header>
+                {getUserFullName()}
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu>
+                <Dropdown.Item onClick={handleProfileClick}>
+                  Мой профиль
+                </Dropdown.Item>
+                <Dropdown.Divider />
+                <Dropdown.Item onClick={handleLogout}>
+                  Выход
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
+        ) : (
+          <Button 
+            variant="outline-light" 
+            onClick={handleShow}
+          >
+            Вход
+          </Button>
+        )}
+      </Nav>
+
+      <LoginModal 
+        show={showLogin} 
+        onHide={handleClose}
+      />
+    </Navbar>
   );
 };
 
