@@ -98,4 +98,27 @@
     opacity: 1;
     transform: translateY(0);
   }
-} 
+}
+
+/* Стили для подменю */
+.dropdown-submenu {
+  padding-left: 24px;
+}
+
+.dropdown-item {
+  position: relative;
+}
+
+/* Увеличиваем отступ между пунктами меню */
+.dropdown-menu .dropdown-item {
+  margin: 2px 0;
+}
+
+/* Добавляем иконку для пунктов с подменю */
+.dropdown-item.has-submenu::after {
+  content: '▸';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+}

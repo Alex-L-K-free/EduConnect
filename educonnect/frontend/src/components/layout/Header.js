@@ -40,19 +40,42 @@ const Header = () => {
     return '';
   };
 
-  const handleProfileClick = () => {
-    switch (user.role) {
+  const handleMenuClick = (path) => {
+    navigate(path);
+  };
+
+  const renderTeacherSubmenu = () => (
+    <>
+      <Dropdown.Item onClick={() => handleMenuClick('/teacher/profile')}>
+        Мой профиль
+      </Dropdown.Item>
+      <Dropdown.Item onClick={() => handleMenuClick('/teacher/subjects')}>
+        Мои предметы
+      </Dropdown.Item>
+      <Dropdown.Item onClick={() => handleMenuClick('/teacher/students')}>
+        Мои ученики
+      </Dropdown.Item>
+    </>
+  );
+
+  const renderUserSubmenu = () => {
+    switch (user?.role) {
       case 'teacher':
-        navigate('/teacher/profile');
-        break;
+        return renderTeacherSubmenu();
       case 'student':
-        navigate('/student/profile');
-        break;
+        return (
+          <Dropdown.Item onClick={() => handleMenuClick('/student')}>
+            Мой кабинет
+          </Dropdown.Item>
+        );
       case 'admin':
-        navigate('/admin/profile');
-        break;
+        return (
+          <Dropdown.Item onClick={() => handleMenuClick('/admin')}>
+            Мой кабинет
+          </Dropdown.Item>
+        );
       default:
-        break;
+        return null;
     }
   };
 
@@ -72,9 +95,7 @@ const Header = () => {
               </Dropdown.Toggle>
 
               <Dropdown.Menu>
-                <Dropdown.Item onClick={handleProfileClick}>
-                  Мой профиль
-                </Dropdown.Item>
+                {renderUserSubmenu()}
                 <Dropdown.Divider />
                 <Dropdown.Item onClick={handleLogout}>
                   Выход
@@ -99,31 +120,5 @@ const Header = () => {
     </Navbar>
   );
 };
-
-//     <Navbar bg="primary" variant="dark" fixed="top">
-//       <Navbar.Brand href="/">EduConnect</Navbar.Brand>
-//       <Nav className="ms-auto">
-//         {user ? (
-//           <div className="nav-auth">
-//             <span>Привет, {user.username}!</span>
-//             <Button 
-//               variant="outline-light" 
-//               onClick={handleLogout}
-//             >
-//               Выход
-//             </Button>
-//           </div>
-//         ) : (
-//           <Button 
-//             variant="outline-light" 
-//             onClick={onLoginClick}
-//           >
-//             Вход
-//           </Button>
-//         )}
-//       </Nav>
-//     </Navbar>
-//   );
-// };
 
 export default Header; 
