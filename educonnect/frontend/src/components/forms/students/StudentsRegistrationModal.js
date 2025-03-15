@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../../UserContext';
 import './StudentsRegistrationModal.css';
 import axios from 'axios';
 
 const StudentsRegistrationModal = ({ show, onHide, onStudentUpdate }) => {
   const navigate = useNavigate();
+  const { login } = useUser();
   const [formData, setFormData] = useState({
     username: '',
     lastName: '',
@@ -57,19 +59,54 @@ const StudentsRegistrationModal = ({ show, onHide, onStudentUpdate }) => {
     }
   };
 
+  const handleStudentLogin = async (username, password) => {
+    try {
+      const loginResponse = await fetch('http://127.0.0.1:8000/api/v1/students/login/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          password
+        })
+      });
+
+      if (loginResponse.ok) {
+        const loginData = await loginResponse.json();
+        // Сохраняем данные в localStorage
+        localStorage.setItem('token', loginData.token);
+        localStorage.setItem('role', 'student');
+        localStorage.setItem('username', username);
+        localStorage.setItem('password', password);
+
+        // Устанавливаем данные пользователя через контекст
+        login({
+          ...loginData,
+          role: 'student',
+          password: password // для последующей аутентификации
+        });
+
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setMessage({ text: '', type: '' });
 
-    // Проверяем пароли
     if (formData.password !== formData.confirmPassword) {
       setError('Пароли не совпадают');
       return;
     }
 
     try {
-      // Выполняем автоматическую проверку
       const isStudentVerified = await verifyStudent();
       
       if (!isStudentVerified) {
@@ -77,7 +114,6 @@ const StudentsRegistrationModal = ({ show, onHide, onStudentUpdate }) => {
         return;
       }
 
-      // Если проверка прошла успешно, продолжаем регистрацию
       const response = await fetch('http://127.0.0.1:8000/api/v1/students/register/', {
         method: 'POST',
         headers: {
@@ -98,10 +134,18 @@ const StudentsRegistrationModal = ({ show, onHide, onStudentUpdate }) => {
       if (response.ok) {
         setMessage({ text: 'Регистрация успешно завершена', type: 'success' });
         if (onStudentUpdate) onStudentUpdate();
-        setTimeout(() => {
-          onHide();
-          navigate('/login');
-        }, 2000);
+
+        // Выполняем автоматический вход
+        const loginSuccess = await handleStudentLogin(formData.username, formData.password);
+        
+        if (loginSuccess) {
+          setTimeout(() => {
+            onHide();
+            navigate('/student'); // Перенаправляем на страницу ученика
+          }, 2000);
+        } else {
+          setError('Ошибка при автоматическом входе');
+        }
       } else {
         setError(data.error || 'Ошибка при регистрации');
       }
