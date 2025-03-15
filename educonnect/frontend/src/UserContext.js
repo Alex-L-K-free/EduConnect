@@ -12,25 +12,52 @@ export const UserProvider = ({ children }) => {
       const username = localStorage.getItem('username');
 
       if (token && role && username) {
-        // Если это учитель или админ, делаем запрос к /api/v1/users/me/
-        if (role === 'teacher' || role === 'admin') {
+        if (role === 'teacher') {
           try {
-            const response = await fetch('http://127.0.0.1:8000/api/v1/users/me/', {
+            // Получаем базовые данные учителя
+            const userResponse = await fetch('http://127.0.0.1:8000/api/v1/users/me/', {
               headers: {
                 'Authorization': `Token ${token}`
               }
             });
-            
-            if (response.ok) {
-              const userData = await response.json();
-              console.log('User data loaded:', userData);
-              setUser(userData);
+
+            if (userResponse.ok) {
+              const userData = await userResponse.json();
+
+              // Получаем профиль учителя
+              const teacherResponse = await fetch('http://127.0.0.1:8000/api/v1/teachers/profile/', {
+                headers: {
+                  'Authorization': `Token ${token}`
+                }
+              });
+
+              if (teacherResponse.ok) {
+                const teacherData = await teacherResponse.json();
+
+                // Получаем предметы учителя
+                const subjectsResponse = await fetch('http://127.0.0.1:8000/api/v1/subjects/', {
+                  headers: {
+                    'Authorization': `Token ${token}`
+                  }
+                });
+
+                const subjectsData = await subjectsResponse.json();
+
+                // Объединяем все данные учителя
+                setUser({
+                  ...userData,
+                  ...teacherData,
+                  subjects: subjectsData,
+                  token: token,
+                  role: role
+                });
+              }
             }
           } catch (error) {
-            console.error('Error loading user data:', error);
+            console.error('Error loading teacher data:', error);
           }
         } else if (role === 'student') {
-          // Для студентов используем данные из localStorage
+          // Оставляем существующую логику для студентов без изменений
           try {
             const response = await fetch('http://127.0.0.1:8000/api/v1/students/login/', {
               method: 'POST',
@@ -39,7 +66,7 @@ export const UserProvider = ({ children }) => {
               },
               body: JSON.stringify({ 
                 username,
-                password: localStorage.getItem('password') // Добавьте сохранение пароля при входе
+                password: localStorage.getItem('password')
               })
             });
 
@@ -58,6 +85,26 @@ export const UserProvider = ({ children }) => {
           } catch (error) {
             console.error('Error loading student data:', error);
           }
+        } else {
+          // Для админа и других ролей
+          try {
+            const response = await fetch('http://127.0.0.1:8000/api/v1/users/me/', {
+              headers: {
+                'Authorization': `Token ${token}`
+              }
+            });
+            
+            if (response.ok) {
+              const userData = await response.json();
+              setUser({
+                ...userData,
+                token: token,
+                role: role
+              });
+            }
+          } catch (error) {
+            console.error('Error loading user data:', error);
+          }
         }
       }
     };
@@ -68,7 +115,7 @@ export const UserProvider = ({ children }) => {
   const login = (userData) => {
     setUser(userData);
     if (userData.password) {
-      localStorage.setItem('password', userData.password); // Сохраняем пароль при входе
+      localStorage.setItem('password', userData.password);
     }
   };
 
