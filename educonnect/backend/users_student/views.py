@@ -19,7 +19,6 @@ from django.contrib.auth import authenticate
 @permission_classes([IsAuthenticated])
 def student_list(request):
     if request.method == 'GET':
-        # Получаем только учеников, принадлежащих текущему учителю
         students = StudentUser.objects.filter(teacher=request.user)
         serializer = StudentSerializer(students, many=True)
         return Response(serializer.data)
@@ -28,14 +27,36 @@ def student_list(request):
         print("Received data:", request.data)
         serializer = StudentSerializer(data=request.data)
         if serializer.is_valid():
-            print("Data is valid")
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            # Проверяем существование учеников с таким же ФИО
+            existing_students = StudentUser.objects.filter(
+                firstName=serializer.validated_data['firstName'],
+                lastName=serializer.validated_data['lastName'],
+                middleName=serializer.validated_data['middleName']
+            )
+
+            # Ищем среди них зарегистрированного (с логином)
+            registered_student = existing_students.exclude(username__isnull=True).first()
+
+            # Создаем нового ученика
+            new_student = serializer.save()
+
+            # Если найден зарегистрированный ученик, обновляем логин для всех
+            if registered_student:
+                # Обновляем логин нового ученика
+                new_student.username = registered_student.username
+                new_student.save()
+
+                # Обновляем логин для всех существующих учеников с таким же ФИО
+                existing_students.filter(username__isnull=True).update(
+                    username=registered_student.username
+                )
+
+            return Response(StudentSerializer(new_student).data, status=status.HTTP_201_CREATED)
         else:
             print("Validation errors:", serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET', 'PUT', 'DELETE'])
+@api_view(['GET', 'PUT', 'DELETE', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def student_detail(request, pk):
     try:
@@ -47,14 +68,21 @@ def student_detail(request, pk):
         serializer = StudentSerializer(student)
         return Response(serializer.data)
 
-    elif request.method == 'PUT':
-        print("Received data for update:", request.data)  # Отладочная информация
-        serializer = StudentSerializer(student, data=request.data)
+    elif request.method in ['PUT', 'PATCH']:
+        # Если обновляется логин
+        if 'username' in request.data:
+            # Обновляем логин для всех учеников с таким же ФИО
+            StudentUser.objects.filter(
+                firstName=student.firstName,
+                lastName=student.lastName,
+                middleName=student.middleName,
+                username__isnull=True  # только для незарегистрированных
+            ).update(username=request.data['username'])
+
+        serializer = StudentSerializer(student, data=request.data, partial=request.method == 'PATCH')
         if serializer.is_valid():
             updated_student = serializer.save()
-            print("Updated student:", StudentSerializer(updated_student).data)  # Отладочная информация
-            return Response(serializer.data)
-        print("Validation errors:", serializer.errors)  # Отладочная информация
+            return Response(StudentSerializer(updated_student).data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
