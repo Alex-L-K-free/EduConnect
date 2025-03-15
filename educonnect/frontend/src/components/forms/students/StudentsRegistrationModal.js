@@ -49,75 +49,77 @@ const StudentsRegistrationModal = ({ show, onHide, onStudentUpdate }) => {
       });
 
       const data = await response.json();
+      return data.exists;
 
-      if (response.ok) {
-        if (data.exists) {
-          setIsVerified(true);
-          setError('');
-        } else {
-          setIsVerified(false);
-          setError('Ученик с такими данными не найден в списке класса');
-        }
-      } else {
-        setError(data.error || 'Ошибка при проверке данных');
-      }
     } catch (err) {
-      setError('Ошибка сервера при проверке данных');
       console.error('Verification error:', err);
+      return false;
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setMessage({ text: '', type: '' });
 
-    // Проверка совпадения паролей
+    // Проверяем пароли
     if (formData.password !== formData.confirmPassword) {
-      setMessage({ text: 'Пароли не совпадают', type: 'error' });
+      setError('Пароли не совпадают');
       return;
     }
 
     try {
+      // Выполняем автоматическую проверку
+      const isStudentVerified = await verifyStudent();
+      
+      if (!isStudentVerified) {
+        setError('Ученик с такими данными не найден в списке класса');
+        return;
+      }
+
+      // Если проверка прошла успешно, продолжаем регистрацию
       const response = await fetch('http://127.0.0.1:8000/api/v1/students/register/', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           username: formData.username,
           password: formData.password,
           first_name: formData.firstName,
           last_name: formData.lastName,
-          middle_name: formData.middleName
+          middle_name: formData.middleName || '',
+          role: 'student'
         })
       });
 
-      if (!response.ok) {
-        throw new Error('Ошибка при регистрации ученика');
-      }
-
       const data = await response.json();
-      setMessage({ text: 'Регистрация успешно завершена', type: 'success' });
-      setTimeout(() => {
-        onHide();
-      }, 1500);
-    } catch (error) {
-      console.error('Ошибка регистрации:', error);
-      setMessage({
-        text: error.message || 'Ошибка при регистрации',
-        type: 'error'
-      });
+
+      if (response.ok) {
+        setMessage({ text: 'Регистрация успешно завершена', type: 'success' });
+        if (onStudentUpdate) onStudentUpdate();
+        setTimeout(() => {
+          onHide();
+          navigate('/login');
+        }, 2000);
+      } else {
+        setError(data.error || 'Ошибка при регистрации');
+      }
+    } catch (err) {
+      setError('Ошибка сервера при регистрации');
+      console.error('Registration error:', err);
     }
   };
 
   return (
-    <Modal show={show} onHide={onHide} className="registration-modal">
+    <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
         <Modal.Title>Регистрация ученика</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {error && <Alert variant="danger">{error}</Alert>}
-        {isVerified && <Alert variant="success">Данные ученика подтверждены</Alert>}
         {message.text && <Alert variant={message.type}>{message.text}</Alert>}
+        
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3" controlId="formLastName">
             <Form.Label>Фамилия</Form.Label>
@@ -154,59 +156,46 @@ const StudentsRegistrationModal = ({ show, onHide, onStudentUpdate }) => {
             />
           </Form.Group>
 
-          <Button 
-            variant="info" 
-            type="button" 
-            onClick={verifyStudent}
-            className="mb-3 w-100"
-          >
-            Проверить данные
-          </Button>
+          <Form.Group className="mb-3" controlId="formUsername">
+            <Form.Label>Логин</Form.Label>
+            <Form.Control
+              type="text"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              placeholder="Введите логин"
+              required
+            />
+          </Form.Group>
 
-          {isVerified && (
-            <>
-              <Form.Group className="mb-3" controlId="formUsername">
-                <Form.Label>Логин</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  placeholder="Введите логин"
-                  required
-                />
-              </Form.Group>
+          <Form.Group className="mb-3" controlId="formPassword">
+            <Form.Label>Пароль</Form.Label>
+            <Form.Control
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Введите пароль"
+              required
+              autoComplete="new-password"
+            />
+          </Form.Group>
 
-              <Form.Group className="mb-3" controlId="formPassword">
-                <Form.Label>Пароль</Form.Label>
-                <Form.Control
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="Введите пароль"
-                  required
-                  autoComplete="new-password"
-                />
-              </Form.Group>
-
-              <Form.Group className="mb-3" controlId="formConfirmPassword">
-                <Form.Label>Подтверждение пароля</Form.Label>
-                <Form.Control
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  placeholder="Подтвердите пароль"
-                  required
-                  autoComplete="new-password"
-                />
-              </Form.Group>
-            </>
-          )}
+          <Form.Group className="mb-3" controlId="formConfirmPassword">
+            <Form.Label>Подтверждение пароля</Form.Label>
+            <Form.Control
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="Подтвердите пароль"
+              required
+              autoComplete="new-password"
+            />
+          </Form.Group>
 
           <div className="d-flex justify-content-between align-items-center">
-            <Button variant="success" type="submit" disabled={!isVerified}>
+            <Button variant="success" type="submit">
               Зарегистрироваться
             </Button>
             <Button variant="outline-secondary" onClick={onHide}>
