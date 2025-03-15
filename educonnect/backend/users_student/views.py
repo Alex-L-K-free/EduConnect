@@ -19,8 +19,35 @@ from django.contrib.auth import authenticate
 @permission_classes([IsAuthenticated])
 def student_list(request):
     if request.method == 'GET':
+        # Получаем учеников текущего учителя
         students = StudentUser.objects.filter(teacher=request.user)
-        serializer = StudentSerializer(students, many=True)
+        
+        # Группируем учеников по ФИО и обновляем логины
+        students_by_name = {}
+        for student in students:
+            key = f"{student.lastName}-{student.firstName}-{student.middleName}"
+            if key not in students_by_name:
+                students_by_name[key] = []
+            students_by_name[key].append(student)
+
+        # Для каждой группы учеников с одинаковым ФИО
+        for group in students_by_name.values():
+            # Ищем зарегистрированного ученика в группе
+            registered_student = next(
+                (s for s in group if s.username is not None),
+                None
+            )
+            
+            # Если есть зарегистрированный ученик, обновляем остальных
+            if registered_student:
+                for student in group:
+                    if student.username is None:
+                        student.username = registered_student.username
+                        student.save()
+
+        # Получаем обновленный список
+        updated_students = StudentUser.objects.filter(teacher=request.user)
+        serializer = StudentSerializer(updated_students, many=True)
         return Response(serializer.data)
     
     elif request.method == 'POST':
@@ -34,7 +61,7 @@ def student_list(request):
                 middleName=serializer.validated_data['middleName']
             )
 
-            # Ищем среди них зарегистрированного (с логином)
+            # Ищем среди них зарегистрированного
             registered_student = existing_students.exclude(username__isnull=True).first()
 
             # Создаем нового ученика
