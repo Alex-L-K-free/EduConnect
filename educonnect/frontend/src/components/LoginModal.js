@@ -14,6 +14,58 @@ const LoginModal = ({ show, onHide }) => {
   const navigate = useNavigate(); // Получаем navigate для перенаправления
   const [showRegistration, setShowRegistration] = useState(false);
 
+  const handleSuccessfulLogin = async (data, role) => {
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('role', role);
+    localStorage.setItem('username', data.username);
+    
+    // Получаем дополнительные данные только для учителей и администраторов
+    if (role === 'teacher' || role === 'admin') {
+      try {
+        const userResponse = await fetch('http://127.0.0.1:8000/api/v1/users/me/', {
+          headers: {
+            'Authorization': `Token ${data.token}`
+          }
+        });
+        
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          // Объединяем данные авторизации с полными данными пользователя
+          const fullUserData = {
+            ...data,
+            ...userData
+          };
+          login(fullUserData);
+        } else {
+          console.error('Failed to fetch user data');
+          login(data); // Используем базовые данные в случае ошибки
+        }
+      } catch (err) {
+        console.error('Error fetching user data:', err);
+        login(data); // Используем базовые данные в случае ошибки
+      }
+    } else {
+      // Для студентов используем данные, полученные при входе
+      login(data);
+    }
+
+    onHide();
+
+    switch (role) {
+      case 'student':
+        navigate('/student');
+        break;
+      case 'admin':
+        navigate('/admin');
+        break;
+      case 'teacher':
+        navigate('/teacher');
+        break;
+      default:
+        setError('Неизвестная роль пользователя');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -56,29 +108,6 @@ const LoginModal = ({ show, onHide }) => {
     } catch (err) {
       setError(err.message);
       console.error('Login error:', err);
-    }
-  };
-
-  const handleSuccessfulLogin = (data, role) => {
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('role', role);
-    localStorage.setItem('username', data.username);
-    
-    login(data);
-    onHide();
-
-    switch (role) {
-      case 'student':
-        navigate('/student');
-        break;
-      case 'admin':
-        navigate('/admin');
-        break;
-      case 'teacher':
-        navigate('/teacher');
-        break;
-      default:
-        setError('Неизвестная роль пользователя');
     }
   };
 
