@@ -1,67 +1,87 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    // Пытаемся получить данные пользователя из localStorage при инициализации
-    const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
-  const [loading, setLoading] = useState(true); // Состояние загрузки
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // При изменении user сохраняем в localStorage
-    if (user) {
-      localStorage.setItem('user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('user');
-    }
-  }, [user]);
+    const loadUserData = async () => {
+      const token = localStorage.getItem('token');
+      const role = localStorage.getItem('role');
+      const username = localStorage.getItem('username');
 
-  useEffect(() => {
-    // Проверяем валидность токена при загрузке
-    const token = localStorage.getItem('token');
-    if (token) {
-      fetch('http://127.0.0.1:8000/api/v1/users/me/', {
-        headers: {
-          'Authorization': `Token ${token}`,
-          'Content-Type': 'application/json'
+      if (token && role && username) {
+        // Если это учитель или админ, делаем запрос к /api/v1/users/me/
+        if (role === 'teacher' || role === 'admin') {
+          try {
+            const response = await fetch('http://127.0.0.1:8000/api/v1/users/me/', {
+              headers: {
+                'Authorization': `Token ${token}`
+              }
+            });
+            
+            if (response.ok) {
+              const userData = await response.json();
+              console.log('User data loaded:', userData);
+              setUser(userData);
+            }
+          } catch (error) {
+            console.error('Error loading user data:', error);
+          }
+        } else if (role === 'student') {
+          // Для студентов используем данные из localStorage
+          try {
+            const response = await fetch('http://127.0.0.1:8000/api/v1/students/login/', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ 
+                username,
+                password: localStorage.getItem('password') // Добавьте сохранение пароля при входе
+              })
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              setUser({
+                username: data.username,
+                role: 'student',
+                first_name: data.first_name,
+                last_name: data.last_name,
+                subjects: data.subjects,
+                grade: data.grade,
+                teachers: data.teachers
+              });
+            }
+          } catch (error) {
+            console.error('Error loading student data:', error);
+          }
         }
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log('User data loaded:', data); // Логируем загруженные данные
-        setUser({
-          ...data,
-          token: token
-        });
-      })
-      .catch(error => {
-        console.error('Error fetching user data:', error);
-        localStorage.removeItem('token');
-        setUser(null);
-      })
-      .finally(() => {
-        setLoading(false); // Устанавливаем состояние загрузки в false
-      });
-    } else {
-      setLoading(false); // Если токена нет, также устанавливаем состояние загрузки в false
-    }
+      }
+    };
+
+    loadUserData();
   }, []);
 
   const login = (userData) => {
     setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData)); // Сохраняем пользователя в localStorage
+    if (userData.password) {
+      localStorage.setItem('password', userData.password); // Сохраняем пароль при входе
+    }
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    localStorage.removeItem('username');
+    localStorage.removeItem('password');
   };
 
   return (
-    <UserContext.Provider value={{ user, loading, login, logout }}>
+    <UserContext.Provider value={{ user, login, logout }}>
       {children}
     </UserContext.Provider>
   );

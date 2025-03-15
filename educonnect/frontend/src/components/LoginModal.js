@@ -19,6 +19,11 @@ const LoginModal = ({ show, onHide }) => {
     localStorage.setItem('role', role);
     localStorage.setItem('username', data.username);
     
+    if (role === 'student') {
+      // Сохраняем пароль для последующей аутентификации
+      localStorage.setItem('password', password);
+    }
+
     // Получаем дополнительные данные только для учителей и администраторов
     if (role === 'teacher' || role === 'admin') {
       try {
