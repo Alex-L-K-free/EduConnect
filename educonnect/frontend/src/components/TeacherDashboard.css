@@ -1,0 +1,36 @@
+.students-list {
+  margin-top: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.subject-students {
+  margin-bottom: 20px;
+}
+
+.subject-students h4 {
+  color: #2e7d32;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.subject-students ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.subject-students li {
+  padding: 8px 12px;
+  margin: 4px 0;
+  background: #f5f5f5;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.subject-students li:hover {
+  background: #e8f5e9;
+  transform: translateX(4px);
+} 

@@ -79,9 +79,9 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
     }));
   };
 
-  // Обработчик выбора элемента подменю
+  // Обновляем обработчик выбора элемента подменю
   const handleSubmenuItemClick = (menuId, itemId, e) => {
-    e.stopPropagation(); // Предотвращаем всплытие события
+    e.stopPropagation();
     setSelectedItems(prev => ({
       ...prev,
       [menuId]: {
@@ -89,7 +89,13 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
         [itemId]: !prev[menuId]?.[itemId]
       }
     }));
-    onNavigate(`${menuId}/${itemId}`);
+
+    // Если выбран предмет, передаем его ID в URL
+    if (menuId === 'subjects') {
+      onNavigate(`students/by-subject/${itemId}`);
+    } else {
+      onNavigate(`${menuId}/${itemId}`);
+    }
   };
 
   const menuItems = [
