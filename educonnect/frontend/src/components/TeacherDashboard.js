@@ -7,26 +7,27 @@ import axios from 'axios';
 
 const TeacherDashboard = () => {
   const [currentView, setCurrentView] = useState('main');
-  const [selectedSubjectId, setSelectedSubjectId] = useState(null);
-  const [subjectStudents, setSubjectStudents] = useState([]);
-  const [selectedSubjectName, setSelectedSubjectName] = useState('');
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState([]);
+  const [subjectStudentsMap, setSubjectStudentsMap] = useState({});
+  const [subjectsData, setSubjectsData] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
-      if (selectedSubjectId) {
+      if (selectedSubjectIds.length > 0) {
         try {
-          // Получаем все предметы для получения имени выбранного предмета
+          // Получаем все предметы
           const subjectsResponse = await axios.get('/api/v1/subjects/', {
             headers: {
               'Authorization': `Token ${localStorage.getItem('token')}`
             }
           });
 
-          // Находим выбранный предмет и его имя
-          const selectedSubject = subjectsResponse.data.find(
-            subject => subject.id.toString() === selectedSubjectId
-          );
-          setSelectedSubjectName(selectedSubject?.name || '');
+          // Создаем мапу предметов для быстрого доступа
+          const subjectsMap = {};
+          subjectsResponse.data.forEach(subject => {
+            subjectsMap[subject.id] = subject;
+          });
+          setSubjectsData(subjectsMap);
 
           // Получаем всех учеников
           const studentsResponse = await axios.get('/api/v1/students/', {
@@ -35,15 +36,19 @@ const TeacherDashboard = () => {
             }
           });
 
-          // Фильтруем учеников по выбранному предмету
-          const filteredStudents = studentsResponse.data.filter(student => {
-            return student.username && // только зарегистрированные
-                   student.username !== 'Не зарегистрирован' && // исключаем незарегистрированных
-                   student.subject && // проверяем наличие предмета
-                   student.subject === selectedSubject?.name; // сравниваем по имени предмета
+          // Группируем учеников по предметам
+          const studentsBySubject = {};
+          selectedSubjectIds.forEach(subjectId => {
+            const subjectName = subjectsMap[subjectId]?.name;
+            studentsBySubject[subjectId] = studentsResponse.data.filter(student => 
+              student.username && 
+              student.username !== 'Не зарегистрирован' &&
+              student.subject && 
+              student.subject === subjectName
+            );
           });
 
-          setSubjectStudents(filteredStudents);
+          setSubjectStudentsMap(studentsBySubject);
         } catch (error) {
           console.error('Ошибка при получении данных:', error);
         }
@@ -51,17 +56,49 @@ const TeacherDashboard = () => {
     };
 
     fetchData();
-  }, [selectedSubjectId]);
+  }, [selectedSubjectIds]);
 
   const handleNavigate = (view) => {
-    if (view.startsWith('students/by-subject/')) {
-      const subjectId = view.split('/').pop();
-      setSelectedSubjectId(subjectId);
-      setCurrentView('students-by-subject');
+    if (view.startsWith('students/by-subjects/')) {
+      const subjectIds = view.split('/').pop().split(',');
+      setSelectedSubjectIds(subjectIds);
+      setCurrentView('students-by-subjects');
     } else {
       setCurrentView(view);
-      setSelectedSubjectId(null);
+      setSelectedSubjectIds([]);
     }
+  };
+
+  const renderStudentsList = (subjectId, students) => {
+    const subjectName = subjectsData[subjectId]?.name || '';
+    
+    return (
+      <div key={subjectId} className="subject-students-list">
+        <h3>Предмет: {subjectName}</h3>
+        {students.length > 0 ? (
+          <table className="students-table">
+            <thead>
+              <tr>
+                <th>Логин</th>
+                <th>ФИО</th>
+                <th>Класс</th>
+              </tr>
+            </thead>
+            <tbody>
+              {students.map(student => (
+                <tr key={student.id}>
+                  <td>{student.username}</td>
+                  <td>{`${student.lastName} ${student.firstName} ${student.middleName || ''}`}</td>
+                  <td>{`${student.grade} ${student.index || ''}`}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>Нет зарегистрированных учеников, изучающих данный предмет</p>
+        )}
+      </div>
+    );
   };
 
   const renderContent = () => {
@@ -72,37 +109,11 @@ const TeacherDashboard = () => {
         return <TeacherSubjects />;
       case 'students':
         return <StudentsList />;
-      case 'students-by-subject':
+      case 'students-by-subjects':
         return (
-          <div className="subject-students-list">
-            <h3>Предмет: {selectedSubjectName}</h3>
-            {subjectStudents.length > 0 ? (
-              <table className="students-table">
-                <thead>
-                  <tr>
-                    <th>Логин</th>
-                    <th>ФИО</th>
-                    <th>Класс</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {subjectStudents.map(student => (
-                    <tr key={student.id}>
-                      <td>
-                        <td>{student.username}</td>
-                        {/* {`${student.lastName || ''} ${student.firstName || ''} ${student.middleName || ''}`} */}
-                      </td>
-                      <td>
-                      {`${student.lastName || ''} ${student.firstName || ''} ${student.middleName || ''}`}
-                      </td>
-                      {student.grade ? `${student.grade} ${student.index || ''}` : 'Не указан'}
-                      {/* <td>{student.username}</td> */}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p>Нет зарегистрированных учеников, изучающих данный предмет</p>
+          <div>
+            {selectedSubjectIds.map(subjectId => 
+              renderStudentsList(subjectId, subjectStudentsMap[subjectId] || [])
             )}
           </div>
         );
