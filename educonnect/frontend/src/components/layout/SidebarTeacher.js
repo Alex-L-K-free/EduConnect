@@ -1,10 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Sidebar.css'; // Импортируйте стили для Sidebar
+import axios from 'axios';
+import { useUser } from '../../UserContext';
 
 const SidebarTeacher = ({ activePage, onNavigate }) => {
   // Состояния для отслеживания открытых подменю
   const [openMenus, setOpenMenus] = useState({});
   const [selectedItems, setSelectedItems] = useState({});
+  const [teacherSubjects, setTeacherSubjects] = useState([]);
+  const { user } = useUser();
+
+  // Получаем предметы учителя при монтировании компонента
+  useEffect(() => {
+    const fetchTeacherSubjects = async () => {
+      try {
+        const response = await axios.get('/api/v1/subjects/', {
+          headers: {
+            'Authorization': `Token ${localStorage.getItem('token')}`
+          }
+        });
+        
+        // Преобразуем данные в нужный формат
+        // Предполагаем, что API возвращает массив объектов с полями id и name
+        const formattedSubjects = response.data.map(subject => ({
+          id: subject.id.toString(),
+          label: subject.name || subject.subject_name // проверяем оба возможных имени поля
+        }));
+        
+        setTeacherSubjects(formattedSubjects);
+      } catch (error) {
+        console.error('Ошибка при получении предметов:', error);
+      }
+    };
+
+    if (user && user.role === 'teacher') {
+      fetchTeacherSubjects();
+    }
+  }, [user]);
 
   const handleMainClick = () => {
     onNavigate('main');
@@ -36,19 +68,7 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
       id: 'subjects',
       label: 'Предметы',
       icon: '📚',
-      items: [
-        { id: 'math', label: 'Математика' },
-        { id: 'physics', label: 'Физика' },
-        { id: 'chemistry', label: 'Химия' },
-        { id: 'biology', label: 'Биология' },
-        { id: 'history', label: 'История' },
-        // Добавим больше предметов для проверки прокрутки
-        { id: 'literature', label: 'Литература' },
-        { id: 'geography', label: 'География' },
-        { id: 'informatics', label: 'Информатика' },
-        { id: 'english', label: 'Английский язык' },
-        { id: 'french', label: 'Французский язык' }
-      ]
+      items: teacherSubjects // Используем полученные предметы учителя
     },
     {
       id: 'classes',
@@ -135,7 +155,7 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
             
             {openMenus[menu.id] && (
               <ul className="submenu">
-                {menu.items.map(item => (
+                {menu.items?.map(item => (
                   <li
                     key={item.id}
                     className={`submenu-item ${selectedItems[menu.id]?.[item.id] ? 'selected' : ''}`}
