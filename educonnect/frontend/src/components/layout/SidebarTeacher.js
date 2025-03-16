@@ -9,14 +9,42 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
     onNavigate('main');
   };
 
-  const toggleCabinet = () => {
-    setIsCabinetOpen(!isCabinetOpen);
+  const handleMenuClick = (page) => {
+    onNavigate(page);
   };
 
-  // const handleSubmenuClick = (page, e) => {
-  //   e.stopPropagation();
-  //   onNavigate(page);
-  // };
+  const menuItems = [
+    {
+      id: 'subjects',
+      label: 'Предметы',
+      icon: '📚'
+    },
+    {
+      id: 'classes',
+      label: 'Классы',
+      icon: '👥'
+    },
+    {
+      id: 'students',
+      label: 'Ученики',
+      icon: '🎓'
+    },
+    {
+      id: 'materials',
+      label: 'Материалы',
+      icon: '📝'
+    },
+    {
+      id: 'messages',
+      label: 'Сообщения',
+      icon: '✉️'
+    },
+    {
+      id: 'notifications',
+      label: 'Уведомления',
+      icon: '🔔'
+    }
+  ];
 
   return (
     <div className="sidebar">
@@ -26,47 +54,30 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
           className={activePage === 'main' ? 'active' : ''}
           onClick={handleMainClick}
         >
-          {/* <a href="#!">Главная</a> */}
+          <span className="menu-icon">🏠</span>
+          <span className="menu-text">Главная</span>
         </li>
         
+        {menuItems.map(item => (
+          <li 
+            key={item.id}
+            className={activePage === item.id ? 'active' : ''}
+            onClick={() => handleMenuClick(item.id)}
+          >
+            <span className="menu-icon">{item.icon}</span>
+            <span className="menu-text">{item.label}</span>
+          </li>
+        ))}
+
         <li 
           className={`cabinet-item ${isCabinetOpen ? 'open' : ''} ${
-            ['profile', 'subjects', 'cabinet'].includes(activePage) ? 'active' : ''
+            ['profile'].includes(activePage) ? 'active' : ''
           }`}
-          onClick={toggleCabinet}
+          onClick={() => handleMenuClick('profile')}
         >
-          {/* <a href="#!">
-            Мой кабинет
-            <span className={`arrow ${isCabinetOpen ? 'down' : 'right'}`}>▸</span>
-          </a> */}
-          
-          {/* {isCabinetOpen && (
-            <ul className="submenu">
-              <li 
-                className={activePage === 'profile' ? 'active' : ''}
-                onClick={(e) => handleSubmenuClick('profile', e)}
-              >
-                <a href="#!">Мой профиль</a>
-              </li>
-              <li 
-                className={activePage === 'subjects' ? 'active' : ''}
-                onClick={(e) => handleSubmenuClick('subjects', e)}
-              >
-                <a href="#!">Мои предметы</a>
-              </li>
-              <li 
-                className={activePage === 'students' ? 'active' : ''}
-                onClick={(e) => handleSubmenuClick('students', e)}
-              >
-                <a href="#!">Мои ученики</a>
-              </li>
-            </ul>
-          )} */}
+          <span className="menu-icon">👤</span>
+          <span className="menu-text">Мой профиль</span>
         </li>
-        {/* <li className={activePage === 'student' ? 'active' : ''}>
-          <a href="/student">Мои ученики</a>
-        </li> */}
-         {/* Добавьте другие элементы навигации для ученика */}
       </ul>
     </div>
   );

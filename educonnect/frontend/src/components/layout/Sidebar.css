@@ -173,8 +173,44 @@
 }
 
 .sidebar li {
-  margin: 10px 0;
-  transition: var(--transition-normal);
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  margin: 4px 0;
+}
+
+.sidebar li:hover {
+  background-color: rgba(46, 125, 50, 0.1);
+}
+
+.sidebar li.active {
+  background-color: #2e7d32;
+  color: white;
+}
+
+.menu-icon {
+  margin-right: 12px;
+  font-size: 1.2rem;
+  width: 24px;
+  text-align: center;
+}
+
+.menu-text {
+  font-weight: 500;
+}
+
+/* Анимация при наведении */
+.sidebar li:hover .menu-icon {
+  transform: scale(1.1);
+}
+
+/* Активный элемент */
+.sidebar li.active .menu-icon,
+.sidebar li.active .menu-text {
+  color: white;
 }
 
 .sidebar li a {
