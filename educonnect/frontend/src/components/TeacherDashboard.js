@@ -86,8 +86,12 @@ const TeacherDashboard = () => {
                 <tbody>
                   {subjectStudents.map(student => (
                     <tr key={student.id}>
-                      <td>{`${student.last_name} ${student.first_name} ${student.middle_name || ''}`}</td>
-                      <td>{`${student.grade} ${student.class_letter}`}</td>
+                      <td>
+                        {`${student.lastName || ''} ${student.firstName || ''} ${student.middleName || ''}`}
+                      </td>
+                      <td>
+                        {student.grade ? `${student.grade} ${student.index || ''}` : 'Не указан'}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
