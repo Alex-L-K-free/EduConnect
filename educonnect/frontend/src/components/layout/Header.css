@@ -32,6 +32,7 @@
 .nav-auth {
   display: flex;
   align-items: center;
+  height: 100%;
 }
 
 .nav-auth span {
@@ -234,4 +235,43 @@
   right: 16px;
   top: 50%;
   transform: translateY(-50%);
+}
+
+/* Стили для ссылки "Главная" */
+.home-link {
+  color: white !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 8px 16px !important;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.home-link:hover,
+.home-link:focus,
+.home-link:active {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  box-shadow: none !important;
+  color: white !important;
+  transform: translateY(-1px);
+}
+
+/* Обновляем стили для выравнивания */
+.nav-auth {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+/* Общие стили для кликабельных элементов в header */
+.user-dropdown-toggle,
+.home-link {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 8px 16px !important;
+  color: white !important;
+  background: transparent !important;
+  border: none !important;
+  transition: all 0.3s ease;
 }

@@ -26,7 +26,7 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
           className={activePage === 'main' ? 'active' : ''}
           onClick={handleMainClick}
         >
-          <a href="#!">Главная</a>
+          {/* <a href="#!">Главная</a> */}
         </li>
         
         <li 

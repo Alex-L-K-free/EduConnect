@@ -132,7 +132,7 @@ const Header = () => {
         <Nav className="ms-3">
           <Nav.Link 
             onClick={navigateToHome}
-            className="text-white fw-bold"
+            className="home-link user-dropdown-toggle"
           >
             Главная
           </Nav.Link>
