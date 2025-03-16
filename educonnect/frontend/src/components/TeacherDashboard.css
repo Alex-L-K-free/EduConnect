@@ -33,4 +33,39 @@
 .subject-students li:hover {
   background: #e8f5e9;
   transform: translateX(4px);
+}
+
+.subject-students-list {
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.subject-students-list h3 {
+  color: #2e7d32;
+  margin-bottom: 20px;
+}
+
+.students-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.students-table th,
+.students-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.students-table th {
+  background-color: #f5f5f5;
+  font-weight: 500;
+  color: #2e7d32;
+}
+
+.students-table tr:hover {
+  background-color: #f8f8f8;
 } 
