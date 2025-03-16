@@ -4,10 +4,136 @@
   backdrop-filter: blur(10px);
   border-right: 1px solid rgba(46, 125, 50, 0.1);
   box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05);
-  height: 100%;
+  height: 100vh; /* На всю высоту экрана */
+  overflow-y: auto; /* Добавляем вертикальную прокрутку */
+  width: 250px; /* Фиксированная ширина */
+  position: fixed;
+}
+
+/* Основной список */
+.sidebar-nav {
+  padding: 8px;
+  margin: 0;
+  list-style: none;
+}
+
+/* Стили для пунктов меню */
+.sidebar li {
+  display: flex;
+  align-items: flex-start; /* Выравнивание по верхнему краю */
+  padding: 6px 8px; /* Уменьшенные отступы */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 6px;
+  margin: 2px 0; /* Уменьшенный интервал между пунктами */
+}
+
+/* Заголовок пункта меню */
+.menu-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 4px 8px;
+}
+
+/* Иконки */
+.menu-icon {
+  margin-right: 8px;
+  font-size: 1.1rem;
+  width: 20px;
+  text-align: center;
+}
+
+/* Текст меню */
+.menu-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Стрелка */
+.arrow {
+  margin-left: auto;
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+}
+
+.arrow.down {
+  transform: rotate(90deg);
+}
+
+/* Подменю */
+.submenu {
+  list-style: none;
+  padding-left: 28px; /* Уменьшенный отступ слева */
+  margin: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* Элементы подменю */
+.submenu-item {
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+/* Чекбоксы */
+.checkbox {
+  margin-right: 6px;
+  font-size: 1rem;
+}
+
+/* Активные состояния */
+.menu-item.active > .menu-header {
+  background-color: rgba(46, 125, 50, 0.1);
+}
+
+.submenu-item.selected {
+  background-color: rgba(46, 125, 50, 0.05);
+  font-weight: 500;
+}
+
+/* Эффекты при наведении */
+.menu-item:hover > .menu-header {
+  background-color: rgba(46, 125, 50, 0.05);
+}
+
+.submenu-item:hover {
+  background-color: rgba(46, 125, 50, 0.03);
+  padding-left: 12px;
+}
+
+/* Стили для раскрытого меню */
+.menu-item {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+}
+
+.menu-item.open {
+  background-color: rgba(46, 125, 50, 0.02);
+}
+
+/* Скроллбар */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: rgba(46, 125, 50, 0.2);
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(46, 125, 50, 0.3);
 }
 
 /* Стили для хедера сайдбара */
@@ -172,16 +298,6 @@
   transform-style: preserve-3d;
 }
 
-.sidebar li {
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border-radius: 8px;
-  margin: 4px 0;
-}
-
 .sidebar li:hover {
   background-color: rgba(46, 125, 50, 0.1);
 }
@@ -189,17 +305,6 @@
 .sidebar li.active {
   background-color: #2e7d32;
   color: white;
-}
-
-.menu-icon {
-  margin-right: 12px;
-  font-size: 1.2rem;
-  width: 24px;
-  text-align: center;
-}
-
-.menu-text {
-  font-weight: 500;
 }
 
 /* Анимация при наведении */
