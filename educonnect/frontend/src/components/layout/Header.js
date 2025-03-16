@@ -5,7 +5,9 @@ import { useUser } from '../../UserContext';
 // import './Header.css';
 import LoginModal from '../LoginModal';
 import { useNavigate } from 'react-router-dom';
+import educonnectLogo from '../../assets/images/educonnect-logo.png';
 import './Header.css';
+// import logo from '/educonnect-logo.png';
 
 const Header = () => {
   const { user, logout } = useUser();
@@ -81,7 +83,15 @@ const Header = () => {
 
   return (
     <Navbar bg="primary" variant="dark" fixed="top">
-      <Navbar.Brand href="/">EduConnect</Navbar.Brand>
+      {/*<Navbar.Brand href="/">EduConnect</Navbar.Brand>*/}
+      <Navbar.Brand href="/">
+        <img
+          src={educonnectLogo}
+          alt="EduConnect"
+          className="header-logo"
+        />
+        EduConnect
+      </Navbar.Brand>
       <Nav className="ms-auto">
         {user ? (
           <div className="nav-auth">
