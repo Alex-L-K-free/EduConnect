@@ -42,9 +42,28 @@ const Header = () => {
     return '';
   };
 
-  // const handleMenuClick = (path) => {
-  //   navigate(path);
-  // };
+  // Функция для перехода на главную страницу в зависимости от роли
+  const navigateToHome = () => {
+    if (!user) {
+      navigate('/');
+      return;
+    }
+    
+    switch(user.role) {
+      case 'teacher':
+        navigate('/teacher');
+        break;
+      case 'student':
+        navigate('/student');
+        break;
+      case 'admin':
+        navigate('/admin');
+        break;
+      default:
+        navigate('/');
+    }
+  };
+
   const handleMenuClick = (page) => {
     switch(page) {
       case 'profile':
@@ -81,13 +100,13 @@ const Header = () => {
         return renderTeacherSubmenu();
       case 'student':
         return (
-          <Dropdown.Item onClick={() => handleMenuClick('/student')}>
+          <Dropdown.Item onClick={() => handleMenuClick('student')}>
             Мой кабинет
           </Dropdown.Item>
         );
       case 'admin':
         return (
-          <Dropdown.Item onClick={() => handleMenuClick('/admin')}>
+          <Dropdown.Item onClick={() => handleMenuClick('admin')}>
             Мой кабинет
           </Dropdown.Item>
         );
@@ -107,6 +126,19 @@ const Header = () => {
         />
         EduConnect
       </Navbar.Brand>
+      
+      {/* Добавляем кнопку "Главная" */}
+      {user && (
+        <Nav className="ms-3">
+          <Nav.Link 
+            onClick={navigateToHome}
+            className="text-white fw-bold"
+          >
+            Главная
+          </Nav.Link>
+        </Nav>
+      )}
+      
       <Nav className="ms-auto">
         {user ? (
           <div className="nav-auth">
