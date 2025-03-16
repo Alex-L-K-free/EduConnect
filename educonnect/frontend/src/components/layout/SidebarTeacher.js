@@ -8,33 +8,62 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
   const [openMenus, setOpenMenus] = useState({});
   const [selectedItems, setSelectedItems] = useState({});
   const [teacherSubjects, setTeacherSubjects] = useState([]);
+  const [teacherClasses, setTeacherClasses] = useState([]);
   const { user } = useUser();
 
   // Получаем предметы учителя при монтировании компонента
   useEffect(() => {
-    const fetchTeacherSubjects = async () => {
+    const fetchTeacherData = async () => {
       try {
-        const response = await axios.get('/api/v1/subjects/', {
+        // Получаем предметы
+        const subjectsResponse = await axios.get('/api/v1/subjects/', {
           headers: {
             'Authorization': `Token ${localStorage.getItem('token')}`
           }
         });
         
-        // Преобразуем данные в нужный формат
-        // Предполагаем, что API возвращает массив объектов с полями id и name
-        const formattedSubjects = response.data.map(subject => ({
+        const formattedSubjects = subjectsResponse.data.map(subject => ({
           id: subject.id.toString(),
-          label: subject.name || subject.subject_name // проверяем оба возможных имени поля
+          label: subject.name || subject.subject_name
         }));
-        
         setTeacherSubjects(formattedSubjects);
+
+        // Получаем список учеников (и их классов)
+        const studentsResponse = await axios.get('/api/v1/students/', {
+          headers: {
+            'Authorization': `Token ${localStorage.getItem('token')}`
+          }
+        });
+
+        // Получаем уникальные классы из списка учеников
+        const classes = new Set();
+        studentsResponse.data.forEach(student => {
+          if (student.grade && student.class_letter) {
+            classes.add(`${student.grade} ${student.class_letter}`);
+          }
+        });
+
+        // Форматируем классы
+        const formattedClasses = Array.from(classes).sort().map((className, index) => ({
+          id: `class-${index}`,
+          label: className,
+          students: studentsResponse.data.filter(student => 
+            `${student.grade} ${student.class_letter}` === className
+          ).map(student => ({
+            id: student.id.toString(),
+            label: `${student.last_name} ${student.first_name}`
+          }))
+        }));
+
+        setTeacherClasses(formattedClasses);
+
       } catch (error) {
-        console.error('Ошибка при получении предметов:', error);
+        console.error('Ошибка при получении данных:', error);
       }
     };
 
     if (user && user.role === 'teacher') {
-      fetchTeacherSubjects();
+      fetchTeacherData();
     }
   }, [user]);
 
@@ -68,22 +97,13 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
       id: 'subjects',
       label: 'Предметы',
       icon: '📚',
-      items: teacherSubjects // Используем полученные предметы учителя
+      items: teacherSubjects
     },
     {
       id: 'classes',
       label: 'Классы',
       icon: '👥',
-      items: [
-        { id: '5a', label: '5 А' },
-        { id: '5b', label: '5 Б' },
-        { id: '6a', label: '6 А' },
-        { id: '6b', label: '6 Б' },
-        { id: '7a', label: '7 А' },
-        { id: '7b', label: '7 Б' },
-        { id: '8a', label: '8 А' },
-        { id: '8b', label: '8 Б' }
-      ]
+      items: teacherClasses
     },
     {
       id: 'students',
