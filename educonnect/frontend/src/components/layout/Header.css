@@ -19,6 +19,59 @@
   margin-right: 1rem;
 }
 
+/* Выделение пунктов меню при наведении */
+.dropdown-item {
+  padding: 10px 16px;
+  color: #1b5e20 !important;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Выделение пунктов выпадающего меню */
+.dropdown-item:hover {
+  background: linear-gradient(to right, #c8e6c9, #a5d6a7) !important;
+  color: #1b5e20 !important;
+  transform: translateX(5px);
+}
+
+/* Выделение кнопки входа при наведении */
+.btn-outline-light {
+  border-width: 2px;
+  font-weight: 500;
+  padding: 8px 20px;
+  transition: all 0.3s ease;
+}
+
+/* Выделение кнопки входа */
+.btn-outline-light:hover {
+  background-color: white;
+  color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Выделение кнопки пользователя */
+.user-dropdown-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Выделение логотипа */
+.navbar-brand:hover {
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Подсветка активного состояния dropdown */
+.dropdown.show .user-dropdown-toggle {
+  background-color: rgba(255, 255, 255, 0.25) !important;
+}
 .btn-outline-light {
   border-width: 2px;
   font-weight: 500;
@@ -32,14 +85,26 @@
   transform: translateY(-1px);
 }
 
+/* стили  текста в кнопке пользователя*/
+/*.user-dropdown-toggle {*/
+/*  color: white !important;*/
+/*  background: transparent !important;*/
+/*  border: none !important;*/
+/*  padding: 8px 16px !important;*/
+/*  font-weight: 500;*/
+/*  transition: all 0.3s ease;*/
+/*}*/
 .user-dropdown-toggle {
   color: white !important;
   background: transparent !important;
   border: none !important;
   padding: 8px 16px !important;
-  font-weight: 500;
+  font-weight: 600; /* Делаем шрифт чуть жирнее */
   transition: all 0.3s ease;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Добавляем тень для текста */
+  letter-spacing: 0.3px; /* Немного увеличиваем расстояние между буквами */
 }
+
 
 .user-dropdown-toggle::after {
   margin-left: 8px;
@@ -60,23 +125,52 @@
   border: none;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
-  padding: 8px 0;
+  /*padding: 8px 0;*/
+  /*padding: 4px; !* Уменьшаем внутренний отступ меню *!*/
+  padding: 0; /* Убираем padding у меню */
   min-width: 200px;
   z-index: 1100;
+  overflow: hidden; /* Добавляем overflow: hidden */
 }
 
+/* Выделение пунктов меню при наведении */
+/*.dropdown-item {*/
+/*  padding: 10px 16px;*/
+/*  color: #1b5e20 !important;*/
+/*  font-weight: 500;*/
+/*  transition: all 0.2s ease;*/
+/*  display: flex;*/
+/*  align-items: center;*/
+/*}*/
 .dropdown-item {
   padding: 10px 16px;
   color: #1b5e20 !important;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
+  /*position: relative;*/
+  /*overflow: hidden;*/
+  /*margin: 0; !* Убираем margin *!*/
+  /*width: 100%; !* Задаем полную ширину *!*/
+  /*margin: 2px 4px; !* Добавляем отступы по бокам *!*/
+  /*width: calc(100% - 8px); !* Учитываем отступы *!*/
+  /*border-radius: 6px; !* Добавляем скругление *!*/
+  width: 100%; /* Полная ширина */
+  margin: 0; /* Убираем margin */
 }
 
+/*.dropdown-item:hover {*/
+/*  background-color: #c8e6c9 !important;*/
+/*  color: var(--primary-color) !important;*/
+/*}*/
+
+/* Выделение пунктов выпадающего меню */
 .dropdown-item:hover {
-  background-color: #c8e6c9 !important;
-  color: var(--primary-color) !important;
+  background: linear-gradient(to right, #c8e6c9, #a5d6a7) !important;
+  color: #1b5e20 !important;
+  transform: translateX(5px);
+  /*padding-right: 16px; !* Фиксируем правый отступ *!*/
 }
 
 .dropdown-divider {
