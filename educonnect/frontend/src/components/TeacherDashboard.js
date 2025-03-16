@@ -75,7 +75,7 @@ const TeacherDashboard = () => {
       case 'students-by-subject':
         return (
           <div className="subject-students-list">
-            <h3>Ученики по предмету: {selectedSubjectName}</h3>
+            <h3>Предмет: {selectedSubjectName}</h3>
             {subjectStudents.length > 0 ? (
               <table className="students-table">
                 <thead>
