@@ -38,6 +38,7 @@ const TeacherDashboard = () => {
           // Фильтруем учеников по выбранному предмету
           const filteredStudents = studentsResponse.data.filter(student => {
             return student.username && // только зарегистрированные
+                   student.username !== 'Не зарегистрирован' && // исключаем незарегистрированных
                    student.subject && // проверяем наличие предмета
                    student.subject === selectedSubject?.name; // сравниваем по имени предмета
           });
@@ -79,6 +80,7 @@ const TeacherDashboard = () => {
               <table className="students-table">
                 <thead>
                   <tr>
+                    <th>Логин</th>
                     <th>ФИО</th>
                     <th>Класс</th>
                   </tr>
@@ -87,17 +89,20 @@ const TeacherDashboard = () => {
                   {subjectStudents.map(student => (
                     <tr key={student.id}>
                       <td>
-                        {`${student.lastName || ''} ${student.firstName || ''} ${student.middleName || ''}`}
+                        <td>{student.username}</td>
+                        {/* {`${student.lastName || ''} ${student.firstName || ''} ${student.middleName || ''}`} */}
                       </td>
                       <td>
-                        {student.grade ? `${student.grade} ${student.index || ''}` : 'Не указан'}
+                      {`${student.lastName || ''} ${student.firstName || ''} ${student.middleName || ''}`}
                       </td>
+                      {student.grade ? `${student.grade} ${student.index || ''}` : 'Не указан'}
+                      {/* <td>{student.username}</td> */}
                     </tr>
                   ))}
                 </tbody>
               </table>
             ) : (
-              <p>Нет учеников, изучающих данный предмет</p>
+              <p>Нет зарегистрированных учеников, изучающих данный предмет</p>
             )}
           </div>
         );
