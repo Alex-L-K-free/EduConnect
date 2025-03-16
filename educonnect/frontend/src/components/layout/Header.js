@@ -42,19 +42,34 @@ const Header = () => {
     return '';
   };
 
-  const handleMenuClick = (path) => {
-    navigate(path);
+  // const handleMenuClick = (path) => {
+  //   navigate(path);
+  // };
+  const handleMenuClick = (page) => {
+    switch(page) {
+      case 'profile':
+        navigate('/teacher/profile');
+        break;
+      case 'subjects':
+        navigate('/teacher/subjects');
+        break;
+      case 'students':
+        navigate('/teacher/students');
+        break;
+      default:
+        navigate(`/${page}`);
+    }
   };
 
   const renderTeacherSubmenu = () => (
     <>
-      <Dropdown.Item onClick={() => handleMenuClick('/teacher/profile')}>
+      <Dropdown.Item onClick={() => handleMenuClick('profile')}>
         Мой профиль
       </Dropdown.Item>
-      <Dropdown.Item onClick={() => handleMenuClick('/teacher/subjects')}>
+      <Dropdown.Item onClick={() => handleMenuClick('subjects')}>
         Мои предметы
       </Dropdown.Item>
-      <Dropdown.Item onClick={() => handleMenuClick('/teacher/students')}>
+      <Dropdown.Item onClick={() => handleMenuClick('students')}>
         Мои ученики
       </Dropdown.Item>
     </>

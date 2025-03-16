@@ -8,6 +8,9 @@ import Layout from './components/layout/Layout';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './App.css';
+import TeacherProfile from './components/forms/teachers/TeacherProfile';
+import SubjectsList from './components/forms/subjects/SubjectsList';
+import StudentsList from './components/forms/students/StudentsList';
 
 const App = () => {
   return (
@@ -32,6 +35,21 @@ const App = () => {
           <Layout activePage="student">
             <StudentDashboard />
           </Layout>
+        } />
+        <Route path="/teacher/profile" element={
+          <Layout activePage="profile">
+            <TeacherProfile />
+          </Layout>
+        } />
+       <Route path="/teacher/subjects" element={
+          <Layout activePage="subjects">
+           <SubjectsList />
+          </Layout>
+        } />
+        <Route path="/teacher/students" element={
+           <Layout activePage="students">
+             <StudentsList />
+           </Layout>
         } />
       </Routes>
     </Router>

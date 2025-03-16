@@ -13,10 +13,10 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
     setIsCabinetOpen(!isCabinetOpen);
   };
 
-  const handleSubmenuClick = (page, e) => {
-    e.stopPropagation();
-    onNavigate(page);
-  };
+  // const handleSubmenuClick = (page, e) => {
+  //   e.stopPropagation();
+  //   onNavigate(page);
+  // };
 
   return (
     <div className="sidebar">
@@ -35,12 +35,12 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
           }`}
           onClick={toggleCabinet}
         >
-          <a href="#!">
+          {/* <a href="#!">
             Мой кабинет
             <span className={`arrow ${isCabinetOpen ? 'down' : 'right'}`}>▸</span>
-          </a>
+          </a> */}
           
-          {isCabinetOpen && (
+          {/* {isCabinetOpen && (
             <ul className="submenu">
               <li 
                 className={activePage === 'profile' ? 'active' : ''}
@@ -61,7 +61,7 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
                 <a href="#!">Мои ученики</a>
               </li>
             </ul>
-          )}
+          )} */}
         </li>
         {/* <li className={activePage === 'student' ? 'active' : ''}>
           <a href="/student">Мои ученики</a>
