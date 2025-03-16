@@ -41,7 +41,13 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
         { id: 'physics', label: 'Физика' },
         { id: 'chemistry', label: 'Химия' },
         { id: 'biology', label: 'Биология' },
-        { id: 'history', label: 'История' }
+        { id: 'history', label: 'История' },
+        // Добавим больше предметов для проверки прокрутки
+        { id: 'literature', label: 'Литература' },
+        { id: 'geography', label: 'География' },
+        { id: 'informatics', label: 'Информатика' },
+        { id: 'english', label: 'Английский язык' },
+        { id: 'french', label: 'Французский язык' }
       ]
     },
     {
@@ -52,7 +58,11 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
         { id: '5a', label: '5 А' },
         { id: '5b', label: '5 Б' },
         { id: '6a', label: '6 А' },
-        { id: '6b', label: '6 Б' }
+        { id: '6b', label: '6 Б' },
+        { id: '7a', label: '7 А' },
+        { id: '7b', label: '7 Б' },
+        { id: '8a', label: '8 А' },
+        { id: '8b', label: '8 Б' }
       ]
     },
     {
@@ -98,7 +108,7 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
   ];
 
   return (
-    <div className="sidebar">
+    <div className="sidebar" style={{ height: 'calc(100vh - 64px)', overflowY: 'auto' }}>
       {/* <h2>Учитель</h2> */}
       <ul className="sidebar-nav">
         <li 

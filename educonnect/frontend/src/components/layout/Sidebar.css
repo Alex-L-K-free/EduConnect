@@ -4,10 +4,12 @@
   backdrop-filter: blur(10px);
   border-right: 1px solid rgba(46, 125, 50, 0.1);
   box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05);
-  height: 100vh; /* На всю высоту экрана */
-  overflow-y: auto; /* Добавляем вертикальную прокрутку */
-  width: 250px; /* Фиксированная ширина */
+  height: calc(100vh - 64px); /* Высота экрана минус высота header */
+  width: 260px;
   position: fixed;
+  top: 64px; /* Отступ от верха равный высоте header */
+  left: 0;
+  overflow-y: scroll; /* Изменяем на scroll для гарантированного отображения */
 }
 
 /* Основной список */
@@ -118,22 +120,22 @@
   background-color: rgba(46, 125, 50, 0.02);
 }
 
-/* Скроллбар */
+/* Стили для скроллбара */
 .sidebar::-webkit-scrollbar {
-  width: 6px;
+  width: 8px; /* Увеличиваем ширину для лучшей видимости */
 }
 
 .sidebar::-webkit-scrollbar-track {
-  background: transparent;
+  background: #f1f1f1;
 }
 
 .sidebar::-webkit-scrollbar-thumb {
-  background-color: rgba(46, 125, 50, 0.2);
-  border-radius: 3px;
+  background-color: #2e7d32;
+  border-radius: 4px;
 }
 
 .sidebar::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(46, 125, 50, 0.3);
+  background-color: #1b5e20;
 }
 
 /* Стили для хедера сайдбара */
