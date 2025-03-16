@@ -24,20 +24,29 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
     localStorage.setItem('teacherSidebarOpenMenus', JSON.stringify(openMenus));
   }, [openMenus]);
 
+  // Выносим логику восстановления выбранных предметов в отдельный useEffect
   useEffect(() => {
     localStorage.setItem('teacherSidebarSelectedItems', JSON.stringify(selectedItems));
-    
-    // Восстанавливаем выбранные предметы при загрузке
-    if (selectedItems.subjects) {
+  }, [selectedItems]);
+
+  // Отдельный useEffect для восстановления выбранных предметов
+  useEffect(() => {
+    // Восстанавливаем выбранные предметы только если есть и предметы, и выбранные элементы
+    if (teacherSubjects.length > 0 && selectedItems.subjects) {
       const selectedSubjectIds = teacherSubjects
         .filter(subject => selectedItems.subjects[subject.id])
         .map(subject => subject.id);
       
       if (selectedSubjectIds.length > 0) {
-        onNavigate(`students/by-subjects/${selectedSubjectIds.join(',')}`);
+        // Используем setTimeout чтобы избежать циклических обновлений
+        const timer = setTimeout(() => {
+          onNavigate(`students/by-subjects/${selectedSubjectIds.join(',')}`);
+        }, 0);
+        
+        return () => clearTimeout(timer);
       }
     }
-  }, [selectedItems]);
+  }, [teacherSubjects, selectedItems.subjects, onNavigate]);
 
   // Получаем предметы учителя при монтировании компонента
   useEffect(() => {
