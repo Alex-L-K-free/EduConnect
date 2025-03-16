@@ -2,54 +2,105 @@ import React, { useState } from 'react';
 import './Sidebar.css'; // Импортируйте стили для Sidebar
 
 const SidebarTeacher = ({ activePage, onNavigate }) => {
-  const [isCabinetOpen, setIsCabinetOpen] = useState(false);
+  // Состояния для отслеживания открытых подменю
+  const [openMenus, setOpenMenus] = useState({});
+  const [selectedItems, setSelectedItems] = useState({});
 
   const handleMainClick = () => {
-    setIsCabinetOpen(false); // Закрываем подменю
     onNavigate('main');
   };
 
-  const handleMenuClick = (page) => {
-    onNavigate(page);
+  // Обработчик для переключения раскрывающегося меню
+  const toggleSubmenu = (menuId) => {
+    setOpenMenus(prev => ({
+      ...prev,
+      [menuId]: !prev[menuId]
+    }));
+  };
+
+  // Обработчик выбора элемента подменю
+  const handleSubmenuItemClick = (menuId, itemId, e) => {
+    e.stopPropagation(); // Предотвращаем всплытие события
+    setSelectedItems(prev => ({
+      ...prev,
+      [menuId]: {
+        ...prev[menuId],
+        [itemId]: !prev[menuId]?.[itemId]
+      }
+    }));
+    onNavigate(`${menuId}/${itemId}`);
   };
 
   const menuItems = [
     {
       id: 'subjects',
       label: 'Предметы',
-      icon: '📚'
+      icon: '📚',
+      items: [
+        { id: 'math', label: 'Математика' },
+        { id: 'physics', label: 'Физика' },
+        { id: 'chemistry', label: 'Химия' },
+        { id: 'biology', label: 'Биология' },
+        { id: 'history', label: 'История' }
+      ]
     },
     {
       id: 'classes',
       label: 'Классы',
-      icon: '👥'
+      icon: '👥',
+      items: [
+        { id: '5a', label: '5 А' },
+        { id: '5b', label: '5 Б' },
+        { id: '6a', label: '6 А' },
+        { id: '6b', label: '6 Б' }
+      ]
     },
     {
       id: 'students',
       label: 'Ученики',
-      icon: '🎓'
+      icon: '🎓',
+      items: [
+        { id: 'class-5', label: '5 класс' },
+        { id: 'class-6', label: '6 класс' },
+        { id: 'class-7', label: '7 класс' }
+      ]
     },
     {
       id: 'materials',
       label: 'Материалы',
-      icon: '📝'
+      icon: '📝',
+      items: [
+        { id: 'lessons', label: 'Уроки' },
+        { id: 'homework', label: 'Домашние задания' },
+        { id: 'tests', label: 'Тесты' }
+      ]
     },
     {
       id: 'messages',
       label: 'Сообщения',
-      icon: '✉️'
+      icon: '✉️',
+      items: [
+        { id: 'inbox', label: 'Входящие' },
+        { id: 'sent', label: 'Отправленные' },
+        { id: 'drafts', label: 'Черновики' }
+      ]
     },
     {
       id: 'notifications',
       label: 'Уведомления',
-      icon: '🔔'
+      icon: '🔔',
+      items: [
+        { id: 'new', label: 'Новые' },
+        { id: 'read', label: 'Прочитанные' },
+        { id: 'all', label: 'Все' }
+      ]
     }
   ];
 
   return (
     <div className="sidebar">
       {/* <h2>Учитель</h2> */}
-      <ul>
+      <ul className="sidebar-nav">
         <li 
           className={activePage === 'main' ? 'active' : ''}
           onClick={handleMainClick}
@@ -58,22 +109,42 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
           <span className="menu-text">Главная</span>
         </li>
         
-        {menuItems.map(item => (
+        {menuItems.map(menu => (
           <li 
-            key={item.id}
-            className={activePage === item.id ? 'active' : ''}
-            onClick={() => handleMenuClick(item.id)}
+            key={menu.id}
+            className={`menu-item ${openMenus[menu.id] ? 'open' : ''} ${
+              activePage.startsWith(menu.id) ? 'active' : ''
+            }`}
+            onClick={() => toggleSubmenu(menu.id)}
           >
-            <span className="menu-icon">{item.icon}</span>
-            <span className="menu-text">{item.label}</span>
+            <div className="menu-header">
+              <span className="menu-icon">{menu.icon}</span>
+              <span className="menu-text">{menu.label}</span>
+              <span className={`arrow ${openMenus[menu.id] ? 'down' : 'right'}`}>▸</span>
+            </div>
+            
+            {openMenus[menu.id] && (
+              <ul className="submenu">
+                {menu.items.map(item => (
+                  <li
+                    key={item.id}
+                    className={`submenu-item ${selectedItems[menu.id]?.[item.id] ? 'selected' : ''}`}
+                    onClick={(e) => handleSubmenuItemClick(menu.id, item.id, e)}
+                  >
+                    <span className="checkbox">
+                      {selectedItems[menu.id]?.[item.id] ? '☑' : '☐'}
+                    </span>
+                    {item.label}
+                  </li>
+                ))}
+              </ul>
+            )}
           </li>
         ))}
 
         <li 
-          className={`cabinet-item ${isCabinetOpen ? 'open' : ''} ${
-            ['profile'].includes(activePage) ? 'active' : ''
-          }`}
-          onClick={() => handleMenuClick('profile')}
+          className={activePage === 'profile' ? 'active' : ''}
+          onClick={() => onNavigate('profile')}
         >
           <span className="menu-icon">👤</span>
           <span className="menu-text">Мой профиль</span>

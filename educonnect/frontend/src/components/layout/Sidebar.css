@@ -318,3 +318,70 @@
 .cabinet-item.open .submenu {
   max-height: 200px; /* Достаточная высота для содержимого */
 }
+
+/* Стили для раскрывающегося меню */
+.menu-item {
+  position: relative;
+}
+
+.menu-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.arrow {
+  margin-left: auto;
+  transition: transform 0.3s ease;
+}
+
+.arrow.down {
+  transform: rotate(90deg);
+}
+
+/* Стили для подменю */
+.submenu {
+  list-style: none;
+  padding-left: 36px;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease-out;
+}
+
+.menu-item.open .submenu {
+  max-height: 500px; /* Достаточно большое значение для анимации */
+}
+
+.submenu-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.submenu-item:hover {
+  background-color: rgba(46, 125, 50, 0.05);
+}
+
+.submenu-item.selected {
+  background-color: rgba(46, 125, 50, 0.1);
+  font-weight: 500;
+}
+
+.checkbox {
+  margin-right: 8px;
+  font-size: 1.2rem;
+}
+
+/* Анимации и эффекты */
+.menu-item:hover > .menu-header {
+  background-color: rgba(46, 125, 50, 0.05);
+}
+
+.menu-item.active > .menu-header {
+  background-color: #2e7d32;
+  color: white;
+}
