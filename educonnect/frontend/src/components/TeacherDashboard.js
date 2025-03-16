@@ -11,7 +11,6 @@ const TeacherDashboard = () => {
   const [subjectStudents, setSubjectStudents] = useState([]);
   const [selectedSubjectName, setSelectedSubjectName] = useState('');
 
-  // Получаем список учеников и предметов
   useEffect(() => {
     const fetchData = async () => {
       if (selectedSubjectId) {
@@ -37,11 +36,11 @@ const TeacherDashboard = () => {
           });
 
           // Фильтруем учеников по выбранному предмету
-          const filteredStudents = studentsResponse.data.filter(student => 
-            student.username && // только зарегистрированные
-            student.subjects && // у которых есть предметы
-            student.subjects.includes(parseInt(selectedSubjectId)) // которые изучают выбранный предмет
-          );
+          const filteredStudents = studentsResponse.data.filter(student => {
+            return student.username && // только зарегистрированные
+                   student.subject && // проверяем наличие предмета
+                   student.subject === selectedSubject?.name; // сравниваем по имени предмета
+          });
 
           setSubjectStudents(filteredStudents);
         } catch (error) {
@@ -76,22 +75,26 @@ const TeacherDashboard = () => {
         return (
           <div className="subject-students-list">
             <h3>Ученики по предмету: {selectedSubjectName}</h3>
-            <table className="students-table">
-              <thead>
-                <tr>
-                  <th>ФИО</th>
-                  <th>Класс</th>
-                </tr>
-              </thead>
-              <tbody>
-                {subjectStudents.map(student => (
-                  <tr key={student.id}>
-                    <td>{`${student.last_name} ${student.first_name} ${student.middle_name || ''}`}</td>
-                    <td>{`${student.grade} ${student.class_letter}`}</td>
+            {subjectStudents.length > 0 ? (
+              <table className="students-table">
+                <thead>
+                  <tr>
+                    <th>ФИО</th>
+                    <th>Класс</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {subjectStudents.map(student => (
+                    <tr key={student.id}>
+                      <td>{`${student.last_name} ${student.first_name} ${student.middle_name || ''}`}</td>
+                      <td>{`${student.grade} ${student.class_letter}`}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p>Нет учеников, изучающих данный предмет</p>
+            )}
           </div>
         );
       default:
