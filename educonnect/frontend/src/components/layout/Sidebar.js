@@ -9,13 +9,21 @@ const Sidebar = ({ activePage }) => {
   const handleShow = () => setShowLogin(true);
   const handleClose = () => setShowLogin(false);
 
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      handleShow();
+    }
+  };
+
   return (
     <div className="sidebar">
       <div 
         className="sidebar-header clickable"
         onClick={handleShow}
+        onKeyPress={handleKeyPress}
         role="button"
         tabIndex={0}
+        aria-label="Открыть форму входа"
       >
         <img 
           src={educonnectLogo} 
@@ -26,8 +34,10 @@ const Sidebar = ({ activePage }) => {
       <div 
         className="registration-warning clickable"
         onClick={handleShow}
+        onKeyPress={handleKeyPress}
         role="button"
         tabIndex={0}
+        aria-label="Войти или зарегистрироваться"
       >
         <h6>Необходимо войти или зарегистрироваться для продолжения!</h6>
       </div>
