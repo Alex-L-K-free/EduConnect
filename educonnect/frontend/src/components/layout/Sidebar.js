@@ -1,12 +1,17 @@
 import React from 'react';
 import './Sidebar.css'; // Импортируйте стили для Sidebar
-// import logo from '../assets/images/educonnect-logo.png'; // Убедитесь, что путь правильный
-// import logo from '/src/assets/images/educonnect-logo.png';
+import educonnectLogo from '../../assets/images/educonnect-logo.png';
 
 const Sidebar = ({ activePage }) => {
   return (
     <div className="sidebar">
-      {/* <img src={logo} alt="Логотип" className="sidebar-logo" /> */}
+      <div className="sidebar-header">
+        <img 
+          src={educonnectLogo} 
+          alt="EduConnect" 
+          className="sidebar-logo"
+        />
+      </div>
       <div className="registration-warning">
        <h6> Необходимо войти или зарегистрироваться для продолжения!</h6>
       </div>
