@@ -6,10 +6,28 @@ import StudentsList from './forms/students/StudentsList';
 import axios from 'axios';
 
 const TeacherDashboard = () => {
-  const [currentView, setCurrentView] = useState('main');
-  const [selectedSubjectIds, setSelectedSubjectIds] = useState([]);
+  // Загружаем сохраненное состояние из localStorage
+  const [currentView, setCurrentView] = useState(() => {
+    const saved = localStorage.getItem('teacherDashboardView');
+    return saved || 'main';
+  });
+
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState(() => {
+    const saved = localStorage.getItem('teacherSelectedSubjects');
+    return saved ? JSON.parse(saved) : [];
+  });
+
   const [subjectStudentsMap, setSubjectStudentsMap] = useState({});
   const [subjectsData, setSubjectsData] = useState({});
+
+  // Сохраняем состояния при их изменении
+  useEffect(() => {
+    localStorage.setItem('teacherDashboardView', currentView);
+  }, [currentView]);
+
+  useEffect(() => {
+    localStorage.setItem('teacherSelectedSubjects', JSON.stringify(selectedSubjectIds));
+  }, [selectedSubjectIds]);
 
   useEffect(() => {
     const fetchData = async () => {

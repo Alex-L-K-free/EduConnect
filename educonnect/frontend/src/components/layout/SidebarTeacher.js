@@ -4,12 +4,40 @@ import axios from 'axios';
 import { useUser } from '../../UserContext';
 
 const SidebarTeacher = ({ activePage, onNavigate }) => {
-  // Состояния для отслеживания открытых подменю
-  const [openMenus, setOpenMenus] = useState({});
-  const [selectedItems, setSelectedItems] = useState({});
+  // Загружаем сохраненные состояния из localStorage
+  const [openMenus, setOpenMenus] = useState(() => {
+    const saved = localStorage.getItem('teacherSidebarOpenMenus');
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  const [selectedItems, setSelectedItems] = useState(() => {
+    const saved = localStorage.getItem('teacherSidebarSelectedItems');
+    return saved ? JSON.parse(saved) : {};
+  });
+
   const [teacherSubjects, setTeacherSubjects] = useState([]);
   const [teacherClasses, setTeacherClasses] = useState([]);
   const { user } = useUser();
+
+  // Сохраняем состояния в localStorage при их изменении
+  useEffect(() => {
+    localStorage.setItem('teacherSidebarOpenMenus', JSON.stringify(openMenus));
+  }, [openMenus]);
+
+  useEffect(() => {
+    localStorage.setItem('teacherSidebarSelectedItems', JSON.stringify(selectedItems));
+    
+    // Восстанавливаем выбранные предметы при загрузке
+    if (selectedItems.subjects) {
+      const selectedSubjectIds = teacherSubjects
+        .filter(subject => selectedItems.subjects[subject.id])
+        .map(subject => subject.id);
+      
+      if (selectedSubjectIds.length > 0) {
+        onNavigate(`students/by-subjects/${selectedSubjectIds.join(',')}`);
+      }
+    }
+  }, [selectedItems]);
 
   // Получаем предметы учителя при монтировании компонента
   useEffect(() => {
