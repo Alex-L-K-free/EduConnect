@@ -123,7 +123,8 @@ const TeacherDashboard = () => {
         
         selectedClassIds.forEach(classId => {
           newStudentsByClass[classId] = allStudents.filter(student => 
-            `class-${student.grade}${student.class_letter}` === classId
+            // Используем index вместо class_letter для соответствия с данными
+            `class-${student.grade}${student.index}` === classId
           );
         });
 
@@ -135,10 +136,9 @@ const TeacherDashboard = () => {
       }
     };
 
-    if (currentView === 'students-by-classes') {
-      fetchStudentsByClass();
-    }
-  }, [selectedClassIds, currentView]);
+    // Убираем проверку currentView, чтобы фильтрация работала сразу при выборе классов
+    fetchStudentsByClass();
+  }, [selectedClassIds]);
 
   // Очистка данных при размонтировании
   useEffect(() => {
