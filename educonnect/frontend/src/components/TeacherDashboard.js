@@ -17,7 +17,13 @@ const TeacherDashboard = () => {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const [selectedClassIds, setSelectedClassIds] = useState(() => {
+    const saved = localStorage.getItem('teacherSelectedClasses');
+    return saved ? JSON.parse(saved) : [];
+  });
+
   const [subjectStudentsMap, setSubjectStudentsMap] = useState({});
+  const [classStudentsMap, setClassStudentsMap] = useState({});
   const [subjectsData, setSubjectsData] = useState({});
 
   // Добавляем состояние для отслеживания загрузки
@@ -34,6 +40,10 @@ const TeacherDashboard = () => {
   useEffect(() => {
     localStorage.setItem('teacherSelectedSubjects', JSON.stringify(selectedSubjectIds));
   }, [selectedSubjectIds]);
+
+  useEffect(() => {
+    localStorage.setItem('teacherSelectedClasses', JSON.stringify(selectedClassIds));
+  }, [selectedClassIds]);
 
   // Оптимизированная загрузка данных
   const [studentsData, setStudentsData] = useState(null);
@@ -101,6 +111,43 @@ const TeacherDashboard = () => {
     fetchStudents();
   }, [selectedSubjectIds, subjectsData]);
 
+  useEffect(() => {
+    const fetchStudentsByClass = async () => {
+      if (!selectedClassIds.length) return;
+      
+      setIsLoading(true);
+      try {
+        const response = await axios.get('/api/v1/students/', {
+          headers: {
+            'Authorization': `Token ${localStorage.getItem('token')}`
+          }
+        });
+        
+        const allStudents = response.data.filter(student => 
+          student.username && student.username !== 'Не зарегистрирован'
+        );
+        const newStudentsByClass = {};
+        
+        selectedClassIds.forEach(classId => {
+          newStudentsByClass[classId] = allStudents.filter(student => 
+            `class-${student.grade}${student.class_letter}` === classId
+          );
+        });
+
+        setStudentsData(allStudents);
+        setClassStudentsMap(newStudentsByClass);
+      } catch (error) {
+        console.error('Ошибка при загрузке студентов:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (currentView === 'students-by-classes') {
+      fetchStudentsByClass();
+    }
+  }, [selectedClassIds, currentView]);
+
   // Очистка данных при размонтировании
   useEffect(() => {
     return () => {
@@ -113,11 +160,17 @@ const TeacherDashboard = () => {
       const subjectIds = view.split('/').pop().split(',');
       setSelectedSubjectIds(subjectIds);
       setCurrentView('students-by-subjects');
+    } else if (view.startsWith('students/by-classes/')) {
+      const classIds = view.split('/').pop().split(',');
+      setSelectedClassIds(classIds);
+      setCurrentView('students-by-classes');
     } else {
       setCurrentView(view);
       setSelectedSubjectIds([]);
+      setSelectedClassIds([]);
       setStudentsData(null);
       setSubjectStudentsMap({});
+      setClassStudentsMap({});
     }
   }, []);
 
@@ -157,6 +210,42 @@ const TeacherDashboard = () => {
     );
   };
 
+  const renderClassStudentsList = (classId, students) => {
+    const className = classId.replace('class-', '');
+    
+    if (isLoading) {
+      return <div>Загрузка учеников...</div>;
+    }
+    
+    return (
+      <div key={classId} className="class-students-list">
+        <h3>Класс: {className}</h3>
+        {students && students.length > 0 ? (
+          <table className="students-table">
+            <thead>
+              <tr>
+                <th>Логин</th>
+                <th>ФИО</th>
+                <th>Предмет</th>
+              </tr>
+            </thead>
+            <tbody>
+              {students.map(student => (
+                <tr key={student.id}>
+                  <td>{student.username}</td>
+                  <td>{`${student.lastName} ${student.firstName} ${student.middleName || ''}`}</td>
+                  <td>{student.subject}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>Нет зарегистрированных учеников в данном классе</p>
+        )}
+      </div>
+    );
+  };
+
   const renderContent = () => {
     switch (currentView) {
       case 'profile':
@@ -171,6 +260,15 @@ const TeacherDashboard = () => {
             {isLoading && <div>Загрузка данных...</div>}
             {!isLoading && selectedSubjectIds.map(subjectId => 
               renderStudentsList(subjectId, subjectStudentsMap[subjectId] || [])
+            )}
+          </div>
+        );
+      case 'students-by-classes':
+        return (
+          <div>
+            {isLoading && <div>Загрузка данных...</div>}
+            {!isLoading && selectedClassIds.map(classId => 
+              renderClassStudentsList(classId, classStudentsMap[classId] || [])
             )}
           </div>
         );

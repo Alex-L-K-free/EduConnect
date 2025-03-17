@@ -75,21 +75,16 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
         // Получаем уникальные классы из списка учеников
         const classes = new Set();
         studentsResponse.data.forEach(student => {
-          if (student.grade && student.class_letter) {
-            classes.add(`${student.grade} ${student.class_letter}`);
+          if (student.grade && student.index) {
+            const className = `${student.grade}${student.index}`;
+            classes.add(className);
           }
         });
 
         // Форматируем классы
-        const formattedClasses = Array.from(classes).sort().map((className, index) => ({
-          id: `class-${index}`,
-          label: className,
-          students: studentsResponse.data.filter(student => 
-            `${student.grade} ${student.class_letter}` === className
-          ).map(student => ({
-            id: student.id.toString(),
-            label: `${student.last_name} ${student.first_name}`
-          }))
+        const formattedClasses = Array.from(classes).sort().map(className => ({
+          id: `class-${className}`,
+          label: `${className[0]} "${className.slice(1)}"` // Например: 5 "А"
         }));
 
         setTeacherClasses(formattedClasses);
@@ -128,13 +123,18 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
     };
     setSelectedItems(newSelectedItems);
 
-    // Если это предметы, собираем все выбранные предметы
     if (menuId === 'subjects') {
       const selectedSubjectIds = teacherSubjects
         .filter(subject => newSelectedItems.subjects?.[subject.id])
         .map(subject => subject.id);
       
       onNavigate(`students/by-subjects/${selectedSubjectIds.join(',')}`);
+    } else if (menuId === 'classes') {
+      const selectedClassIds = teacherClasses
+        .filter(classItem => newSelectedItems.classes?.[classItem.id])
+        .map(classItem => classItem.id);
+      
+      onNavigate(`students/by-classes/${selectedClassIds.join(',')}`);
     } else {
       onNavigate(`${menuId}/${itemId}`);
     }
@@ -153,16 +153,16 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
       icon: '👥',
       items: teacherClasses
     },
-    {
-      id: 'students',
-      label: 'Ученики',
-      icon: '🎓',
-      items: [
-        { id: 'class-5', label: '5 класс' },
-        { id: 'class-6', label: '6 класс' },
-        { id: 'class-7', label: '7 класс' }
-      ]
-    },
+    // {
+    //   id: 'students',
+    //   label: 'Ученики',
+    //   icon: '🎓',
+    //   items: [
+    //     { id: 'class-5', label: '5 класс' },
+    //     { id: 'class-6', label: '6 класс' },
+    //     { id: 'class-7', label: '7 класс' }
+    //   ]
+    // },
     {
       id: 'materials',
       label: 'Материалы',
@@ -240,16 +240,16 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
           </li>
         ))}
 
-        <li 
+        {/* <li 
           className={activePage === 'profile' ? 'active' : ''}
           onClick={() => onNavigate('profile')}
         >
           <span className="menu-icon">👤</span>
           <span className="menu-text">Мой профиль</span>
-        </li>
+        </li> */}
       </ul>
     </div>
   );
 };
 
-export default SidebarTeacher; 
+export default SidebarTeacher;
