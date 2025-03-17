@@ -176,7 +176,7 @@ const TeacherDashboard = () => {
           Предмет: {subjectName}
           {actualClasses.length > 0 && (
             <span className="selected-classes">
-              {' '}(Классы: {actualClasses.join(', ')})
+              {' '}(Класс: {actualClasses.join(', ')})
             </span>
           )}
         </h3>
@@ -184,17 +184,17 @@ const TeacherDashboard = () => {
           <table className="students-table">
             <thead>
               <tr>
-                <th>Логин</th>
-                <th>ФИО</th>
-                <th>Класс</th>
+                {/*<th>Логин</th>*/}
+                <th>Ученик</th>
+                {/*<th>Класс</th>*/}
               </tr>
             </thead>
             <tbody>
               {filteredStudents.map(student => (
                 <tr key={student.id}>
-                  <td>{student.username}</td>
+                  {/*<td>{student.username}</td>*/}
                   <td>{`${student.lastName} ${student.firstName} ${student.middleName || ''}`}</td>
-                  <td>{`${student.grade}${student.index || ''}`}</td>
+                  {/*<td>{`${student.grade}${student.index || ''}`}</td>*/}
                 </tr>
               ))}
             </tbody>
