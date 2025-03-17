@@ -254,20 +254,49 @@ const TeacherDashboard = () => {
         return (
           <div>
             {isLoading && <div>Загрузка данных...</div>}
-            {!isLoading && selectedSubjectIds.map(subjectId => 
-              renderStudentsList(subjectId, subjectStudentsMap[subjectId] || [])
-            )}
+            {!isLoading && selectedSubjectIds
+              .map(subjectId => {
+                const students = subjectStudentsMap[subjectId] || [];
+                // Фильтруем студентов по классам, если есть выбранные классы
+                const filteredStudents = selectedClassIds.length > 0
+                  ? students.filter(student =>
+                      selectedClassIds.some(classId => 
+                        `class-${student.grade}${student.index}` === classId
+                      )
+                    )
+                  : students;
+                
+                // Возвращаем null если нет студентов, иначе рендерим список
+                return filteredStudents.length > 0 
+                  ? renderStudentsList(subjectId, students)
+                  : null;
+              })
+              .filter(Boolean) // Удаляем null элементы
+            }
           </div>
         );
       case 'students-by-classes':
-        // Если выбраны предметы, отображаем их с фильтрацией по классам
         if (selectedSubjectIds.length > 0) {
           return (
             <div>
               {isLoading && <div>Загрузка данных...</div>}
-              {!isLoading && selectedSubjectIds.map(subjectId => 
-                renderStudentsList(subjectId, subjectStudentsMap[subjectId] || [])
-              )}
+              {!isLoading && selectedSubjectIds
+                .map(subjectId => {
+                  const students = subjectStudentsMap[subjectId] || [];
+                  const filteredStudents = selectedClassIds.length > 0
+                    ? students.filter(student =>
+                        selectedClassIds.some(classId => 
+                          `class-${student.grade}${student.index}` === classId
+                        )
+                      )
+                    : students;
+                  
+                  return filteredStudents.length > 0 
+                    ? renderStudentsList(subjectId, students)
+                    : null;
+                })
+                .filter(Boolean)
+              }
             </div>
           );
         }
