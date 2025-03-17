@@ -140,6 +140,7 @@ const SidebarTeacher = ({ activePage, onNavigate, availableSubjects, availableCl
     }
   };
 
+  // Функция проверки доступности элемента
   const isItemAvailable = (menuId, itemId) => {
     if (menuId === 'subjects') {
       return availableSubjects.length === 0 || availableSubjects.includes(itemId);
