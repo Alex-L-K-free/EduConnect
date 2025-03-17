@@ -209,43 +209,45 @@ const TeacherDashboard = () => {
       );
     }
 
-    // Получаем список классов только из отфильтрованных студентов
-    const actualClasses = Array.from(new Set(
-      filteredStudents.map(student => `${student.grade}${student.index || ''}`)
-    )).sort();
+    // Группируем студентов по классам
+    const studentsByClass = {};
+    filteredStudents.forEach(student => {
+      const classKey = `${student.grade}${student.index || ''}`;
+      if (!studentsByClass[classKey]) {
+        studentsByClass[classKey] = [];
+      }
+      studentsByClass[classKey].push(student);
+    });
+
+    // Сортируем классы
+    const sortedClasses = Object.keys(studentsByClass).sort();
     
     return (
       <div key={subjectId} className="subject-students-list">
-        <h3>
-          Предмет: {subjectName}
-          {actualClasses.length > 0 && (
-            <span className="selected-classes">
-              {' '}(Класс: {actualClasses.join(', ')})
-            </span>
-          )}
-        </h3>
-        {filteredStudents && filteredStudents.length > 0 ? (
-          <table className="students-table">
-            <thead>
-              <tr>
-                {/*<th>Логин</th>*/}
-                <th>Ученик</th>
-                {/*<th>Класс</th>*/}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredStudents.map(student => (
-                <tr key={student.id}>
-                  {/*<td>{student.username}</td>*/}
-                  <td>{`${student.lastName} ${student.firstName} ${student.middleName || ''}`}</td>
-                  {/*<td>{`${student.grade}${student.index || ''}`}</td>*/}
+        {sortedClasses.map(classKey => (
+          <div key={`${subjectId}-${classKey}`}>
+            <h3>
+              Предмет: {subjectName}
+              <span className="selected-classes">
+                {' '}(Класс: {classKey})
+              </span>
+            </h3>
+            <table className="students-table">
+              <thead>
+                <tr>
+                  <th>Ученик</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>Нет учеников, соответствующих выбранным критериям</p>
-        )}
+              </thead>
+              <tbody>
+                {studentsByClass[classKey].map(student => (
+                  <tr key={student.id}>
+                    <td>{`${student.lastName} ${student.firstName} ${student.middleName || ''}`}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
       </div>
     );
   };
