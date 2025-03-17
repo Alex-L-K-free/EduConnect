@@ -165,23 +165,18 @@ const TeacherDashboard = () => {
       );
     }
 
-    // Получаем список уникальных классов для отфильтрованных студентов
-    const uniqueClasses = Array.from(new Set(
-      filteredStudents.map(student => `${student.grade}${student.index || ''}`).sort()
-    ));
-
-    // Определяем классы для отображения
-    const classesToShow = selectedClassIds.length > 0 ? 
-      selectedClassIds.map(id => id.replace('class-', '')) : 
-      uniqueClasses;
+    // Получаем список классов только из отфильтрованных студентов
+    const actualClasses = Array.from(new Set(
+      filteredStudents.map(student => `${student.grade}${student.index || ''}`)
+    )).sort();
     
     return (
       <div key={subjectId} className="subject-students-list">
         <h3>
           Предмет: {subjectName}
-          {classesToShow.length > 0 && (
+          {actualClasses.length > 0 && (
             <span className="selected-classes">
-              {' '}(Классы: {classesToShow.join(', ')})
+              {' '}(Классы: {actualClasses.join(', ')})
             </span>
           )}
         </h3>
