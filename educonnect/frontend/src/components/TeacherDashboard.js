@@ -75,14 +75,15 @@ const TeacherDashboard = () => {
           }
         });
         
-        const allStudents = response.data;
+        const allStudents = response.data.filter(student => 
+          student.username && student.username !== 'Не зарегистрирован'
+        );
         const newStudentsBySubject = {};
         
         selectedSubjectIds.forEach(subjectId => {
           const subject = subjectsData[subjectId];
           if (subject) {
             newStudentsBySubject[subjectId] = allStudents.filter(student => 
-              student.username && 
               student.subject === subject.name
             );
           }
