@@ -155,9 +155,19 @@ const TeacherDashboard = () => {
       return <div>Загрузка учеников...</div>;
     }
 
-    // Получаем список уникальных классов для данного предмета
+    // Фильтруем студентов по выбранным классам
+    let filteredStudents = students;
+    if (selectedClassIds.length > 0) {
+      filteredStudents = students.filter(student =>
+        selectedClassIds.some(classId => 
+          `class-${student.grade}${student.index}` === classId
+        )
+      );
+    }
+
+    // Получаем список уникальных классов для отфильтрованных студентов
     const uniqueClasses = Array.from(new Set(
-      students.map(student => `${student.grade}${student.index || ''}`).sort()
+      filteredStudents.map(student => `${student.grade}${student.index || ''}`).sort()
     ));
 
     // Определяем классы для отображения
@@ -175,7 +185,7 @@ const TeacherDashboard = () => {
             </span>
           )}
         </h3>
-        {students && students.length > 0 ? (
+        {filteredStudents && filteredStudents.length > 0 ? (
           <table className="students-table">
             <thead>
               <tr>
@@ -185,7 +195,7 @@ const TeacherDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {students.map(student => (
+              {filteredStudents.map(student => (
                 <tr key={student.id}>
                   <td>{student.username}</td>
                   <td>{`${student.lastName} ${student.firstName} ${student.middleName || ''}`}</td>
