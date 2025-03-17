@@ -66,10 +66,14 @@ const TeacherDashboard = () => {
     fetchSubjects();
   }, [subjectsData]); // Добавляем subjectsData в зависимости
 
-  // Загрузка студентов при изменении выбранных предметов
+  // Загрузка студентов при изменении выбранных предметов или классов
   useEffect(() => {
     const fetchStudents = async () => {
-      if (!selectedSubjectIds.length) return;
+      // Проверяем условия для запуска фильтрации
+      const shouldFetchBySubjects = currentView === 'students-by-subjects' && selectedSubjectIds.length > 0;
+      const shouldFetchByClasses = currentView === 'students-by-classes' && selectedClassIds.length > 0;
+      
+      if (!shouldFetchBySubjects && !shouldFetchByClasses) return;
       
       setIsLoading(true);
       try {
@@ -83,17 +87,31 @@ const TeacherDashboard = () => {
           student.username && student.username !== 'Не зарегистрирован'
         );
         
-        const newStudentsBySubject = {};
-        selectedSubjectIds.forEach(subjectId => {
-          const subject = subjectsData[subjectId];
-          if (subject) {
-            newStudentsBySubject[subjectId] = allStudents.filter(student => 
-              student.subject === subject.name
-            );
-          }
-        });
+        // Фильтрация по предметам
+        if (shouldFetchBySubjects) {
+          const newStudentsBySubject = {};
+          selectedSubjectIds.forEach(subjectId => {
+            const subject = subjectsData[subjectId];
+            if (subject) {
+              newStudentsBySubject[subjectId] = allStudents.filter(student => 
+                student.subject === subject.name
+              );
+            }
+          });
+          setSubjectStudentsMap(newStudentsBySubject);
+        }
 
-        setSubjectStudentsMap(newStudentsBySubject);
+        // Фильтрация по классам
+        if (shouldFetchByClasses) {
+          const newStudentsByClass = {};
+          selectedClassIds.forEach(classId => {
+            newStudentsByClass[classId] = allStudents.filter(student =>
+              `class-${student.grade}${student.index}` === classId
+            );
+          });
+          setClassStudentsMap(newStudentsByClass);
+        }
+
       } catch (error) {
         console.error('Ошибка при загрузке студентов:', error);
       } finally {
@@ -102,43 +120,7 @@ const TeacherDashboard = () => {
     };
 
     fetchStudents();
-  }, [selectedSubjectIds, subjectsData]);
-
-  useEffect(() => {
-    const fetchStudentsByClass = async () => {
-      if (!selectedClassIds.length) return;
-      
-      setIsLoading(true);
-      try {
-        const response = await axios.get('/api/v1/students/', {
-          headers: {
-            'Authorization': `Token ${localStorage.getItem('token')}`
-          }
-        });
-        
-        const allStudents = response.data.filter(student => 
-          student.username && student.username !== 'Не зарегистрирован'
-        );
-        const newStudentsByClass = {};
-        
-        selectedClassIds.forEach(classId => {
-          newStudentsByClass[classId] = allStudents.filter(student => 
-            // Используем index вместо class_letter для соответствия с данными
-            `class-${student.grade}${student.index}` === classId
-          );
-        });
-
-        setClassStudentsMap(newStudentsByClass);
-      } catch (error) {
-        console.error('Ошибка при загрузке студентов:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    // Убираем проверку currentView, чтобы фильтрация работала сразу при выборе классов
-    fetchStudentsByClass();
-  }, [selectedClassIds]);
+  }, [selectedSubjectIds, selectedClassIds, subjectsData, currentView]);
 
   // Очистка данных при размонтировании
   useEffect(() => {
@@ -175,7 +157,14 @@ const TeacherDashboard = () => {
     
     return (
       <div key={subjectId} className="subject-students-list">
-        <h3>Предмет: {subjectName}</h3>
+        <h3>
+          Предмет: {subjectName}
+          {selectedClassIds.length > 0 && (
+            <span className="selected-classes">
+              {' '}(Классы: {selectedClassIds.map(id => id.replace('class-', '')).join(', ')})
+            </span>
+          )}
+        </h3>
         {students && students.length > 0 ? (
           <table className="students-table">
             <thead>
@@ -190,13 +179,13 @@ const TeacherDashboard = () => {
                 <tr key={student.id}>
                   <td>{student.username}</td>
                   <td>{`${student.lastName} ${student.firstName} ${student.middleName || ''}`}</td>
-                  <td>{`${student.grade} ${student.index || ''}`}</td>
+                  <td>{`${student.grade}${student.index || ''}`}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         ) : (
-          <p>Нет зарегистрированных учеников, изучающих данный предмет</p>
+          <p>Нет учеников, соответствующих выбранным критериям</p>
         )}
       </div>
     );
