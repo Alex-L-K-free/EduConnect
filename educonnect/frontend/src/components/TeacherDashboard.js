@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import SidebarTeacher from './layout/SidebarTeacher';
 import TeacherProfile from './forms/teachers/TeacherProfile';
 import TeacherSubjects from './forms/subjects/SubjectsList';
@@ -20,6 +20,12 @@ const TeacherDashboard = () => {
   const [subjectStudentsMap, setSubjectStudentsMap] = useState({});
   const [subjectsData, setSubjectsData] = useState({});
 
+  // Добавляем состояние для отслеживания загрузки
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Мемоизируем данные предметов
+  const memoizedSubjectsData = useMemo(() => subjectsData, [subjectsData]);
+
   // Сохраняем состояния при их изменении
   useEffect(() => {
     localStorage.setItem('teacherDashboardView', currentView);
@@ -29,54 +35,79 @@ const TeacherDashboard = () => {
     localStorage.setItem('teacherSelectedSubjects', JSON.stringify(selectedSubjectIds));
   }, [selectedSubjectIds]);
 
+  // Оптимизированная загрузка данных
+  const [studentsData, setStudentsData] = useState(null);
+
+  // Загрузка предметов при монтировании
   useEffect(() => {
-    const fetchData = async () => {
-      if (selectedSubjectIds.length > 0) {
+    const fetchSubjects = async () => {
+      if (Object.keys(subjectsData).length === 0) {
         try {
-          // Получаем все предметы
-          const subjectsResponse = await axios.get('/api/v1/subjects/', {
+          const response = await axios.get('/api/v1/subjects/', {
             headers: {
               'Authorization': `Token ${localStorage.getItem('token')}`
             }
           });
-
-          // Создаем мапу предметов для быстрого доступа
           const subjectsMap = {};
-          subjectsResponse.data.forEach(subject => {
+          response.data.forEach(subject => {
             subjectsMap[subject.id] = subject;
           });
           setSubjectsData(subjectsMap);
-
-          // Получаем всех учеников
-          const studentsResponse = await axios.get('/api/v1/students/', {
-            headers: {
-              'Authorization': `Token ${localStorage.getItem('token')}`
-            }
-          });
-
-          // Группируем учеников по предметам
-          const studentsBySubject = {};
-          selectedSubjectIds.forEach(subjectId => {
-            const subjectName = subjectsMap[subjectId]?.name;
-            studentsBySubject[subjectId] = studentsResponse.data.filter(student => 
-              student.username && 
-              student.username !== 'Не зарегистрирован' &&
-              student.subject && 
-              student.subject === subjectName
-            );
-          });
-
-          setSubjectStudentsMap(studentsBySubject);
         } catch (error) {
-          console.error('Ошибка при получении данных:', error);
+          console.error('Ошибка при загрузке предметов:', error);
         }
       }
     };
 
-    fetchData();
-  }, [selectedSubjectIds]);
+    fetchSubjects();
+  }, []);
 
-  const handleNavigate = (view) => {
+  // Загрузка студентов при изменении выбранных предметов
+  useEffect(() => {
+    const fetchStudents = async () => {
+      if (!selectedSubjectIds.length) return;
+      
+      setIsLoading(true);
+      try {
+        const response = await axios.get('/api/v1/students/', {
+          headers: {
+            'Authorization': `Token ${localStorage.getItem('token')}`
+          }
+        });
+        
+        const allStudents = response.data;
+        const newStudentsBySubject = {};
+        
+        selectedSubjectIds.forEach(subjectId => {
+          const subject = subjectsData[subjectId];
+          if (subject) {
+            newStudentsBySubject[subjectId] = allStudents.filter(student => 
+              student.username && 
+              student.subject === subject.name
+            );
+          }
+        });
+
+        setStudentsData(allStudents);
+        setSubjectStudentsMap(newStudentsBySubject);
+      } catch (error) {
+        console.error('Ошибка при загрузке студентов:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStudents();
+  }, [selectedSubjectIds, subjectsData]);
+
+  // Очистка данных при размонтировании
+  useEffect(() => {
+    return () => {
+      setStudentsData(null);
+    };
+  }, []);
+
+  const handleNavigate = React.useCallback((view) => {
     if (view.startsWith('students/by-subjects/')) {
       const subjectIds = view.split('/').pop().split(',');
       setSelectedSubjectIds(subjectIds);
@@ -84,16 +115,22 @@ const TeacherDashboard = () => {
     } else {
       setCurrentView(view);
       setSelectedSubjectIds([]);
+      setStudentsData(null);
+      setSubjectStudentsMap({});
     }
-  };
+  }, []);
 
   const renderStudentsList = (subjectId, students) => {
     const subjectName = subjectsData[subjectId]?.name || '';
     
+    if (isLoading) {
+      return <div>Загрузка учеников...</div>;
+    }
+    
     return (
       <div key={subjectId} className="subject-students-list">
         <h3>Предмет: {subjectName}</h3>
-        {students.length > 0 ? (
+        {students && students.length > 0 ? (
           <table className="students-table">
             <thead>
               <tr>
@@ -130,7 +167,8 @@ const TeacherDashboard = () => {
       case 'students-by-subjects':
         return (
           <div>
-            {selectedSubjectIds.map(subjectId => 
+            {isLoading && <div>Загрузка данных...</div>}
+            {!isLoading && selectedSubjectIds.map(subjectId => 
               renderStudentsList(subjectId, subjectStudentsMap[subjectId] || [])
             )}
           </div>
@@ -153,4 +191,4 @@ const TeacherDashboard = () => {
   );
 };
 
-export default TeacherDashboard; 
+export default TeacherDashboard;
