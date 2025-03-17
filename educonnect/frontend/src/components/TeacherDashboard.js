@@ -154,14 +154,24 @@ const TeacherDashboard = () => {
     if (isLoading) {
       return <div>Загрузка учеников...</div>;
     }
+
+    // Получаем список уникальных классов для данного предмета
+    const uniqueClasses = Array.from(new Set(
+      students.map(student => `${student.grade}${student.index || ''}`).sort()
+    ));
+
+    // Определяем классы для отображения
+    const classesToShow = selectedClassIds.length > 0 ? 
+      selectedClassIds.map(id => id.replace('class-', '')) : 
+      uniqueClasses;
     
     return (
       <div key={subjectId} className="subject-students-list">
         <h3>
           Предмет: {subjectName}
-          {selectedClassIds.length > 0 && (
+          {classesToShow.length > 0 && (
             <span className="selected-classes">
-              {' '}(Классы: {selectedClassIds.map(id => id.replace('class-', '')).join(', ')})
+              {' '}(Классы: {classesToShow.join(', ')})
             </span>
           )}
         </h3>
@@ -245,6 +255,18 @@ const TeacherDashboard = () => {
           </div>
         );
       case 'students-by-classes':
+        // Если выбраны предметы, отображаем их с фильтрацией по классам
+        if (selectedSubjectIds.length > 0) {
+          return (
+            <div>
+              {isLoading && <div>Загрузка данных...</div>}
+              {!isLoading && selectedSubjectIds.map(subjectId => 
+                renderStudentsList(subjectId, subjectStudentsMap[subjectId] || [])
+              )}
+            </div>
+          );
+        }
+        // Если предметы не выбраны, отображаем список по классам
         return (
           <div>
             {isLoading && <div>Загрузка данных...</div>}
