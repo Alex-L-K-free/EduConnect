@@ -3,7 +3,7 @@ import './Sidebar.css'; // Импортируйте стили для Sidebar
 import axios from 'axios';
 import { useUser } from '../../UserContext';
 
-const SidebarTeacher = ({ activePage, onNavigate }) => {
+const SidebarTeacher = ({ activePage, onNavigate, availableSubjects, availableClasses }) => {
   // Загружаем сохраненные состояния из localStorage
   const [openMenus, setOpenMenus] = useState(() => {
     const saved = localStorage.getItem('teacherSidebarOpenMenus');
@@ -140,6 +140,16 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
     }
   };
 
+  const isItemAvailable = (menuId, itemId) => {
+    if (menuId === 'subjects') {
+      return availableSubjects.length === 0 || availableSubjects.includes(itemId);
+    }
+    if (menuId === 'classes') {
+      return availableClasses.length === 0 || availableClasses.includes(itemId);
+    }
+    return true;
+  };
+
   const menuItems = [
     {
       id: 'subjects',
@@ -223,18 +233,23 @@ const SidebarTeacher = ({ activePage, onNavigate }) => {
             
             {openMenus[menu.id] && (
               <ul className="submenu">
-                {menu.items?.map(item => (
-                  <li
-                    key={item.id}
-                    className={`submenu-item ${selectedItems[menu.id]?.[item.id] ? 'selected' : ''}`}
-                    onClick={(e) => handleSubmenuItemClick(menu.id, item.id, e)}
-                  >
-                    <span className="checkbox">
-                      {selectedItems[menu.id]?.[item.id] ? '☑' : '☐'}
-                    </span>
-                    {item.label}
-                  </li>
-                ))}
+                {menu.items?.map(item => {
+                  const isAvailable = isItemAvailable(menu.id, item.id);
+                  return (
+                    <li
+                      key={item.id}
+                      className={`submenu-item ${
+                        selectedItems[menu.id]?.[item.id] ? 'selected' : ''
+                      } ${!isAvailable ? 'disabled' : ''}`}
+                      onClick={(e) => isAvailable && handleSubmenuItemClick(menu.id, item.id, e)}
+                    >
+                      <span className="checkbox">
+                        {selectedItems[menu.id]?.[item.id] ? '☑' : '☐'}
+                      </span>
+                      {item.label}
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </li>

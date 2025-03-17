@@ -478,6 +478,16 @@
   font-weight: 500;
 }
 
+.submenu-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: #999;
+}
+
+.submenu-item.disabled:hover {
+  background-color: transparent;
+}
+
 .checkbox {
   margin-right: 8px;
   font-size: 1.2rem;

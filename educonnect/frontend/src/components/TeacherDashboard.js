@@ -29,6 +29,10 @@ const TeacherDashboard = () => {
   // Добавляем состояние для отслеживания загрузки
   const [isLoading, setIsLoading] = useState(false);
 
+  // Добавляем состояния для доступных предметов и классов
+  const [availableSubjects, setAvailableSubjects] = useState([]);
+  const [availableClasses, setAvailableClasses] = useState([]);
+
   // Сохраняем состояния при их изменении
   useEffect(() => {
     localStorage.setItem('teacherDashboardView', currentView);
@@ -129,6 +133,46 @@ const TeacherDashboard = () => {
       setClassStudentsMap({});
     };
   }, []);
+
+  // Добавляем useEffect для обновления доступных предметов и классов
+  useEffect(() => {
+    if (!subjectStudentsMap || !classStudentsMap) return;
+
+    // Получаем доступные предметы на основе выбранных классов
+    const getAvailableSubjects = () => {
+      if (selectedClassIds.length === 0) return Object.keys(subjectsData);
+
+      const availableSubs = new Set();
+      selectedClassIds.forEach(classId => {
+        const classStudents = classStudentsMap[classId] || [];
+        classStudents.forEach(student => {
+          const subjectId = Object.keys(subjectsData).find(
+            id => subjectsData[id].name === student.subject
+          );
+          if (subjectId) availableSubs.add(subjectId);
+        });
+      });
+      return Array.from(availableSubs);
+    };
+
+    // Получаем доступные классы на основе выбранных предметов
+    const getAvailableClasses = () => {
+      if (selectedSubjectIds.length === 0) return [];
+
+      const availableClss = new Set();
+      selectedSubjectIds.forEach(subjectId => {
+        const subjectStudents = subjectStudentsMap[subjectId] || [];
+        subjectStudents.forEach(student => {
+          const classId = `class-${student.grade}${student.index}`;
+          availableClss.add(classId);
+        });
+      });
+      return Array.from(availableClss);
+    };
+
+    setAvailableSubjects(getAvailableSubjects());
+    setAvailableClasses(getAvailableClasses());
+  }, [selectedSubjectIds, selectedClassIds, subjectStudentsMap, classStudentsMap, subjectsData]);
 
   const handleNavigate = React.useCallback((view) => {
     if (view.startsWith('students/by-subjects/')) {
@@ -318,7 +362,9 @@ const TeacherDashboard = () => {
     <div className="teacher-dashboard">
       <SidebarTeacher 
         activePage={currentView} 
-        onNavigate={handleNavigate} 
+        onNavigate={handleNavigate}
+        availableSubjects={availableSubjects}
+        availableClasses={availableClasses}
       />
       <div className="dashboard-content">
         {renderContent()}
