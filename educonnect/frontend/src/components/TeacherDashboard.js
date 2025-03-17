@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import SidebarTeacher from './layout/SidebarTeacher';
 import TeacherProfile from './forms/teachers/TeacherProfile';
 import TeacherSubjects from './forms/subjects/SubjectsList';
@@ -29,9 +29,6 @@ const TeacherDashboard = () => {
   // Добавляем состояние для отслеживания загрузки
   const [isLoading, setIsLoading] = useState(false);
 
-  // Мемоизируем данные предметов
-  const memoizedSubjectsData = useMemo(() => subjectsData, [subjectsData]);
-
   // Сохраняем состояния при их изменении
   useEffect(() => {
     localStorage.setItem('teacherDashboardView', currentView);
@@ -44,9 +41,6 @@ const TeacherDashboard = () => {
   useEffect(() => {
     localStorage.setItem('teacherSelectedClasses', JSON.stringify(selectedClassIds));
   }, [selectedClassIds]);
-
-  // Оптимизированная загрузка данных
-  const [studentsData, setStudentsData] = useState(null);
 
   // Загрузка предметов при монтировании
   useEffect(() => {
@@ -70,7 +64,7 @@ const TeacherDashboard = () => {
     };
 
     fetchSubjects();
-  }, []);
+  }, [subjectsData]); // Добавляем subjectsData в зависимости
 
   // Загрузка студентов при изменении выбранных предметов
   useEffect(() => {
@@ -88,8 +82,8 @@ const TeacherDashboard = () => {
         const allStudents = response.data.filter(student => 
           student.username && student.username !== 'Не зарегистрирован'
         );
-        const newStudentsBySubject = {};
         
+        const newStudentsBySubject = {};
         selectedSubjectIds.forEach(subjectId => {
           const subject = subjectsData[subjectId];
           if (subject) {
@@ -99,7 +93,6 @@ const TeacherDashboard = () => {
           }
         });
 
-        setStudentsData(allStudents);
         setSubjectStudentsMap(newStudentsBySubject);
       } catch (error) {
         console.error('Ошибка при загрузке студентов:', error);
@@ -134,7 +127,6 @@ const TeacherDashboard = () => {
           );
         });
 
-        setStudentsData(allStudents);
         setClassStudentsMap(newStudentsByClass);
       } catch (error) {
         console.error('Ошибка при загрузке студентов:', error);
@@ -151,7 +143,8 @@ const TeacherDashboard = () => {
   // Очистка данных при размонтировании
   useEffect(() => {
     return () => {
-      setStudentsData(null);
+      setSubjectStudentsMap({});
+      setClassStudentsMap({});
     };
   }, []);
 
@@ -168,7 +161,6 @@ const TeacherDashboard = () => {
       setCurrentView(view);
       setSelectedSubjectIds([]);
       setSelectedClassIds([]);
-      setStudentsData(null);
       setSubjectStudentsMap({});
       setClassStudentsMap({});
     }
