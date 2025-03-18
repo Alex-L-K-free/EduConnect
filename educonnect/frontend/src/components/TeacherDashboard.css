@@ -192,6 +192,71 @@
   width: 100%;
 }
 
+.add-material-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #2e7d32, #1b5e20);
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+  margin-left: 8px;
+}
+
+.add-material-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 8px rgba(0,0,0,0.3);
+  background: linear-gradient(145deg, #33691e, #2e7d32);
+}
+
+.add-material-btn:active {
+  transform: translateY(0);
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+}
+
+.material-icon {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.add-material-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.material-type-icon {
+  color: #666;
+  font-size: 1.2rem;
+}
+
+.add-material-column {
+  width: 120px;
+  text-align: center;
+}
+
+.material-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+}
+
 /* Добавляем анимацию при появлении */
 @keyframes tableAppear {
   from {

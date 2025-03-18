@@ -279,10 +279,29 @@ const TeacherDashboard = () => {
                         checked={studentsByClass[classKey].every(student => selectedStudents[student.id])}
                         onChange={() => handleSelectAllStudents(classKey, studentsByClass[classKey])}
                       />
-                      {/* <span>Выбрать всех</span> */}
                     </div>
                   </th>
                   <th>Ученик</th>
+                  <th className="add-material-column">
+                    <div className="material-header">
+                      Материалы
+                      <button 
+                        className="add-material-btn"
+                        onClick={() => {
+                          const selectedIds = studentsByClass[classKey]
+                            .filter(student => selectedStudents[student.id])
+                            .map(student => student.id);
+                          if (selectedIds.length > 0) {
+                            // Здесь будет логика добавления материала
+                            console.log('Добавить материал для:', selectedIds);
+                          }
+                        }}
+                        title="Добавить материал выбранным ученикам"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -300,6 +319,15 @@ const TeacherDashboard = () => {
                       />
                     </td>
                     <td>{`${student.lastName} ${student.firstName} ${student.middleName || ''}`}</td>
+                    <td className="add-material-column">
+                      {student.materials?.map((material, index) => (
+                        <span key={index} className="material-type-icon" title={material.type}>
+                          {material.type === 'document' && '📄'}
+                          {material.type === 'video' && '🎥'}
+                          {material.type === 'image' && '🖼️'}
+                        </span>
+                      ))}
+                    </td>
                   </tr>
                 ))}
               </tbody>
