@@ -3,7 +3,7 @@ import SidebarTeacher from './layout/SidebarTeacher';
 import TeacherProfile from './forms/teachers/TeacherProfile';
 import TeacherSubjects from './forms/subjects/SubjectsList';
 import StudentsList from './forms/students/StudentsList';
-import StudentActions, { MaterialCell } from './forms/teachers/StudentActions';
+import StudentActions, { MaterialCell } from './forms/teachers/TeacherActions';
 import axios from 'axios';
 import './TeacherDashboard.css';
 

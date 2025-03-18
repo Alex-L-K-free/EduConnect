@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import ActionModal from './ActionModal';
-import './StudentActions.css';
+import ActionModal from './TeacherActionModal';
+import './TeacherActions.css';
 
 const StudentActions = ({ students, selectedStudents }) => {
   const [showModal, setShowModal] = useState(false);

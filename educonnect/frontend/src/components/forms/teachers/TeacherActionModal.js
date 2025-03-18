@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './ActionModal.css';
+import './TeacherActionModal.css';
 
 const ActionModal = ({ onClose, onSubmit }) => {
   const [materialData, setMaterialData] = useState({
