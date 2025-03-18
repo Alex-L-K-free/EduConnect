@@ -3,6 +3,7 @@ import SidebarTeacher from './layout/SidebarTeacher';
 import TeacherProfile from './forms/teachers/TeacherProfile';
 import TeacherSubjects from './forms/subjects/SubjectsList';
 import StudentsList from './forms/students/StudentsList';
+import StudentActions, { MaterialCell } from './forms/teachers/StudentActions';
 import axios from 'axios';
 import './TeacherDashboard.css';
 
@@ -283,24 +284,10 @@ const TeacherDashboard = () => {
                   </th>
                   <th>Ученик</th>
                   <th className="add-material-column">
-                    <div className="material-header">
-                      Материалы
-                      <button 
-                        className="add-material-btn"
-                        onClick={() => {
-                          const selectedIds = studentsByClass[classKey]
-                            .filter(student => selectedStudents[student.id])
-                            .map(student => student.id);
-                          if (selectedIds.length > 0) {
-                            // Здесь будет логика добавления материала
-                            console.log('Добавить материал для:', selectedIds);
-                          }
-                        }}
-                        title="Добавить материал выбранным ученикам"
-                      >
-                        +
-                      </button>
-                    </div>
+                    <StudentActions 
+                      students={studentsByClass[classKey]}
+                      selectedStudents={selectedStudents}
+                    />
                   </th>
                 </tr>
               </thead>
@@ -319,15 +306,7 @@ const TeacherDashboard = () => {
                       />
                     </td>
                     <td>{`${student.lastName} ${student.firstName} ${student.middleName || ''}`}</td>
-                    <td className="add-material-column">
-                      {student.materials?.map((material, index) => (
-                        <span key={index} className="material-type-icon" title={material.type}>
-                          {material.type === 'document' && '📄'}
-                          {material.type === 'video' && '🎥'}
-                          {material.type === 'image' && '🖼️'}
-                        </span>
-                      ))}
-                    </td>
+                    <MaterialCell materials={student.materials} />
                   </tr>
                 ))}
               </tbody>
