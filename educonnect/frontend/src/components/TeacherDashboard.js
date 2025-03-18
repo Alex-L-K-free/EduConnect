@@ -4,6 +4,7 @@ import TeacherProfile from './forms/teachers/TeacherProfile';
 import TeacherSubjects from './forms/subjects/SubjectsList';
 import StudentsList from './forms/students/StudentsList';
 import axios from 'axios';
+import './TeacherDashboard.css';
 
 const TeacherDashboard = () => {
   // Загружаем сохраненное состояние из localStorage
@@ -32,6 +33,9 @@ const TeacherDashboard = () => {
   // Добавляем состояния для доступных предметов и классов
   const [availableSubjects, setAvailableSubjects] = useState([]);
   const [availableClasses, setAvailableClasses] = useState([]);
+
+  // Добавляем состояние для выбранных учеников
+  const [selectedStudents, setSelectedStudents] = useState({});
 
   // Сохраняем состояния при их изменении
   useEffect(() => {
@@ -192,6 +196,24 @@ const TeacherDashboard = () => {
     }
   }, []);
 
+  const handleSelectAllStudents = (classKey, students) => {
+    const newSelected = { ...selectedStudents };
+    const allSelected = students.every(student => selectedStudents[student.id]);
+    
+    students.forEach(student => {
+      newSelected[student.id] = !allSelected;
+    });
+    
+    setSelectedStudents(newSelected);
+  };
+
+  const handleSelectStudent = (studentId) => {
+    setSelectedStudents(prev => ({
+      ...prev,
+      [studentId]: !prev[studentId]
+    }));
+  };
+
   const renderStudentsList = (subjectId, students) => {
     const subjectName = subjectsData[subjectId]?.name || '';
     
@@ -232,15 +254,36 @@ const TeacherDashboard = () => {
                 {' '}(Класс: {classKey})
               </span>
             </h3>
+            <div className="select-all-wrapper">
+              <input
+                type="checkbox"
+                className="student-checkbox"
+                checked={studentsByClass[classKey].every(student => selectedStudents[student.id])}
+                onChange={() => handleSelectAllStudents(classKey, studentsByClass[classKey])}
+              />
+              <span>Выбрать всех</span>
+            </div>
             <table className="students-table">
               <thead>
                 <tr>
+                  <th></th>
                   <th>Ученик</th>
                 </tr>
               </thead>
               <tbody>
                 {studentsByClass[classKey].map(student => (
-                  <tr key={student.id}>
+                  <tr 
+                    key={student.id}
+                    className={selectedStudents[student.id] ? 'selected-row' : ''}
+                  >
+                    <td>
+                      <input
+                        type="checkbox"
+                        className="student-checkbox"
+                        checked={selectedStudents[student.id] || false}
+                        onChange={() => handleSelectStudent(student.id)}
+                      />
+                    </td>
                     <td>{`${student.lastName} ${student.firstName} ${student.middleName || ''}`}</td>
                   </tr>
                 ))}
@@ -263,24 +306,47 @@ const TeacherDashboard = () => {
       <div key={classId} className="class-students-list">
         <h3>Класс: {className}</h3>
         {students && students.length > 0 ? (
-          <table className="students-table">
-            <thead>
-              <tr>
-                <th>Логин</th>
-                <th>ФИО</th>
-                <th>Предмет</th>
-              </tr>
-            </thead>
-            <tbody>
-              {students.map(student => (
-                <tr key={student.id}>
-                  <td>{student.username}</td>
-                  <td>{`${student.lastName} ${student.firstName} ${student.middleName || ''}`}</td>
-                  <td>{student.subject}</td>
+          <>
+            <div className="select-all-wrapper">
+              <input
+                type="checkbox"
+                className="student-checkbox"
+                checked={students.every(student => selectedStudents[student.id])}
+                onChange={() => handleSelectAllStudents(className, students)}
+              />
+              <span>Выбрать всех</span>
+            </div>
+            <table className="students-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Логин</th>
+                  <th>ФИО</th>
+                  <th>Предмет</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {students.map(student => (
+                  <tr 
+                    key={student.id}
+                    className={selectedStudents[student.id] ? 'selected-row' : ''}
+                  >
+                    <td>
+                      <input
+                        type="checkbox"
+                        className="student-checkbox"
+                        checked={selectedStudents[student.id] || false}
+                        onChange={() => handleSelectStudent(student.id)}
+                      />
+                    </td>
+                    <td>{student.username}</td>
+                    <td>{`${student.lastName} ${student.firstName} ${student.middleName || ''}`}</td>
+                    <td>{student.subject}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
         ) : (
           <p>Нет зарегистрированных учеников в данном классе</p>
         )}
