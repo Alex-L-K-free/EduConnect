@@ -105,6 +105,15 @@
   transform: translateZ(5px);
 }
 
+.students-table th:first-child,
+.students-table td:first-child {
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
+  padding: 12px 8px;
+  text-align: center;
+}
+
 .students-table tbody tr {
   transform-style: preserve-3d;
   transition: all 0.3s ease;
@@ -151,6 +160,7 @@
   cursor: pointer;
   position: relative;
   transition: all 0.3s ease;
+  margin: 0;
 }
 
 .select-all-wrapper {
@@ -167,6 +177,19 @@
 .selected-row {
   background: linear-gradient(145deg, #e8f5e9, #f1f8e9) !important;
   transform: translateZ(20px) scale(1.02) !important;
+}
+
+.select-all-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: normal;
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 0.9rem;
+  color: #666;
+  justify-content: center;
+  width: 100%;
 }
 
 /* Добавляем анимацию при появлении */

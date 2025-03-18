@@ -214,6 +214,15 @@ const TeacherDashboard = () => {
     }));
   };
 
+  // Добавляем функцию сортировки студентов
+  const sortStudents = (students) => {
+    return [...students].sort((a, b) => {
+      const lastNameCompare = a.lastName.localeCompare(b.lastName);
+      if (lastNameCompare !== 0) return lastNameCompare;
+      return a.firstName.localeCompare(b.firstName);
+    });
+  };
+
   const renderStudentsList = (subjectId, students) => {
     const subjectName = subjectsData[subjectId]?.name || '';
     
@@ -241,6 +250,11 @@ const TeacherDashboard = () => {
       studentsByClass[classKey].push(student);
     });
 
+    // Сортируем студентов в каждом классе
+    Object.keys(studentsByClass).forEach(classKey => {
+      studentsByClass[classKey] = sortStudents(studentsByClass[classKey]);
+    });
+
     // Сортируем классы
     const sortedClasses = Object.keys(studentsByClass).sort();
     
@@ -251,22 +265,23 @@ const TeacherDashboard = () => {
             <h3>
               Предмет: {subjectName}
               <span className="selected-classes">
-                {' '}(Класс: {classKey})
+                {' '} Класс: {classKey}
               </span>
             </h3>
-            <div className="select-all-wrapper">
-              <input
-                type="checkbox"
-                className="student-checkbox"
-                checked={studentsByClass[classKey].every(student => selectedStudents[student.id])}
-                onChange={() => handleSelectAllStudents(classKey, studentsByClass[classKey])}
-              />
-              <span>Выбрать всех</span>
-            </div>
             <table className="students-table">
               <thead>
                 <tr>
-                  <th></th>
+                  <th>
+                    <div className="select-all-header">
+                      <input
+                        type="checkbox"
+                        className="student-checkbox"
+                        checked={studentsByClass[classKey].every(student => selectedStudents[student.id])}
+                        onChange={() => handleSelectAllStudents(classKey, studentsByClass[classKey])}
+                      />
+                      {/* <span>Выбрать всех</span> */}
+                    </div>
+                  </th>
                   <th>Ученик</th>
                 </tr>
               </thead>
@@ -301,52 +316,54 @@ const TeacherDashboard = () => {
     if (isLoading) {
       return <div>Загрузка учеников...</div>;
     }
+
+    // Сортируем список учеников
+    const sortedStudents = sortStudents(students);
     
     return (
       <div key={classId} className="class-students-list">
         <h3>Класс: {className}</h3>
-        {students && students.length > 0 ? (
-          <>
-            <div className="select-all-wrapper">
-              <input
-                type="checkbox"
-                className="student-checkbox"
-                checked={students.every(student => selectedStudents[student.id])}
-                onChange={() => handleSelectAllStudents(className, students)}
-              />
-              <span>Выбрать всех</span>
-            </div>
-            <table className="students-table">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>Логин</th>
-                  <th>ФИО</th>
-                  <th>Предмет</th>
+        {sortedStudents && sortedStudents.length > 0 ? (
+          <table className="students-table">
+            <thead>
+              <tr>
+                <th>
+                  <div className="select-all-header">
+                    <input
+                      type="checkbox"
+                      className="student-checkbox"
+                      checked={sortedStudents.every(student => selectedStudents[student.id])}
+                      onChange={() => handleSelectAllStudents(className, sortedStudents)}
+                    />
+                    <span>Выбрать всех</span>
+                  </div>
+                </th>
+                <th>Логин</th>
+                <th>ФИО</th>
+                <th>Предмет</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedStudents.map(student => (
+                <tr 
+                  key={student.id}
+                  className={selectedStudents[student.id] ? 'selected-row' : ''}
+                >
+                  <td>
+                    <input
+                      type="checkbox"
+                      className="student-checkbox"
+                      checked={selectedStudents[student.id] || false}
+                      onChange={() => handleSelectStudent(student.id)}
+                    />
+                  </td>
+                  <td>{student.username}</td>
+                  <td>{`${student.lastName} ${student.firstName} ${student.middleName || ''}`}</td>
+                  <td>{student.subject}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {students.map(student => (
-                  <tr 
-                    key={student.id}
-                    className={selectedStudents[student.id] ? 'selected-row' : ''}
-                  >
-                    <td>
-                      <input
-                        type="checkbox"
-                        className="student-checkbox"
-                        checked={selectedStudents[student.id] || false}
-                        onChange={() => handleSelectStudent(student.id)}
-                      />
-                    </td>
-                    <td>{student.username}</td>
-                    <td>{`${student.lastName} ${student.firstName} ${student.middleName || ''}`}</td>
-                    <td>{student.subject}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </>
+              ))}
+            </tbody>
+          </table>
         ) : (
           <p>Нет зарегистрированных учеников в данном классе</p>
         )}
