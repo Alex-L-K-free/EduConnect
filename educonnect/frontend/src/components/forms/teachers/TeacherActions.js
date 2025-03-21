@@ -27,16 +27,16 @@ const ActionModal = ({ onClose, onSubmit }) => {
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Escape') {
-      onClose();
-    }
-  };
-
   React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [onClose]);
 
   return (
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -112,22 +112,15 @@ const UploadPanel = ({ onUpload, onClose }) => {
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
       >
-        <div className="upload-text">
-          Перетащите файлы сюда
-        </div>
-        <div className="upload-hint">
-          или нажмите для выбора
-        </div>
+        <div className="upload-text">Перетащите файлы сюда</div>
+        <div className="upload-hint">или нажмите для выбора</div>
       </div>
     </div>
   );
 };
 
-// Удаляем QuickAddPanel полностью
-
 const TeacherActions = ({ students, selectedStudents }) => {
   const [showModal, setShowModal] = useState(false);
-  const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
