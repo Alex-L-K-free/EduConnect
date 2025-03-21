@@ -3,15 +3,40 @@ import './TeacherActions.css';
 
 const ActionModal = ({ onClose, onSubmit }) => {
   const [materialData, setMaterialData] = useState({
-    type: 'document',
     location: '',
     description: ''
   });
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!materialData.location.trim()) {
+      newErrors.location = 'Необходимо указать расположение';
+    }
+    if (!materialData.description.trim()) {
+      newErrors.description = 'Необходимо добавить описание';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(materialData);
+    if (validateForm()) {
+      onSubmit(materialData);
+    }
   };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      onClose();
+    }
+  };
+
+  React.useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -21,17 +46,6 @@ const ActionModal = ({ onClose, onSubmit }) => {
         </div>
         <form className="modal-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Тип материала</label>
-            <select
-              value={materialData.type}
-              onChange={(e) => setMaterialData({...materialData, type: e.target.value})}
-            >
-              <option value="document">Документ</option>
-              <option value="video">Видео</option>
-              <option value="image">Изображение</option>
-            </select>
-          </div>
-          <div className="form-group">
             <label>Расположение</label>
             <input 
               type="text"
@@ -39,6 +53,7 @@ const ActionModal = ({ onClose, onSubmit }) => {
               onChange={(e) => setMaterialData({...materialData, location: e.target.value})}
               placeholder="URL или путь к файлу"
             />
+            {errors.location && <span className="error">{errors.location}</span>}
           </div>
           <div className="form-group">
             <label>Описание/Задание</label>
@@ -47,6 +62,7 @@ const ActionModal = ({ onClose, onSubmit }) => {
               onChange={(e) => setMaterialData({...materialData, description: e.target.value})}
               placeholder="Введите описание или задание"
             />
+            {errors.description && <span className="error">{errors.description}</span>}
           </div>
           <div className="modal-actions">
             <button type="button" className="modal-btn secondary" onClick={onClose}>
@@ -62,8 +78,58 @@ const ActionModal = ({ onClose, onSubmit }) => {
   );
 };
 
+const UploadPanel = ({ onUpload, onClose }) => {
+  const [isDragging, setIsDragging] = useState(false);
+  
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = Array.from(e.dataTransfer.files);
+    onUpload(files);
+  };
+
+  const handleFileSelect = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = true;
+    input.accept = '*/*';
+    input.onchange = (e) => {
+      const files = Array.from(e.target.files);
+      onUpload(files);
+    };
+    input.click();
+  };
+
+  return (
+    <div className="quick-add-panel" onClick={e => e.stopPropagation()}>
+      <div 
+        className={`upload-zone ${isDragging ? 'active' : ''}`}
+        onClick={handleFileSelect}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragging(true);
+        }}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={handleDrop}
+      >
+        <div className="upload-text">
+          Перетащите файлы сюда
+        </div>
+        <div className="upload-hint">
+          или нажмите для выбора
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Удаляем QuickAddPanel полностью
+
 const TeacherActions = ({ students, selectedStudents }) => {
   const [showModal, setShowModal] = useState(false);
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
+  const [showUpload, setShowUpload] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleAddMaterial = (materialData) => {
     const selectedIds = students
@@ -77,6 +143,26 @@ const TeacherActions = ({ students, selectedStudents }) => {
     setShowModal(false);
   };
 
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = Array.from(e.dataTransfer.files);
+    console.log('Перетащенные файлы:', files);
+    // Здесь логика обработки перетащенных файлов
+  };
+
+  const handleUpload = (files) => {
+    const selectedIds = students
+      .filter(student => selectedStudents[student.id])
+      .map(student => student.id);
+
+    if (selectedIds.length > 0 && files.length > 0) {
+      console.log('Загрузка файлов:', files, 'для студентов:', selectedIds);
+      // Здесь логика загрузки файлов
+    }
+    setShowUpload(false);
+  };
+
   return (
     <div>
       {showModal && (
@@ -86,14 +172,35 @@ const TeacherActions = ({ students, selectedStudents }) => {
         />
       )}
       <div className="material-header">
-        Материалы
-        <button 
-          className="add-material-btn"
-          onClick={() => setShowModal(true)}
-          title="Добавить материал выбранным ученикам"
-        >
-          +
-        </button>
+        <div className="material-actions">
+          Материалы
+          <div className="materials-dropdown">
+            <button 
+              className="add-material-btn"
+              onClick={() => setShowUpload(!showUpload)}
+              title="Загрузить материалы"
+            >
+              +
+            </button>
+            {showUpload && (
+              <UploadPanel 
+                onUpload={handleUpload}
+                onClose={() => setShowUpload(false)}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+      <div 
+        className={`drop-zone ${isDragging ? 'active' : ''}`}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragging(true);
+        }}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={handleDrop}
+      >
+        {/* Перетащите файлы сюда или выберите способ добавления выше */}
       </div>
     </div>
   );
@@ -102,11 +209,7 @@ const TeacherActions = ({ students, selectedStudents }) => {
 export const MaterialCell = ({ materials }) => (
   <td className="add-material-column">
     {materials?.map((material, index) => (
-      <span key={index} className="material-type-icon" title={material.type}>
-        {material.type === 'document' && '📄'}
-        {material.type === 'video' && '🎥'}
-        {material.type === 'image' && '🖼️'}
-      </span>
+      <span key={index} className="material-type-icon">📄</span>
     ))}
   </td>
 );
