@@ -119,9 +119,50 @@ const UploadPanel = ({ onUpload, onClose }) => {
   );
 };
 
+const DescriptionPanel = ({ onSubmit, onClose }) => {
+  const [description, setDescription] = useState('');
+  
+  const handleSubmit = () => {
+    if (description.trim()) {
+      onSubmit(description);
+      setDescription('');
+    }
+  };
+
+  return (
+    <div className="quick-add-panel" onClick={e => e.stopPropagation()}>
+      <div className="description-input-zone">
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Введите текст задания"
+          className="description-textarea"
+          autoFocus
+        />
+        <button 
+          className="description-submit-btn"
+          onClick={handleSubmit}
+          disabled={!description.trim()}
+        >
+          Добавить
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export const DescriptionCell = ({ descriptions }) => (
+  <td className="add-description-column">
+    {descriptions?.map((desc, index) => (
+      <span key={index} className="description-type-icon" title={desc.text}>📝</span>
+    ))}
+  </td>
+);
+
 const TeacherActions = ({ students, selectedStudents }) => {
   const [showModal, setShowModal] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
+  const [showDescription, setShowDescription] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
   const handleAddMaterial = (materialData) => {
@@ -134,6 +175,18 @@ const TeacherActions = ({ students, selectedStudents }) => {
       // Здесь будет логика добавления материала
     }
     setShowModal(false);
+  };
+
+  const handleAddDescription = (text) => {
+    const selectedIds = students
+      .filter(student => selectedStudents[student.id])
+      .map(student => student.id);
+
+    if (selectedIds.length > 0) {
+      console.log('Добавить описание для:', selectedIds, 'с текстом:', text);
+      // Здесь будет логика добавления описания
+    }
+    setShowDescription(false);
   };
 
   const handleDrop = (e) => {
@@ -179,6 +232,24 @@ const TeacherActions = ({ students, selectedStudents }) => {
               <UploadPanel 
                 onUpload={handleUpload}
                 onClose={() => setShowUpload(false)}
+              />
+            )}
+          </div>
+        </div>
+        <div className="material-actions">
+          Задание
+          <div className="materials-dropdown">
+            <button 
+              className="add-material-btn"
+              onClick={() => setShowDescription(!showDescription)}
+              title="Добавить задание"
+            >
+              +
+            </button>
+            {showDescription && (
+              <DescriptionPanel
+                onSubmit={handleAddDescription}
+                onClose={() => setShowDescription(false)}
               />
             )}
           </div>
