@@ -159,10 +159,20 @@ export const DescriptionCell = ({ descriptions }) => (
   </td>
 );
 
+// Добавляем новый компонент MessageCell после DescriptionCell
+export const MessageCell = ({ messages }) => (
+  <td className="add-message-column">
+    {messages?.map((msg, index) => (
+      <span key={index} className="message-type-icon" title={msg.text}>💬</span>
+    ))}
+  </td>
+);
+
 const TeacherActions = ({ students, selectedStudents }) => {
   const [showModal, setShowModal] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [showDescription, setShowDescription] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
   const handleAddMaterial = (materialData) => {
@@ -187,6 +197,18 @@ const TeacherActions = ({ students, selectedStudents }) => {
       // Здесь будет логика добавления описания
     }
     setShowDescription(false);
+  };
+
+  const handleAddMessage = (text) => {
+    const selectedIds = students
+      .filter(student => selectedStudents[student.id])
+      .map(student => student.id);
+
+    if (selectedIds.length > 0) {
+      console.log('Добавить сообщение для:', selectedIds, 'с текстом:', text);
+      // Здесь будет логика добавления сообщения
+    }
+    setShowMessage(false);
   };
 
   const handleDrop = (e) => {
@@ -250,6 +272,24 @@ const TeacherActions = ({ students, selectedStudents }) => {
               <DescriptionPanel
                 onSubmit={handleAddDescription}
                 onClose={() => setShowDescription(false)}
+              />
+            )}
+          </div>
+        </div>
+        <div className="material-actions">
+          Сообщение
+          <div className="materials-dropdown">
+            <button 
+              className="add-material-btn"
+              onClick={() => setShowMessage(!showMessage)}
+              title="Добавить сообщение"
+            >
+              +
+            </button>
+            {showMessage && (
+              <DescriptionPanel
+                onSubmit={handleAddMessage}
+                onClose={() => setShowMessage(false)}
               />
             )}
           </div>

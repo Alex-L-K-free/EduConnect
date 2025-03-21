@@ -3,7 +3,7 @@ import SidebarTeacher from './layout/SidebarTeacher';
 import TeacherProfile from './forms/teachers/TeacherProfile';
 import TeacherSubjects from './forms/subjects/SubjectsList';
 import StudentsList from './forms/students/StudentsList';
-import StudentActions, { MaterialCell } from './forms/teachers/TeacherActions';
+import StudentActions, { MaterialCell, DescriptionCell, MessageCell } from './forms/teachers/TeacherActions';
 import axios from 'axios';
 import './TeacherDashboard.css';
 
@@ -307,6 +307,8 @@ const TeacherDashboard = () => {
                     </td>
                     <td>{`${student.lastName} ${student.firstName} ${student.middleName || ''}`}</td>
                     <MaterialCell materials={student.materials} />
+                    <DescriptionCell descriptions={student.descriptions} />
+                    <MessageCell messages={student.messages} />
                   </tr>
                 ))}
               </tbody>

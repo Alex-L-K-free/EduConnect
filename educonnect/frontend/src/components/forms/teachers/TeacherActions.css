@@ -41,13 +41,25 @@
 }
 
 .add-material-column {
-  width: 120px;
+  width: 180px;
   text-align: center;
 }
 
 .add-description-column {
-  width: 180px;
+  width: 240px;
   text-align: center;
+}
+
+.add-message-column {
+  width: 240px;
+  text-align: center;
+}
+
+.message-type-icon {
+  color: #666;
+  font-size: 1.2rem;
+  margin-right: 5px;
+  cursor: pointer;
 }
 
 .modal-overlay {
@@ -174,7 +186,7 @@
   border-radius: 8px;
   box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
   padding: 6px;
-  min-width: 140px;
+  min-width: 200px;
   z-index: 1000;
   margin-bottom: 8px;
 }
