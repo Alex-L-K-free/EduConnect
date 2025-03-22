@@ -10,6 +10,7 @@ db.sqlite3
 # Django
 /static/
 /media/
+media/
 
 # Frontend
 node_modules/
