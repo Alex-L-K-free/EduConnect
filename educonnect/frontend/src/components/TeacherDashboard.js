@@ -38,6 +38,12 @@ const TeacherDashboard = () => {
   // Добавляем состояние для выбранных учеников
   const [selectedStudents, setSelectedStudents] = useState({});
 
+  const [students, setStudents] = useState([]);
+
+  const handleMaterialsUpdate = (updatedStudents) => {
+    setStudents(updatedStudents);
+  };
+
   // Сохраняем состояния при их изменении
   useEffect(() => {
     localStorage.setItem('teacherDashboardView', currentView);
@@ -287,6 +293,7 @@ const TeacherDashboard = () => {
                     <StudentActions 
                       students={studentsByClass[classKey]}
                       selectedStudents={selectedStudents}
+                      onMaterialsUpdate={handleMaterialsUpdate}
                     />
                   </th>
                 </tr>

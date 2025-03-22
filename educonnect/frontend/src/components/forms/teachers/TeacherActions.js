@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios'; // Добавляем импорт axios
 import './TeacherActions.css';
 
 const ActionModal = ({ onClose, onSubmit }) => {
@@ -168,7 +169,7 @@ export const MessageCell = ({ messages }) => (
   </td>
 );
 
-const TeacherActions = ({ students, selectedStudents }) => {
+const TeacherActions = ({ students, selectedStudents, onMaterialsUpdate }) => {
   const [showModal, setShowModal] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [showDescription, setShowDescription] = useState(false);
@@ -219,16 +220,53 @@ const TeacherActions = ({ students, selectedStudents }) => {
     // Здесь логика обработки перетащенных файлов
   };
 
-  const handleUpload = (files) => {
+  const handleUpload = async (files) => {
     const selectedIds = students
       .filter(student => selectedStudents[student.id])
       .map(student => student.id);
 
     if (selectedIds.length > 0 && files.length > 0) {
-      console.log('Загрузка файлов:', files, 'для студентов:', selectedIds);
-      // Здесь логика загрузки файлов
+      try {
+        const formData = new FormData();
+        files.forEach(file => {
+          formData.append('file', file);
+        });
+        formData.append('student_ids', JSON.stringify(selectedIds));
+        
+        const response = await axios.post('/api/v1/materials/add/', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Token ${localStorage.getItem('token')}`
+          }
+        });
+
+        // Получаем обновленные данные для каждого выбранного студента
+        const updatedStudents = await Promise.all(
+          selectedIds.map(async (studentId) => {
+            const materialResponse = await axios.get(`/api/v1/materials/student/${studentId}/`, {
+              headers: {
+                'Authorization': `Token ${localStorage.getItem('token')}`
+              }
+            });
+            return {
+              ...students.find(s => s.id === studentId),
+              materials: materialResponse.data
+            };
+          })
+        );
+
+        // Обновляем состояние с новыми материалами
+        const newStudents = students.map(student => {
+          const updatedStudent = updatedStudents.find(us => us.id === student.id);
+          return updatedStudent || student;
+        });
+
+        onMaterialsUpdate(newStudents);
+        setShowUpload(false);
+      } catch (error) {
+        console.error('Ошибка при загрузке материалов:', error);
+      }
     }
-    setShowUpload(false);
   };
 
   return (
@@ -310,12 +348,29 @@ const TeacherActions = ({ students, selectedStudents }) => {
   );
 };
 
-export const MaterialCell = ({ materials }) => (
+export const MaterialCell = ({ materials = [] }) => (
   <td className="add-material-column">
-    {materials?.map((material, index) => (
-      <span key={index} className="material-type-icon">📄</span>
-    ))}
+    {materials && materials.length > 0 ? materials.map((material, index) => (
+      <span 
+        key={material.id || index} 
+        className="material-type-icon" 
+        title={material.title || 'Материал'}
+        onClick={() => window.open(material.file, '_blank')}
+      >
+        {getFileIcon(material.material_type)}
+      </span>
+    )) : null}
   </td>
 );
+
+const getFileIcon = (type) => {
+  switch (type) {
+    case 'document': return '📄';
+    case 'video': return '🎥';
+    case 'presentation': return '📊';
+    case 'link': return '🔗';
+    default: return '📁';
+  }
+};
 
 export default TeacherActions;

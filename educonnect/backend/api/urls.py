@@ -29,5 +29,6 @@ urlpatterns = [
     path('users/me/', current_user, name='current-user'),
     path('subjects/', include('subjects.urls', namespace='subjects')),
     path('students/', include('users_student.urls', namespace='students')),
+    path('materials/', include('materials.urls', namespace='materials')),
     # Здесь будем добавлять другие URL-паттерны
-] 
+]
