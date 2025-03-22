@@ -85,8 +85,13 @@ def add_material(request):
 def get_student_materials(request, student_id):
     try:
         student = StudentUser.objects.get(id=student_id)
-        materials = StudentMaterial.objects.filter(student=student)
-        serializer = StudentMaterialSerializer(materials, many=True, context={'request': request})
+        # Добавляем сортировку по дате создания
+        materials = StudentMaterial.objects.filter(student=student).order_by('-created_at')
+        serializer = StudentMaterialSerializer(
+            materials, 
+            many=True, 
+            context={'request': request}
+        )
         return Response(serializer.data)
     except StudentUser.DoesNotExist:
         return Response(

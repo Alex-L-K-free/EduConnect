@@ -121,17 +121,37 @@ const TeacherDashboard = () => {
           }
         });
         
-        const allStudents = response.data.filter(student => 
+        const studentsData = response.data.filter(student => 
           student.username && student.username !== 'Не зарегистрирован'
         );
-        
-        // Фильтрация по предметам
+
+        // Загружаем материалы для каждого студента
+        const studentsWithMaterials = await Promise.all(
+          studentsData.map(async (student) => {
+            try {
+              const materialsResponse = await axios.get(`/api/v1/materials/student/${student.id}/`, {
+                headers: {
+                  'Authorization': `Token ${localStorage.getItem('token')}`
+                }
+              });
+              return {
+                ...student,
+                materials: materialsResponse.data
+              };
+            } catch (error) {
+              console.error(`Ошибка при загрузке материалов для студента ${student.id}:`, error);
+              return student;
+            }
+          })
+        );
+
+        // Обновляем студентов с материалами
         if (shouldFetchBySubjects) {
           const newStudentsBySubject = {};
           selectedSubjectIds.forEach(subjectId => {
             const subject = subjectsData[subjectId];
             if (subject) {
-              newStudentsBySubject[subjectId] = allStudents.filter(student => 
+              newStudentsBySubject[subjectId] = studentsWithMaterials.filter(student => 
                 student.subject === subject.name
               );
             }
@@ -139,11 +159,10 @@ const TeacherDashboard = () => {
           setSubjectStudentsMap(newStudentsBySubject);
         }
 
-        // Фильтрация по классам
         if (shouldFetchByClasses) {
           const newStudentsByClass = {};
           selectedClassIds.forEach(classId => {
-            newStudentsByClass[classId] = allStudents.filter(student =>
+            newStudentsByClass[classId] = studentsWithMaterials.filter(student =>
               `class-${student.grade}${student.index}` === classId
             );
           });
