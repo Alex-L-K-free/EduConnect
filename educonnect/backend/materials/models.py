@@ -1,4 +1,5 @@
 from django.db import models
+import os
 from subjects.models import Subject
 from education_core.models import User
 from users_student.models import StudentUser
@@ -38,11 +39,29 @@ class Material(models.Model):
         verbose_name = 'Учебный материал'
         verbose_name_plural = 'Учебные материалы'
 
+def student_material_path(instance, filename):
+    # Получаем предмет и класс студента
+    subject = instance.student.subject
+    grade = instance.student.grade
+    grade_letter = instance.student.index or ''
+    
+    # Формируем путь: предмет/класс/год/месяц/день/файл
+    return os.path.join(
+        'student_materials',
+        subject,
+        f'{grade}{grade_letter}',
+        instance.created_by.username,
+        f'{instance.created_at.year}',
+        f'{instance.created_at.month:02d}',
+        f'{instance.created_at.day:02d}',
+        filename
+    )
+
 class StudentMaterial(models.Model):
     student = models.ForeignKey(StudentUser, on_delete=models.CASCADE, related_name='student_materials')
     title = models.CharField('Название', max_length=255)
     description = models.TextField('Описание', blank=True)
-    file = models.FileField('Файл', upload_to='student_materials/%Y/%m/%d/')
+    file = models.FileField('Файл', upload_to=student_material_path)
     material_type = models.CharField('Тип материала', max_length=20, choices=[
         ('document', 'Документ'),
         ('video', 'Видео'),

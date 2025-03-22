@@ -233,31 +233,37 @@ const TeacherActions = ({ students, selectedStudents, onMaterialsUpdate }) => {
         });
         formData.append('student_ids', JSON.stringify(selectedIds));
         
-        const response = await axios.post('/api/v1/materials/add/', formData, {
+        await axios.post('/api/v1/materials/add/', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
             'Authorization': `Token ${localStorage.getItem('token')}`
           }
         });
 
-        // Получаем обновленные данные для каждого выбранного студента
+        // Получаем обновленные материалы для каждого выбранного студента
         const updatedStudents = await Promise.all(
           selectedIds.map(async (studentId) => {
-            const materialResponse = await axios.get(`/api/v1/materials/student/${studentId}/`, {
-              headers: {
-                'Authorization': `Token ${localStorage.getItem('token')}`
-              }
-            });
-            return {
-              ...students.find(s => s.id === studentId),
-              materials: materialResponse.data
-            };
+            try {
+              const materialResponse = await axios.get(`/api/v1/materials/student/${studentId}/`, {
+                headers: {
+                  'Authorization': `Token ${localStorage.getItem('token')}`
+                }
+              });
+              
+              return {
+                ...students.find(s => s.id === studentId),
+                materials: materialResponse.data
+              };
+            } catch (error) {
+              console.error(`Ошибка при получении материалов для студента ${studentId}:`, error);
+              return null;
+            }
           })
         );
 
-        // Обновляем состояние с новыми материалами
+        // Обновляем только тех студентов, для которых успешно получили материалы
         const newStudents = students.map(student => {
-          const updatedStudent = updatedStudents.find(us => us.id === student.id);
+          const updatedStudent = updatedStudents.find(us => us && us.id === student.id);
           return updatedStudent || student;
         });
 
@@ -348,20 +354,26 @@ const TeacherActions = ({ students, selectedStudents, onMaterialsUpdate }) => {
   );
 };
 
-export const MaterialCell = ({ materials = [] }) => (
-  <td className="add-material-column">
-    {materials && materials.length > 0 ? materials.map((material, index) => (
-      <span 
-        key={material.id || index} 
-        className="material-type-icon" 
-        title={material.title || 'Материал'}
-        onClick={() => window.open(material.file, '_blank')}
-      >
-        {getFileIcon(material.material_type)}
-      </span>
-    )) : null}
-  </td>
-);
+export const MaterialCell = ({ materials = [] }) => {
+  // Убедимся, что materials существует и является массивом
+  const validMaterials = Array.isArray(materials) ? materials : [];
+
+  return (
+    <td className="add-material-column">
+      {validMaterials.map((material, index) => (
+        <span 
+          key={material.id || index} 
+          className="material-type-icon" 
+          title={`${material.title}\n${material.description || ''}`}
+          onClick={() => material.file_url && window.open(material.file_url, '_blank')}
+          style={{ cursor: 'pointer' }}
+        >
+          {getFileIcon(material.material_type)}
+        </span>
+      ))}
+    </td>
+  );
+};
 
 const getFileIcon = (type) => {
   switch (type) {

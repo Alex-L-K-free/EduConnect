@@ -11,6 +11,7 @@ import logging
 import json
 import os
 from django.conf import settings
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -42,17 +43,21 @@ def add_material(request):
             material_type = 'presentation'
 
         created_materials = []
+        current_time = timezone.now()  # Используем одно время для всех материалов
+        
         for student_id in student_ids:
             try:
                 student = StudentUser.objects.get(id=student_id)
-                material = StudentMaterial.objects.create(
+                material = StudentMaterial(
                     student=student,
                     title=file.name,
                     description=request.data.get('description', ''),
                     file=file,
                     material_type=material_type,
-                    created_by=request.user
+                    created_by=request.user,
+                    created_at=current_time  # Устанавливаем время создания
                 )
+                material.save()
                 created_materials.append(material)
             except StudentUser.DoesNotExist:
                 logger.warning(f"Student with id {student_id} not found")
@@ -60,7 +65,7 @@ def add_material(request):
 
         # Возвращаем первый созданный материал как образец
         if created_materials:
-            serializer = StudentMaterialSerializer(created_materials[0])
+            serializer = StudentMaterialSerializer(created_materials[0], context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
         return Response(
@@ -81,7 +86,7 @@ def get_student_materials(request, student_id):
     try:
         student = StudentUser.objects.get(id=student_id)
         materials = StudentMaterial.objects.filter(student=student)
-        serializer = StudentMaterialSerializer(materials, many=True)
+        serializer = StudentMaterialSerializer(materials, many=True, context={'request': request})
         return Response(serializer.data)
     except StudentUser.DoesNotExist:
         return Response(

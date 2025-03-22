@@ -38,10 +38,33 @@ const TeacherDashboard = () => {
   // Добавляем состояние для выбранных учеников
   const [selectedStudents, setSelectedStudents] = useState({});
 
-  const [students, setStudents] = useState([]);
-
-  const handleMaterialsUpdate = (updatedStudents) => {
-    setStudents(updatedStudents);
+  const handleMaterialsUpdate = async (updatedStudents) => {
+    if (updatedStudents?.length > 0) {
+      // Обновляем студентов в соответствующих мапах
+      if (currentView === 'students-by-subjects') {
+        setSubjectStudentsMap(prev => {
+          const newMap = { ...prev };
+          Object.keys(newMap).forEach(subjectId => {
+            newMap[subjectId] = newMap[subjectId].map(student => {
+              const updated = updatedStudents.find(u => u.id === student.id);
+              return updated || student;
+            });
+          });
+          return newMap;
+        });
+      } else if (currentView === 'students-by-classes') {
+        setClassStudentsMap(prev => {
+          const newMap = { ...prev };
+          Object.keys(newMap).forEach(classId => {
+            newMap[classId] = newMap[classId].map(student => {
+              const updated = updatedStudents.find(u => u.id === student.id);
+              return updated || student;
+            });
+          });
+          return newMap;
+        });
+      }
+    }
   };
 
   // Сохраняем состояния при их изменении
@@ -237,7 +260,7 @@ const TeacherDashboard = () => {
       return <div>Загрузка учеников...</div>;
     }
 
-    // Фильтруем студентов по выбранным классам
+    // Фильтруем и группируем студентов
     let filteredStudents = students;
     if (selectedClassIds.length > 0) {
       filteredStudents = students.filter(student =>
@@ -267,14 +290,10 @@ const TeacherDashboard = () => {
     
     return (
       <div key={subjectId} className="subject-students-list">
+        <h3>Предмет: {subjectName}</h3>
         {sortedClasses.map(classKey => (
           <div key={`${subjectId}-${classKey}`}>
-            <h3>
-              Предмет: {subjectName}
-              <span className="selected-classes">
-                {' '} Класс: {classKey}
-              </span>
-            </h3>
+            <h4>Класс: {classKey}</h4>
             <table className="students-table">
               <thead>
                 <tr>
@@ -299,25 +318,28 @@ const TeacherDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {studentsByClass[classKey].map(student => (
-                  <tr 
-                    key={student.id}
-                    className={selectedStudents[student.id] ? 'selected-row' : ''}
-                  >
-                    <td>
-                      <input
-                        type="checkbox"
-                        className="student-checkbox"
-                        checked={selectedStudents[student.id] || false}
-                        onChange={() => handleSelectStudent(student.id)}
-                      />
-                    </td>
-                    <td>{`${student.lastName} ${student.firstName} ${student.middleName || ''}`}</td>
-                    <MaterialCell materials={student.materials} />
-                    <DescriptionCell descriptions={student.descriptions} />
-                    <MessageCell messages={student.messages} />
-                  </tr>
-                ))}
+                {studentsByClass[classKey].map(student => {
+                  const updatedStudent = students.find(s => s.id === student.id) || student;
+                  return (
+                    <tr 
+                      key={student.id}
+                      className={selectedStudents[student.id] ? 'selected-row' : ''}
+                    >
+                      <td>
+                        <input
+                          type="checkbox"
+                          className="student-checkbox"
+                          checked={selectedStudents[student.id] || false}
+                          onChange={() => handleSelectStudent(student.id)}
+                        />
+                      </td>
+                      <td>{`${student.lastName} ${student.firstName} ${student.middleName || ''}`}</td>
+                      <MaterialCell materials={updatedStudent.materials || []} />
+                      <DescriptionCell descriptions={updatedStudent.descriptions || []} />
+                      <MessageCell messages={updatedStudent.messages || []} />
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
