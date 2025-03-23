@@ -431,6 +431,8 @@
   visibility: hidden;
   transition: opacity 0.2s, visibility 0.2s;
   pointer-events: none;
+  display: flex;
+  gap: 2px;
 }
 
 .material-item-wrapper:hover .material-actions-overlay {
@@ -467,6 +469,12 @@
 .delete-btn {
   background: #f44336;
   color: white;
+}
+
+.material-action-btn.download-btn {
+  background: #4caf50;
+  color: white;
+  margin: 0 2px;
 }
 
 .material-action-btn:hover {

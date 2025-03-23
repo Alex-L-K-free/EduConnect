@@ -293,6 +293,35 @@ export const MaterialCell = ({ materials = [], onMaterialsUpdate, studentId }) =
     }
   };
 
+  const handleDownload = async (e, material) => {
+    e.stopPropagation();
+    if (material.file_url) {
+      try {
+        const response = await axios({
+          url: material.file_url,
+          method: 'GET',
+          responseType: 'blob',
+          headers: {
+            'Authorization': `Token ${localStorage.getItem('token')}`
+          }
+        });
+
+        // Создаем ссылку для скачивания
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', material.title); // Используем оригинальное имя файла
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('Ошибка при скачивании файла:', error);
+        alert('Не удалось скачать файл. Пожалуйста, попробуйте снова.');
+      }
+    }
+  };
+
   const handleIconClick = (materialId, e) => {
     e.stopPropagation();
     if (activeItem === materialId) {
@@ -332,12 +361,20 @@ export const MaterialCell = ({ materials = [], onMaterialsUpdate, studentId }) =
           </span>
           <div className={`material-actions-overlay ${activeItem === material.id ? 'visible' : ''}`}>
             {material.file_url && (
-              <button 
-                className="material-action-btn view-btn"
-                onClick={(e) => handleView(e, material)}
-              >
-                Просмотр
-              </button>
+              <>
+                <button 
+                  className="material-action-btn view-btn"
+                  onClick={(e) => handleView(e, material)}
+                >
+                  Просмотр
+                </button>
+                <button 
+                  className="material-action-btn download-btn"
+                  onClick={(e) => handleDownload(e, material)}
+                >
+                  Скачать
+                </button>
+              </>
             )}
             <button 
               className="material-action-btn delete-btn"
