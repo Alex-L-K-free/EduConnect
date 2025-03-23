@@ -308,29 +308,31 @@ const TeacherDashboard = () => {
     
     return (
       <div key={subjectId} className="subject-students-list">
-        <h3>Предмет: {subjectName}</h3>
+        <div className="section-header">
+          <h3>Предмет: {subjectName}</h3>
+        </div>
         {sortedClasses.map(classKey => (
-          <div key={`${subjectId}-${classKey}`}>
-            <h4>Класс: {classKey}</h4>
+          <div key={`${subjectId}-${classKey}`} className="class-section">
+            <div className="class-header">
+              <h4>Класс: {classKey}</h4>
+            </div>
             <table className="students-table">
               <colgroup>
-                <col style={{width: '40px'}} />
-                <col style={{width: '300px'}} /> {/* Изменяем ширину с 200px на 300px */}
-                <col style={{width: 'calc((100% - 340px) / 3)'}} /> {/* Пересчитываем ширину оставшихся колонок */}
-                <col style={{width: 'calc((100% - 340px) / 3)'}} />
-                <col style={{width: 'calc((100% - 340px) / 3)'}} />
+                <col className="checkbox-cell" />
+                <col className="student-name-column" />
+                <col className="student-actions-column" />
+                <col className="student-actions-column" />
+                <col className="student-actions-column" />
               </colgroup>
               <thead>
                 <tr>
                   <th>
-                    <div className="select-all-header">
-                      <input
-                        type="checkbox"
-                        className="student-checkbox"
-                        checked={studentsByClass[classKey].every(student => selectedStudents[student.id])}
-                        onChange={() => handleSelectAllStudents(classKey, studentsByClass[classKey])}
-                      />
-                    </div>
+                    <input
+                      type="checkbox"
+                      className="student-checkbox"
+                      checked={studentsByClass[classKey].every(student => selectedStudents[student.id])}
+                      onChange={() => handleSelectAllStudents(classKey, studentsByClass[classKey])}
+                    />
                   </th>
                   <th>Ученик</th>
                   <th>
@@ -367,7 +369,7 @@ const TeacherDashboard = () => {
                       key={student.id}
                       className={selectedStudents[student.id] ? 'selected-row' : ''}
                     >
-                      <td>
+                      <td className="checkbox-cell">
                         <input
                           type="checkbox"
                           className="student-checkbox"
