@@ -195,8 +195,8 @@ const TeacherActions = ({ students, selectedStudents, onMaterialsUpdate, type })
           }
         });
 
-        // Получаем материалы только для выбранных студентов одним запросом
-        const response = await axios.get(`/api/v1/materials/students/`, {
+        // Получаем обновленные материалы для всех выбранных студентов
+        const response = await axios.get('/api/v1/materials/students/', {
           headers: {
             'Authorization': `Token ${localStorage.getItem('token')}`
           },
@@ -206,7 +206,10 @@ const TeacherActions = ({ students, selectedStudents, onMaterialsUpdate, type })
         });
 
         handleClose();
-        onMaterialsUpdate(response.data);
+        // Вызываем обновление с флагом forceUpdate
+        if (typeof onMaterialsUpdate === 'function') {
+          onMaterialsUpdate(null, true);
+        }
       } catch (error) {
         console.error('Ошибка при загрузке материалов:', error);
       }

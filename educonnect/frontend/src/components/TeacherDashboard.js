@@ -38,9 +38,68 @@ const TeacherDashboard = () => {
   // Добавляем состояние для выбранных учеников
   const [selectedStudents, setSelectedStudents] = useState({});
 
-  const handleMaterialsUpdate = async (update) => {
-    if (!update) return;
+  const handleMaterialsUpdate = async (update, forceUpdate = false) => {
+    // Если передан forceUpdate или нет конкретного update
+    if (forceUpdate || !update) {
+      const selectedIds = Object.keys(selectedStudents)
+        .filter(id => selectedStudents[id])
+        .map(id => parseInt(id));
 
+      if (selectedIds.length > 0) {
+        try {
+          const response = await axios.get('/api/v1/materials/students/', {
+            headers: {
+              'Authorization': `Token ${localStorage.getItem('token')}`
+            },
+            params: {
+              student_ids: selectedIds.join(',')
+            }
+          });
+
+          // Обновляем оба представления
+          if (currentView === 'students-by-subjects') {
+            setSubjectStudentsMap(prevMap => {
+              const newMap = { ...prevMap };
+              Object.keys(newMap).forEach(subjectId => {
+                newMap[subjectId] = newMap[subjectId].map(student => {
+                  const updatedData = response.data.find(data => data.id === student.id);
+                  if (updatedData) {
+                    return {
+                      ...student,
+                      materials: updatedData.materials
+                    };
+                  }
+                  return student;
+                });
+              });
+              return newMap;
+            });
+          } else if (currentView === 'students-by-classes') {
+            setClassStudentsMap(prevMap => {
+              const newMap = { ...prevMap };
+              Object.keys(newMap).forEach(classId => {
+                newMap[classId] = newMap[classId].map(student => {
+                  const updatedData = response.data.find(data => data.id === student.id);
+                  if (updatedData) {
+                    return {
+                      ...student,
+                      materials: updatedData.materials
+                    };
+                  }
+                  return student;
+                });
+              });
+              return newMap;
+            });
+          }
+        } catch (error) {
+          console.error('Ошибка при обновлении материалов:', error);
+        }
+      }
+      return;
+    }
+
+    // Существующая логика обновления для одного студента
     const { studentId, materials } = update;
 
     if (currentView === 'students-by-subjects') {
