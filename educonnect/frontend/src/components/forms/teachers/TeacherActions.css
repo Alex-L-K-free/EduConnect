@@ -426,7 +426,7 @@
   box-shadow: 
     0 2px 8px rgba(0,0,0,0.15),
     0 4px 12px rgba(0,0,0,0.1);
-  padding: 4px;
+  padding: 2px;
   white-space: nowrap;
   z-index: 1000;
   opacity: 0;
@@ -434,7 +434,7 @@
   transition: all 0.3s ease;
   pointer-events: none;
   display: flex;
-  gap: 4px;
+  gap: 2px;
   transform-style: preserve-3d;
   perspective: 1000px;
 }
@@ -457,15 +457,17 @@
 }
 
 .material-action-btn {
-  padding: 4px 12px;
+  padding: 2px 8px; /* Уменьшаем padding */
   border: none;
-  border-radius: 4px;
-  font-size: 11px;
+  border-radius: 3px;
+  font-size: 10px; /* Уменьшаем размер шрифта */
   cursor: pointer;
   transition: all 0.2s ease;
   text-transform: uppercase;
   font-weight: 500;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
+  min-height: 20px; /* Добавляем минимальную высоту */
+  line-height: 16px; /* Настраиваем высоту строки */
   position: relative;
   overflow: hidden;
   transform-style: preserve-3d;
