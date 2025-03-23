@@ -412,6 +412,8 @@
 .material-item-wrapper {
   position: relative;
   display: inline-block;
+  padding-top: 40px;
+  margin-top: -40px;
 }
 
 .material-actions-overlay {
@@ -422,26 +424,26 @@
   background: white;
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  display: none;
   padding: 4px;
   white-space: nowrap;
   z-index: 1000;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.2s, visibility 0.2s;
+  transition: opacity 0.3s, visibility 0.3s;
+  padding-bottom: 15px;
+  pointer-events: none;
 }
 
 .material-item-wrapper:hover .material-actions-overlay {
-  display: flex;
-  gap: 4px;
   opacity: 1;
   visibility: visible;
-  transition-delay: 0s;
+  pointer-events: all;
 }
 
-.material-item-wrapper.active .material-actions-overlay {
+.material-actions-overlay:hover {
   opacity: 1;
   visibility: visible;
+  pointer-events: all;
 }
 
 .material-actions-overlay.visible {
@@ -450,12 +452,13 @@
 }
 
 .material-action-btn {
-  padding: 4px 8px;
+  padding: 6px 12px;
   border: none;
   border-radius: 3px;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s;
+  min-width: 80px;
 }
 
 .view-btn {
