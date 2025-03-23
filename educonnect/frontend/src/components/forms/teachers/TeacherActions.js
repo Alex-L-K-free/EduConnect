@@ -169,55 +169,86 @@ export const MessageCell = ({ messages }) => (
   </td>
 );
 
-const TeacherActions = ({ students, selectedStudents, onMaterialsUpdate }) => {
-  const [showModal, setShowModal] = useState(false);
+const TeacherActions = ({ students, selectedStudents, onMaterialsUpdate, type }) => {
   const [showUpload, setShowUpload] = useState(false);
   const [showDescription, setShowDescription] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
 
-  const handleAddMaterial = (materialData) => {
-    const selectedIds = students
-      .filter(student => selectedStudents[student.id])
-      .map(student => student.id);
-
-    if (selectedIds.length > 0) {
-      console.log('Добавить материал для:', selectedIds, 'с данными:', materialData);
-      // Здесь будет логика добавления материала
+  const getTitle = () => {
+    switch (type) {
+      case 'materials': return 'Материалы';
+      case 'tasks': return 'Задания';
+      case 'messages': return 'Сообщения';
+      default: return 'Действия';
     }
-    setShowModal(false);
   };
 
-  const handleAddDescription = (text) => {
-    const selectedIds = students
-      .filter(student => selectedStudents[student.id])
-      .map(student => student.id);
-
-    if (selectedIds.length > 0) {
-      console.log('Добавить описание для:', selectedIds, 'с текстом:', text);
-      // Здесь будет логика добавления описания
+  const handleClick = () => {
+    switch (type) {
+      case 'materials':
+        setShowUpload(!showUpload);
+        break;
+      case 'tasks':
+        setShowDescription(!showDescription);
+        break;
+      case 'messages':
+        setShowMessage(!showMessage);
+        break;
+      default:
+        break;
     }
+  };
+
+  const handleClose = () => {
+    setShowUpload(false);
     setShowDescription(false);
-  };
-
-  const handleAddMessage = (text) => {
-    const selectedIds = students
-      .filter(student => selectedStudents[student.id])
-      .map(student => student.id);
-
-    if (selectedIds.length > 0) {
-      console.log('Добавить сообщение для:', selectedIds, 'с текстом:', text);
-      // Здесь будет логика добавления сообщения
-    }
     setShowMessage(false);
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const files = Array.from(e.dataTransfer.files);
-    console.log('Перетащенные файлы:', files);
-    // Здесь логика обработки перетащенных файлов
+  const handleAddDescription = async (text) => {
+    const selectedIds = students
+      .filter(student => selectedStudents[student.id])
+      .map(student => student.id);
+
+    if (selectedIds.length > 0) {
+      try {
+        await axios.post('/api/v1/materials/add-description/', {
+          student_ids: selectedIds,
+          description: text
+        }, {
+          headers: {
+            'Authorization': `Token ${localStorage.getItem('token')}`
+          }
+        });
+        handleClose();
+        onMaterialsUpdate();
+      } catch (error) {
+        console.error('Ошибка при добавлении описания:', error);
+      }
+    }
+  };
+
+  const handleAddMessage = async (text) => {
+    const selectedIds = students
+      .filter(student => selectedStudents[student.id])
+      .map(student => student.id);
+
+    if (selectedIds.length > 0) {
+      try {
+        await axios.post('/api/v1/materials/add-message/', {
+          student_ids: selectedIds,
+          message: text
+        }, {
+          headers: {
+            'Authorization': `Token ${localStorage.getItem('token')}`
+          }
+        });
+        handleClose();
+        onMaterialsUpdate();
+      } catch (error) {
+        console.error('Ошибка при добавлении сообщения:', error);
+      }
+    }
   };
 
   const handleUpload = async (files) => {
@@ -240,35 +271,24 @@ const TeacherActions = ({ students, selectedStudents, onMaterialsUpdate }) => {
           }
         });
 
-        // Получаем обновленные материалы для каждого выбранного студента
-        const updatedStudents = await Promise.all(
+        // Получаем обновленные материалы
+        const updatedMaterials = await Promise.all(
           selectedIds.map(async (studentId) => {
-            try {
-              const materialResponse = await axios.get(`/api/v1/materials/student/${studentId}/`, {
-                headers: {
-                  'Authorization': `Token ${localStorage.getItem('token')}`
-                }
-              });
-              
-              return {
-                ...students.find(s => s.id === studentId),
-                materials: materialResponse.data
-              };
-            } catch (error) {
-              console.error(`Ошибка при получении материалов для студента ${studentId}:`, error);
-              return null;
-            }
+            const response = await axios.get(`/api/v1/materials/student/${studentId}/`, {
+              headers: {
+                'Authorization': `Token ${localStorage.getItem('token')}`
+              }
+            });
+            return {
+              id: studentId,
+              materials: response.data
+            };
           })
         );
 
-        // Обновляем только тех студентов, для которых успешно получили материалы
-        const newStudents = students.map(student => {
-          const updatedStudent = updatedStudents.find(us => us && us.id === student.id);
-          return updatedStudent || student;
-        });
-
-        onMaterialsUpdate(newStudents);
-        setShowUpload(false);
+        handleClose();
+        // Передаем обновленные данные в родительский компонент
+        onMaterialsUpdate(updatedMaterials);
       } catch (error) {
         console.error('Ошибка при загрузке материалов:', error);
       }
@@ -276,80 +296,35 @@ const TeacherActions = ({ students, selectedStudents, onMaterialsUpdate }) => {
   };
 
   return (
-    <div>
-      {showModal && (
-        <ActionModal
-          onClose={() => setShowModal(false)}
-          onSubmit={handleAddMaterial}
+    <div className="material-actions-container">
+      <div className={`material-header ${type}-header`}>
+        <span className="header-title">{getTitle()}</span>
+        <button 
+          className="add-material-btn"
+          onClick={handleClick}
+          title={`Добавить ${getTitle().toLowerCase()}`}
+        >
+          +
+        </button>
+      </div>
+      {showUpload && type === 'materials' && (
+        <UploadPanel 
+          onUpload={handleUpload}
+          onClose={handleClose}
         />
       )}
-      <div className="material-header">
-        <div className="material-actions">
-          Материалы
-          <div className="materials-dropdown">
-            <button 
-              className="add-material-btn"
-              onClick={() => setShowUpload(!showUpload)}
-              title="Загрузить материалы"
-            >
-              +
-            </button>
-            {showUpload && (
-              <UploadPanel 
-                onUpload={handleUpload}
-                onClose={() => setShowUpload(false)}
-              />
-            )}
-          </div>
-        </div>
-        <div className="material-actions">
-          Задание
-          <div className="materials-dropdown">
-            <button 
-              className="add-material-btn"
-              onClick={() => setShowDescription(!showDescription)}
-              title="Добавить задание"
-            >
-              +
-            </button>
-            {showDescription && (
-              <DescriptionPanel
-                onSubmit={handleAddDescription}
-                onClose={() => setShowDescription(false)}
-              />
-            )}
-          </div>
-        </div>
-        <div className="material-actions">
-          Сообщение
-          <div className="materials-dropdown">
-            <button 
-              className="add-material-btn"
-              onClick={() => setShowMessage(!showMessage)}
-              title="Добавить сообщение"
-            >
-              +
-            </button>
-            {showMessage && (
-              <DescriptionPanel
-                onSubmit={handleAddMessage}
-                onClose={() => setShowMessage(false)}
-              />
-            )}
-          </div>
-        </div>
-      </div>
-      <div 
-        className={`drop-zone ${isDragging ? 'active' : ''}`}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setIsDragging(true);
-        }}
-        onDragLeave={() => setIsDragging(false)}
-        onDrop={handleDrop}
-      >
-        {/* Перетащите файлы сюда или выберите способ добавления выше */}
-      </div>
+      {showDescription && type === 'tasks' && (
+        <DescriptionPanel
+          onSubmit={handleAddDescription}
+          onClose={handleClose}
+        />
+      )}
+      {showMessage && type === 'messages' && (
+        <DescriptionPanel
+          onSubmit={handleAddMessage}
+          onClose={handleClose}
+        />
+      )}
     </div>
   );
 };

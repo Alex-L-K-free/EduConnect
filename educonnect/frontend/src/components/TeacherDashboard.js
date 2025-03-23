@@ -38,32 +38,31 @@ const TeacherDashboard = () => {
   // Добавляем состояние для выбранных учеников
   const [selectedStudents, setSelectedStudents] = useState({});
 
-  const handleMaterialsUpdate = async (updatedStudents) => {
-    if (updatedStudents?.length > 0) {
-      // Обновляем студентов в соответствующих мапах
-      if (currentView === 'students-by-subjects') {
-        setSubjectStudentsMap(prev => {
-          const newMap = { ...prev };
-          Object.keys(newMap).forEach(subjectId => {
-            newMap[subjectId] = newMap[subjectId].map(student => {
-              const updated = updatedStudents.find(u => u.id === student.id);
-              return updated || student;
-            });
-          });
-          return newMap;
+  const handleMaterialsUpdate = async (updatedMaterials) => {
+    if (!updatedMaterials?.length) return;
+
+    // Обновляем состояние с новыми материалами
+    const updateMap = (prevMap) => {
+      const newMap = { ...prevMap };
+      Object.keys(newMap).forEach(key => {
+        newMap[key] = newMap[key].map(student => {
+          const updated = updatedMaterials.find(u => u.id === student.id);
+          if (updated) {
+            return {
+              ...student,
+              materials: updated.materials
+            };
+          }
+          return student;
         });
-      } else if (currentView === 'students-by-classes') {
-        setClassStudentsMap(prev => {
-          const newMap = { ...prev };
-          Object.keys(newMap).forEach(classId => {
-            newMap[classId] = newMap[classId].map(student => {
-              const updated = updatedStudents.find(u => u.id === student.id);
-              return updated || student;
-            });
-          });
-          return newMap;
-        });
-      }
+      });
+      return newMap;
+    };
+
+    if (currentView === 'students-by-subjects') {
+      setSubjectStudentsMap(updateMap);
+    } else if (currentView === 'students-by-classes') {
+      setClassStudentsMap(updateMap);
     }
   };
 
@@ -314,6 +313,13 @@ const TeacherDashboard = () => {
           <div key={`${subjectId}-${classKey}`}>
             <h4>Класс: {classKey}</h4>
             <table className="students-table">
+              <colgroup>
+                <col style={{width: '40px'}} />
+                <col style={{width: '200px'}} />
+                <col style={{width: '33%'}} />
+                <col style={{width: '33%'}} />
+                <col style={{width: '33%'}} />
+              </colgroup>
               <thead>
                 <tr>
                   <th>
@@ -327,11 +333,28 @@ const TeacherDashboard = () => {
                     </div>
                   </th>
                   <th>Ученик</th>
-                  <th className="add-material-column">
+                  <th>
                     <StudentActions 
                       students={studentsByClass[classKey]}
                       selectedStudents={selectedStudents}
                       onMaterialsUpdate={handleMaterialsUpdate}
+                      type="materials"
+                    />
+                  </th>
+                  <th>
+                    <StudentActions 
+                      students={studentsByClass[classKey]}
+                      selectedStudents={selectedStudents}
+                      onMaterialsUpdate={handleMaterialsUpdate}
+                      type="tasks"
+                    />
+                  </th>
+                  <th>
+                    <StudentActions 
+                      students={studentsByClass[classKey]}
+                      selectedStudents={selectedStudents}
+                      onMaterialsUpdate={handleMaterialsUpdate}
+                      type="messages"
                     />
                   </th>
                 </tr>

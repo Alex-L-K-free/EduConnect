@@ -284,3 +284,30 @@
 .description-submit-btn:hover:not(:disabled) {
   background: #1b5e20;
 }
+
+.material-actions-container {
+  position: relative;
+  width: 100%;
+}
+
+.material-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+  background-color: #f8f9fa;
+}
+
+.header-title {
+  font-weight: 500;
+  color: #333;
+}
+
+.materials-header .add-material-btn { background: linear-gradient(145deg, #2e7d32, #1b5e20); }
+.tasks-header .add-material-btn { background: linear-gradient(145deg, #1976d2, #1565c0); }
+.messages-header .add-material-btn { background: linear-gradient(145deg, #7b1fa2, #6a1b9a); }
+
+.material-header.materials-header { border-bottom: 2px solid #2e7d32; }
+.material-header.tasks-header { border-bottom: 2px solid #1976d2; }
+.material-header.messages-header { border-bottom: 2px solid #7b1fa2; }
