@@ -187,8 +187,8 @@ const TeacherActions = ({ students, selectedStudents, onMaterialsUpdate, type })
         });
         formData.append('student_ids', JSON.stringify(selectedIds));
         
-        // Добавляем индикатор загрузки
-        const loadingToast = await axios.post('/api/v1/materials/add/', formData, {
+        // Отправляем файлы
+        await axios.post('/api/v1/materials/add/', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
             'Authorization': `Token ${localStorage.getItem('token')}`
