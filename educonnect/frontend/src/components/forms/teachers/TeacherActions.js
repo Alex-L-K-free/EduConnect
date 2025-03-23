@@ -250,6 +250,8 @@ const TeacherActions = ({ students, selectedStudents, onMaterialsUpdate, type })
 export const MaterialCell = ({ materials = [], onMaterialsUpdate, studentId }) => {
   const [localMaterials, setLocalMaterials] = useState(materials);
   const [activeItem, setActiveItem] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [materialToDelete, setMaterialToDelete] = useState(null);
 
   // Обновляем локальное состояние при изменении props
   useEffect(() => {
@@ -258,32 +260,34 @@ export const MaterialCell = ({ materials = [], onMaterialsUpdate, studentId }) =
 
   const handleDelete = async (materialId, e) => {
     e.stopPropagation();
-    if (window.confirm('Вы уверены, что хотите удалить этот материал?')) {
-      try {
-        const response = await axios.delete(`/api/v1/materials/delete/${materialId}/`, {
-          headers: {
-            'Authorization': `Token ${localStorage.getItem('token')}`
-          }
-        });
-        
-        if (response.status === 204) {
-          // Обновляем локальное состояние
-          const updatedMaterials = localMaterials.filter(material => material.id !== materialId);
-          setLocalMaterials(updatedMaterials);
-          
-          // Уведомляем родительский компонент
-          if (typeof onMaterialsUpdate === 'function') {
-            onMaterialsUpdate({
-              studentId,
-              materials: updatedMaterials
-            });
-          }
+    setMaterialToDelete(materialId);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      const response = await axios.delete(`/api/v1/materials/delete/${materialToDelete}/`, {
+        headers: {
+          'Authorization': `Token ${localStorage.getItem('token')}`
         }
-      } catch (error) {
-        console.error('Ошибка при удалении материала:', error);
-        alert('Не удалось удалить материал. Пожалуйста, попробуйте снова.');
+      });
+      
+      if (response.status === 204) {
+        const updatedMaterials = localMaterials.filter(material => material.id !== materialToDelete);
+        setLocalMaterials(updatedMaterials);
+        if (typeof onMaterialsUpdate === 'function') {
+          onMaterialsUpdate({
+            studentId,
+            materials: updatedMaterials
+          });
+        }
       }
+    } catch (error) {
+      console.error('Ошибка при удалении материала:', error);
+      alert('Не удалось удалить материал. Пожалуйста, попробуйте снова.');
     }
+    setShowDeleteConfirm(false);
+    setMaterialToDelete(null);
   };
 
   const handleView = (e, material) => {
@@ -346,46 +350,72 @@ export const MaterialCell = ({ materials = [], onMaterialsUpdate, studentId }) =
   }, []);
 
   return (
-    <td className="add-material-column">
-      {localMaterials.map((material, index) => (
-        <div 
-          key={material.id || index} 
-          className={`material-item-wrapper ${activeItem === material.id ? 'active' : ''}`}
-        >
-          <span 
-            className="material-type-icon"
-            title={material.title}
-            onClick={(e) => handleIconClick(material.id, e)}
+    <>
+      <td className="add-material-column">
+        {localMaterials.map((material, index) => (
+          <div 
+            key={material.id || index} 
+            className={`material-item-wrapper ${activeItem === material.id ? 'active' : ''}`}
           >
-            {getFileIcon(material.material_type)}
-          </span>
-          <div className={`material-actions-overlay ${activeItem === material.id ? 'visible' : ''}`}>
-            {material.file_url && (
-              <>
-                <button 
-                  className="material-action-btn view-btn"
-                  onClick={(e) => handleView(e, material)}
-                >
-                  Просмотр
-                </button>
-                <button 
-                  className="material-action-btn download-btn"
-                  onClick={(e) => handleDownload(e, material)}
-                >
-                  Скачать
-                </button>
-              </>
-            )}
-            <button 
-              className="material-action-btn delete-btn"
-              onClick={(e) => handleDelete(material.id, e)}
+            <span 
+              className="material-type-icon"
+              title={material.title}
+              onClick={(e) => handleIconClick(material.id, e)}
             >
-              Удалить
-            </button>
+              {getFileIcon(material.material_type)}
+            </span>
+            <div className={`material-actions-overlay ${activeItem === material.id ? 'visible' : ''}`}>
+              {material.file_url && (
+                <>
+                  <button 
+                    className="material-action-btn view-btn"
+                    onClick={(e) => handleView(e, material)}
+                  >
+                    Просмотр
+                  </button>
+                  <button 
+                    className="material-action-btn download-btn"
+                    onClick={(e) => handleDownload(e, material)}
+                  >
+                    Скачать
+                  </button>
+                </>
+              )}
+              <button 
+                className="material-action-btn delete-btn"
+                onClick={(e) => handleDelete(material.id, e)}
+              >
+                Удалить
+              </button>
+            </div>
+          </div>
+        ))}
+      </td>
+      {showDeleteConfirm && (
+        <div className="modal-overlay" onClick={() => setShowDeleteConfirm(false)}>
+          <div className="delete-confirm-modal" onClick={e => e.stopPropagation()}>
+            <div className="delete-confirm-content">
+              <h3>Подтверждение удаления</h3>
+              <p>Вы действительно хотите удалить этот материал?</p>
+              <div className="delete-confirm-actions">
+                <button 
+                  className="delete-confirm-btn confirm"
+                  onClick={handleConfirmDelete}
+                >
+                  Удалить
+                </button>
+                <button 
+                  className="delete-confirm-btn cancel"
+                  onClick={() => setShowDeleteConfirm(false)}
+                >
+                  Отмена
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      ))}
-    </td>
+      )}
+    </>
   );
 };
 
