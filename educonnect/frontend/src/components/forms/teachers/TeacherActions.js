@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './TeacherActions.css';
 
@@ -187,31 +187,26 @@ const TeacherActions = ({ students, selectedStudents, onMaterialsUpdate, type })
         });
         formData.append('student_ids', JSON.stringify(selectedIds));
         
-        await axios.post('/api/v1/materials/add/', formData, {
+        // Добавляем индикатор загрузки
+        const loadingToast = await axios.post('/api/v1/materials/add/', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
             'Authorization': `Token ${localStorage.getItem('token')}`
           }
         });
 
-        // Получаем обновленные материалы
-        const updatedMaterials = await Promise.all(
-          selectedIds.map(async (studentId) => {
-            const response = await axios.get(`/api/v1/materials/student/${studentId}/`, {
-              headers: {
-                'Authorization': `Token ${localStorage.getItem('token')}`
-              }
-            });
-            return {
-              id: studentId,
-              materials: response.data
-            };
-          })
-        );
+        // Получаем материалы только для выбранных студентов одним запросом
+        const response = await axios.get(`/api/v1/materials/students/`, {
+          headers: {
+            'Authorization': `Token ${localStorage.getItem('token')}`
+          },
+          params: {
+            student_ids: selectedIds.join(',')
+          }
+        });
 
         handleClose();
-        // Передаем обновленные данные в родительский компонент
-        onMaterialsUpdate(updatedMaterials);
+        onMaterialsUpdate(response.data);
       } catch (error) {
         console.error('Ошибка при загрузке материалов:', error);
       }
@@ -252,21 +247,40 @@ const TeacherActions = ({ students, selectedStudents, onMaterialsUpdate, type })
   );
 };
 
-export const MaterialCell = ({ materials = [], onMaterialsUpdate }) => {
-  const validMaterials = Array.isArray(materials) ? materials : [];
+export const MaterialCell = ({ materials = [], onMaterialsUpdate, studentId }) => {
+  const [localMaterials, setLocalMaterials] = useState(materials);
+
+  // Обновляем локальное состояние при изменении props
+  useEffect(() => {
+    setLocalMaterials(materials);
+  }, [materials]);
 
   const handleDelete = async (materialId, e) => {
     e.stopPropagation();
     if (window.confirm('Вы уверены, что хотите удалить этот материал?')) {
       try {
-        await axios.delete(`/api/v1/materials/delete/${materialId}/`, {
+        const response = await axios.delete(`/api/v1/materials/delete/${materialId}/`, {
           headers: {
             'Authorization': `Token ${localStorage.getItem('token')}`
           }
         });
-        onMaterialsUpdate();
+        
+        if (response.status === 204) {
+          // Обновляем локальное состояние
+          const updatedMaterials = localMaterials.filter(material => material.id !== materialId);
+          setLocalMaterials(updatedMaterials);
+          
+          // Уведомляем родительский компонент
+          if (typeof onMaterialsUpdate === 'function') {
+            onMaterialsUpdate({
+              studentId,
+              materials: updatedMaterials
+            });
+          }
+        }
       } catch (error) {
         console.error('Ошибка при удалении материала:', error);
+        alert('Не удалось удалить материал. Пожалуйста, попробуйте снова.');
       }
     }
   };
@@ -280,7 +294,7 @@ export const MaterialCell = ({ materials = [], onMaterialsUpdate }) => {
 
   return (
     <td className="add-material-column">
-      {validMaterials.map((material, index) => (
+      {localMaterials.map((material, index) => (
         <div key={material.id || index} className="material-item-wrapper">
           <span 
             className="material-type-icon"

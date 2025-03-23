@@ -38,31 +38,43 @@ const TeacherDashboard = () => {
   // Добавляем состояние для выбранных учеников
   const [selectedStudents, setSelectedStudents] = useState({});
 
-  const handleMaterialsUpdate = async (updatedMaterials) => {
-    if (!updatedMaterials?.length) return;
+  const handleMaterialsUpdate = async (update) => {
+    if (!update) return;
 
-    // Обновляем состояние с новыми материалами
-    const updateMap = (prevMap) => {
-      const newMap = { ...prevMap };
-      Object.keys(newMap).forEach(key => {
-        newMap[key] = newMap[key].map(student => {
-          const updated = updatedMaterials.find(u => u.id === student.id);
-          if (updated) {
-            return {
-              ...student,
-              materials: updated.materials
-            };
-          }
-          return student;
-        });
-      });
-      return newMap;
-    };
+    const { studentId, materials } = update;
 
     if (currentView === 'students-by-subjects') {
-      setSubjectStudentsMap(updateMap);
+      setSubjectStudentsMap(prevMap => {
+        const newMap = { ...prevMap };
+        Object.keys(newMap).forEach(subjectId => {
+          newMap[subjectId] = newMap[subjectId].map(student => {
+            if (student.id === studentId) {
+              return {
+                ...student,
+                materials: materials
+              };
+            }
+            return student;
+          });
+        });
+        return newMap;
+      });
     } else if (currentView === 'students-by-classes') {
-      setClassStudentsMap(updateMap);
+      setClassStudentsMap(prevMap => {
+        const newMap = { ...prevMap };
+        Object.keys(newMap).forEach(classId => {
+          newMap[classId] = newMap[classId].map(student => {
+            if (student.id === studentId) {
+              return {
+                ...student,
+                materials: materials
+              };
+            }
+            return student;
+          });
+        });
+        return newMap;
+      });
     }
   };
 
@@ -380,7 +392,11 @@ const TeacherDashboard = () => {
                       <td className="student-name-column">
                         {`${student.lastName} ${student.firstName} ${student.middleName || ''}`}
                       </td>
-                      <MaterialCell materials={updatedStudent.materials || []} />
+                      <MaterialCell 
+                        materials={updatedStudent.materials || []} 
+                        onMaterialsUpdate={handleMaterialsUpdate}
+                        studentId={student.id}
+                      />
                       <DescriptionCell descriptions={updatedStudent.descriptions || []} />
                       <MessageCell messages={updatedStudent.messages || []} />
                     </tr>

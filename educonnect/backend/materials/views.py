@@ -105,6 +105,51 @@ def get_student_materials(request, student_id):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_students_materials(request):
+    """Получение материалов для нескольких студентов за один запрос"""
+    try:
+        student_ids = request.query_params.get('student_ids', '').split(',')
+        student_ids = [int(id) for id in student_ids if id.isdigit()]
+        
+        if not student_ids:
+            return Response(
+                {'error': 'Не указаны ID студентов'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        materials_by_student = {}
+        materials = StudentMaterial.objects.filter(student_id__in=student_ids).order_by('-created_at')
+        
+        for material in materials:
+            if material.student_id not in materials_by_student:
+                materials_by_student[material.student_id] = []
+            materials_by_student[material.student_id].append(material)
+
+        # Сериализуем материалы для каждого студента
+        result = []
+        for student_id in student_ids:
+            student_materials = materials_by_student.get(student_id, [])
+            serializer = StudentMaterialSerializer(
+                student_materials,
+                many=True,
+                context={'request': request}
+            )
+            result.append({
+                'id': student_id,
+                'materials': serializer.data
+            })
+
+        return Response(result)
+
+    except Exception as e:
+        logger.error(f"Error getting materials for multiple students: {str(e)}")
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def mark_material_viewed(request, material_id):
@@ -118,4 +163,49 @@ def mark_material_viewed(request, material_id):
         return Response(
             {'error': 'Материал не найден'},
             status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        logger.error(f"Error marking material as viewed: {str(e)}")
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_material(request, material_id):
+    try:
+        material = StudentMaterial.objects.get(id=material_id)
+        if request.user == material.created_by or request.user.role == User.TEACHER:
+            try:
+                # Удаляем файл, если он существует
+                if material.file:
+                    file_path = os.path.join(settings.MEDIA_ROOT, material.file.name)
+                    if os.path.exists(file_path):  # Исправлена лишняя скобка
+                        os.remove(file_path)
+                
+                # Удаляем запись из базы данных
+                material.delete()
+                
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            except Exception as e:
+                logger.error(f"Error while deleting material file: {str(e)}")
+                # Если файл не удалось удалить, все равно удаляем запись
+                material.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+                
+        return Response(
+            {'error': 'У вас нет прав на удаление этого материала'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    except StudentMaterial.DoesNotExist:
+        return Response(
+            {'error': 'Материал не найден'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        logger.error(f"Error deleting material: {str(e)}")
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
