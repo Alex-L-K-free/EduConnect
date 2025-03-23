@@ -252,22 +252,59 @@ const TeacherActions = ({ students, selectedStudents, onMaterialsUpdate, type })
   );
 };
 
-export const MaterialCell = ({ materials = [] }) => {
-  // Убедимся, что materials существует и является массивом
+export const MaterialCell = ({ materials = [], onMaterialsUpdate }) => {
   const validMaterials = Array.isArray(materials) ? materials : [];
+
+  const handleDelete = async (materialId, e) => {
+    e.stopPropagation();
+    if (window.confirm('Вы уверены, что хотите удалить этот материал?')) {
+      try {
+        await axios.delete(`/api/v1/materials/delete/${materialId}/`, {
+          headers: {
+            'Authorization': `Token ${localStorage.getItem('token')}`
+          }
+        });
+        onMaterialsUpdate();
+      } catch (error) {
+        console.error('Ошибка при удалении материала:', error);
+      }
+    }
+  };
+
+  const handleView = (e, material) => {
+    e.stopPropagation();
+    if (material.file_url) {
+      window.open(material.file_url, '_blank');
+    }
+  };
 
   return (
     <td className="add-material-column">
       {validMaterials.map((material, index) => (
-        <span 
-          key={material.id || index} 
-          className="material-type-icon" 
-          title={`${material.title}\n${material.description || ''}`}
-          onClick={() => material.file_url && window.open(material.file_url, '_blank')}
-          style={{ cursor: 'pointer' }}
-        >
-          {getFileIcon(material.material_type)}
-        </span>
+        <div key={material.id || index} className="material-item-wrapper">
+          <span 
+            className="material-type-icon"
+            title={material.title}
+          >
+            {getFileIcon(material.material_type)}
+          </span>
+          <div className="material-actions-overlay">
+            {material.file_url && (
+              <button 
+                className="material-action-btn view-btn"
+                onClick={(e) => handleView(e, material)}
+              >
+                Просмотр
+              </button>
+            )}
+            <button 
+              className="material-action-btn delete-btn"
+              onClick={(e) => handleDelete(material.id, e)}
+            >
+              Удалить
+            </button>
+          </div>
+        </div>
       ))}
     </td>
   );
