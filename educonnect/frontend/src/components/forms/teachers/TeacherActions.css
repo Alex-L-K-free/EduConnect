@@ -426,11 +426,27 @@
   padding: 4px;
   white-space: nowrap;
   z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
 }
 
 .material-item-wrapper:hover .material-actions-overlay {
   display: flex;
   gap: 4px;
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.material-item-wrapper.active .material-actions-overlay {
+  opacity: 1;
+  visibility: visible;
+}
+
+.material-actions-overlay.visible {
+  opacity: 1;
+  visibility: visible;
 }
 
 .material-action-btn {

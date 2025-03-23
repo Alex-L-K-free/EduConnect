@@ -249,6 +249,7 @@ const TeacherActions = ({ students, selectedStudents, onMaterialsUpdate, type })
 
 export const MaterialCell = ({ materials = [], onMaterialsUpdate, studentId }) => {
   const [localMaterials, setLocalMaterials] = useState(materials);
+  const [activeItem, setActiveItem] = useState(null);
 
   // Обновляем локальное состояние при изменении props
   useEffect(() => {
@@ -292,17 +293,44 @@ export const MaterialCell = ({ materials = [], onMaterialsUpdate, studentId }) =
     }
   };
 
+  const handleIconClick = (materialId, e) => {
+    e.stopPropagation();
+    if (activeItem === materialId) {
+      setActiveItem(null);
+    } else {
+      setActiveItem(materialId);
+    }
+  };
+
+  // Обработчик клика вне компонента
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.material-item-wrapper')) {
+        setActiveItem(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
+
   return (
     <td className="add-material-column">
       {localMaterials.map((material, index) => (
-        <div key={material.id || index} className="material-item-wrapper">
+        <div 
+          key={material.id || index} 
+          className={`material-item-wrapper ${activeItem === material.id ? 'active' : ''}`}
+        >
           <span 
             className="material-type-icon"
             title={material.title}
+            onClick={(e) => handleIconClick(material.id, e)}
           >
             {getFileIcon(material.material_type)}
           </span>
-          <div className="material-actions-overlay">
+          <div className={`material-actions-overlay ${activeItem === material.id ? 'visible' : ''}`}>
             {material.file_url && (
               <button 
                 className="material-action-btn view-btn"
