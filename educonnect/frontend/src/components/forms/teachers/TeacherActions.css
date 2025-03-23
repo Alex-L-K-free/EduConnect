@@ -311,3 +311,17 @@
 .material-header.materials-header { border-bottom: 2px solid #2e7d32; }
 .material-header.tasks-header { border-bottom: 2px solid #1976d2; }
 .material-header.messages-header { border-bottom: 2px solid #7b1fa2; }
+
+.students-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  table-layout: fixed;
+}
+
+.student-name-column {
+  width: 300px;  /* Увеличиваем ширину столбца с ФИО */
+  white-space: nowrap;  /* Запрещаем перенос текста */
+  overflow: hidden;
+  text-overflow: ellipsis;  /* Добавляем многоточие при переполнении */
+}

@@ -315,10 +315,10 @@ const TeacherDashboard = () => {
             <table className="students-table">
               <colgroup>
                 <col style={{width: '40px'}} />
-                <col style={{width: '200px'}} />
-                <col style={{width: '33%'}} />
-                <col style={{width: '33%'}} />
-                <col style={{width: '33%'}} />
+                <col style={{width: '300px'}} /> {/* Изменяем ширину с 200px на 300px */}
+                <col style={{width: 'calc((100% - 340px) / 3)'}} /> {/* Пересчитываем ширину оставшихся колонок */}
+                <col style={{width: 'calc((100% - 340px) / 3)'}} />
+                <col style={{width: 'calc((100% - 340px) / 3)'}} />
               </colgroup>
               <thead>
                 <tr>
@@ -375,7 +375,9 @@ const TeacherDashboard = () => {
                           onChange={() => handleSelectStudent(student.id)}
                         />
                       </td>
-                      <td>{`${student.lastName} ${student.firstName} ${student.middleName || ''}`}</td>
+                      <td className="student-name-column">
+                        {`${student.lastName} ${student.firstName} ${student.middleName || ''}`}
+                      </td>
                       <MaterialCell materials={updatedStudent.materials || []} />
                       <DescriptionCell descriptions={updatedStudent.descriptions || []} />
                       <MessageCell messages={updatedStudent.messages || []} />
