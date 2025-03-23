@@ -4,12 +4,13 @@ import './TeacherActions.css';
 
 const UploadPanel = ({ onUpload, onClose }) => {
   const [isDragging, setIsDragging] = useState(false);
+  const [description, setDescription] = useState('');
   
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
     const files = Array.from(e.dataTransfer.files);
-    onUpload(files);
+    onUpload(files, description);
   };
 
   const handleFileSelect = () => {
@@ -19,13 +20,21 @@ const UploadPanel = ({ onUpload, onClose }) => {
     input.accept = '*/*';
     input.onchange = (e) => {
       const files = Array.from(e.target.files);
-      onUpload(files);
+      onUpload(files, description);
     };
     input.click();
   };
 
   return (
     <div className="quick-add-panel" onClick={e => e.stopPropagation()}>
+      <div className="upload-description-zone">
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Добавьте описание или задание к материалу"
+          className="upload-description"
+        />
+      </div>
       <div 
         className={`upload-zone ${isDragging ? 'active' : ''}`}
         onClick={handleFileSelect}
@@ -174,7 +183,7 @@ const TeacherActions = ({ students, selectedStudents, onMaterialsUpdate, type })
     }
   };
 
-  const handleUpload = async (files) => {
+  const handleUpload = async (files, description) => {
     const selectedIds = students
       .filter(student => selectedStudents[student.id])
       .map(student => student.id);
@@ -186,8 +195,8 @@ const TeacherActions = ({ students, selectedStudents, onMaterialsUpdate, type })
           formData.append('file', file);
         });
         formData.append('student_ids', JSON.stringify(selectedIds));
-        
-        // Отправляем файлы
+        formData.append('description', description); // Добавляем описание
+
         await axios.post('/api/v1/materials/add/', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -196,7 +205,6 @@ const TeacherActions = ({ students, selectedStudents, onMaterialsUpdate, type })
         });
 
         handleClose();
-        // Вызываем обновление с флагом forceUpdate
         if (typeof onMaterialsUpdate === 'function') {
           onMaterialsUpdate(null, true);
         }
