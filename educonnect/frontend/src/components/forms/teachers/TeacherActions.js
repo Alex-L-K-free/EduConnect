@@ -363,7 +363,7 @@ export const MaterialCell = ({ materials = [], onMaterialsUpdate, studentId }) =
         >
           <span 
             className="material-type-icon"
-            title={material.title}
+            title={`${material.title}${material.description ? '\n\nОписание:\n' + material.description : ''}`}
             onClick={(e) => handleIconClick(material.id, e)}
           >
             {getFileIcon(material.material_type)}
