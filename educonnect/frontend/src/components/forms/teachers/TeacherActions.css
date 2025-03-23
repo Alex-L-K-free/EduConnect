@@ -412,25 +412,24 @@
 .material-item-wrapper {
   position: relative;
   display: inline-block;
-  padding-top: 40px;
-  margin-top: -40px;
+  padding-top: 20px; /* Уменьшаем padding с 25px до 20px */
+  margin-top: -20px; /* Уменьшаем отрицательный отступ с -25px до -20px */
 }
 
 .material-actions-overlay {
   position: absolute;
-  top: -40px;
+  top: -20px; /* Уменьшаем отступ сверху с 25px до 20px */
   left: 50%;
   transform: translateX(-50%);
   background: white;
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  padding: 4px;
+  padding: 2px 4px;
   white-space: nowrap;
   z-index: 1000;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s, visibility 0.3s;
-  padding-bottom: 15px;
+  transition: opacity 0.2s, visibility 0.2s;
   pointer-events: none;
 }
 
@@ -452,13 +451,12 @@
 }
 
 .material-action-btn {
-  padding: 6px 12px;
+  padding: 4px 8px; /* Уменьшаем padding кнопок */
   border: none;
   border-radius: 3px;
-  font-size: 12px;
+  font-size: 11px; /* Уменьшаем размер шрифта */
   cursor: pointer;
   transition: all 0.2s;
-  min-width: 80px;
 }
 
 .view-btn {
