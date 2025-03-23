@@ -421,18 +421,22 @@
   top: -20px; /* Уменьшаем отступ сверху с 25px до 20px */
   left: 50%;
   transform: translateX(-50%);
-  background: white;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  padding: 2px 4px;
+  background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+  border-radius: 6px;
+  box-shadow: 
+    0 2px 8px rgba(0,0,0,0.15),
+    0 4px 12px rgba(0,0,0,0.1);
+  padding: 4px;
   white-space: nowrap;
   z-index: 1000;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.2s, visibility 0.2s;
+  transition: all 0.3s ease;
   pointer-events: none;
   display: flex;
-  gap: 2px;
+  gap: 4px;
+  transform-style: preserve-3d;
+  perspective: 1000px;
 }
 
 .material-item-wrapper:hover .material-actions-overlay {
@@ -453,33 +457,68 @@
 }
 
 .material-action-btn {
-  padding: 4px 8px; /* Уменьшаем padding кнопок */
+  padding: 4px 12px;
   border: none;
-  border-radius: 3px;
-  font-size: 11px; /* Уменьшаем размер шрифта */
+  border-radius: 4px;
+  font-size: 11px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transform: translateZ(0);
+}
+
+.material-action-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0));
+  transform: translateZ(1px);
 }
 
 .view-btn {
-  background: #2196f3;
+  background: linear-gradient(145deg, #2196f3, #1976d2);
   color: white;
+  box-shadow: 
+    0 2px 4px rgba(33,150,243,0.3),
+    0 1px 2px rgba(0,0,0,0.2);
+}
+
+.download-btn {
+  background: linear-gradient(145deg, #4caf50, #388e3c);
+  color: white;
+  box-shadow: 
+    0 2px 4px rgba(76,175,80,0.3),
+    0 1px 2px rgba(0,0,0,0.2);
 }
 
 .delete-btn {
-  background: #f44336;
+  background: linear-gradient(145deg, #f44336, #d32f2f);
   color: white;
-}
-
-.material-action-btn.download-btn {
-  background: #4caf50;
-  color: white;
-  margin: 0 2px;
+  box-shadow: 
+    0 2px 4px rgba(244,67,54,0.3),
+    0 1px 2px rgba(0,0,0,0.2);
 }
 
 .material-action-btn:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
+  transform: translateY(-1px) translateZ(5px);
+  box-shadow: 
+    0 4px 8px rgba(0,0,0,0.2),
+    0 2px 4px rgba(0,0,0,0.1);
+}
+
+.material-action-btn:active {
+  transform: translateY(0) translateZ(2px);
+  box-shadow: 
+    0 2px 4px rgba(0,0,0,0.1),
+    0 1px 2px rgba(0,0,0,0.1);
 }
 
 .material-actions-overlay::after {
@@ -487,10 +526,11 @@
   position: absolute;
   bottom: -4px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateZ(-1px);
   width: 0;
   height: 0;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-top: 5px solid white;
+  border-top: 5px solid #f8f9fa;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
 }
