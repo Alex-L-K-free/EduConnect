@@ -195,16 +195,6 @@ const TeacherActions = ({ students, selectedStudents, onMaterialsUpdate, type })
           }
         });
 
-        // Получаем обновленные материалы для всех выбранных студентов
-        const response = await axios.get('/api/v1/materials/students/', {
-          headers: {
-            'Authorization': `Token ${localStorage.getItem('token')}`
-          },
-          params: {
-            student_ids: selectedIds.join(',')
-          }
-        });
-
         handleClose();
         // Вызываем обновление с флагом forceUpdate
         if (typeof onMaterialsUpdate === 'function') {
