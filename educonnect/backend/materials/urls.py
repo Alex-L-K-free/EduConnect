@@ -9,4 +9,5 @@ urlpatterns = [
     path('students/', views.get_students_materials, name='students-materials'),  # Новый endpoint
     path('mark-viewed/<int:material_id>/', views.mark_material_viewed, name='mark-material-viewed'),
     path('delete/<int:material_id>/', views.delete_material, name='delete-material'),
+    path('bulk-delete/', views.bulk_delete_materials, name='bulk-delete-materials'),
 ]

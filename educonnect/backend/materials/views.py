@@ -209,3 +209,54 @@ def delete_material(request, material_id):
             {'error': str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def bulk_delete_materials(request):
+    if request.user.role != User.TEACHER:
+        return Response(
+            {'error': 'Только учителя могут удалять материалы'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    try:
+        student_ids = request.data.get('student_ids', [])
+        material_type = request.data.get('type', 'materials')
+
+        # Удаляем соответствующие материалы для выбранных студентов
+        if material_type == 'materials':
+            materials = StudentMaterial.objects.filter(student_id__in=student_ids)
+        elif material_type == 'tasks':
+            materials = StudentMaterial.objects.filter(
+                student_id__in=student_ids,
+                material_type='document'
+            )
+        elif material_type == 'messages':
+            materials = StudentMaterial.objects.filter(
+                student_id__in=student_ids,
+                material_type='message'
+            )
+        else:
+            return Response(
+                {'error': 'Неверный тип материала'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Удаляем файлы
+        for material in materials:
+            if material.file:
+                file_path = os.path.join(settings.MEDIA_ROOT, material.file.name)
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+
+        # Удаляем записи из базы данных
+        materials.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    except Exception as e:
+        logger.error(f"Error bulk deleting materials: {str(e)}")
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

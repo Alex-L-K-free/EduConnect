@@ -682,3 +682,40 @@
   box-shadow: 0 0 0 2px rgba(46,125,50,0.1);
   outline: none;
 }
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.remove-material-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #f44336, #d32f2f);
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+}
+
+.remove-material-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 8px rgba(0,0,0,0.3);
+  background: linear-gradient(145deg, #d32f2f, #b71c1c);
+}
+
+.remove-material-btn:active {
+  transform: translateY(0);
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+}
+
+.materials-header .remove-material-btn { background: linear-gradient(145deg, #f44336, #d32f2f); }
+.tasks-header .remove-material-btn { background: linear-gradient(145deg, #e91e63, #c2185b); }
+.messages-header .remove-material-btn { background: linear-gradient(145deg, #9c27b0, #7b1fa2); }

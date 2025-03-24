@@ -214,17 +214,51 @@ const TeacherActions = ({ students, selectedStudents, onMaterialsUpdate, type })
     }
   };
 
+  const handleBulkDelete = async () => {
+    const selectedIds = students
+      .filter(student => selectedStudents[student.id])
+      .map(student => student.id);
+
+    if (selectedIds.length > 0) {
+      try {
+        await axios.post('/api/v1/materials/bulk-delete/', {
+          student_ids: selectedIds,
+          type: type
+        }, {
+          headers: {
+            'Authorization': `Token ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (typeof onMaterialsUpdate === 'function') {
+          onMaterialsUpdate(null, true);
+        }
+      } catch (error) {
+        console.error('Ошибка при удалении материалов:', error);
+      }
+    }
+  };
+
   return (
     <div className="material-actions-container">
       <div className={`material-header ${type}-header`}>
         <span className="header-title">{getTitle()}</span>
-        <button 
-          className="add-material-btn"
-          onClick={handleClick}
-          title={`Добавить ${getTitle().toLowerCase()}`}
-        >
-          +
-        </button>
+        <div className="header-actions">
+          <button 
+            className="add-material-btn"
+            onClick={handleClick}
+            title={`Добавить ${getTitle().toLowerCase()}`}
+          >
+            +
+          </button>
+          <button 
+            className="remove-material-btn"
+            onClick={handleBulkDelete}
+            title={`Удалить ${getTitle().toLowerCase()}`}
+          >
+            -
+          </button>
+        </div>
       </div>
       {showUpload && type === 'materials' && (
         <UploadPanel 
