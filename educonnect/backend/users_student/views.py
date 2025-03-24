@@ -197,3 +197,30 @@ def student_login(request):
     if serializer.is_valid():
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_current_student(request):
+    try:
+        student = StudentUser.objects.get(username=request.user.username)
+        data = {
+            'id': student.id,
+            'firstName': student.firstName,
+            'lastName': student.lastName,
+            'middleName': student.middleName,
+            'grade': student.grade,
+            'index': student.index,
+            'subjects': student.subject.split(',') if student.subject else [],
+            'teacher': student.teacher.id if student.teacher else None
+        }
+        return Response(data)
+    except StudentUser.DoesNotExist:
+        return Response(
+            {'error': 'Студент не найден'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

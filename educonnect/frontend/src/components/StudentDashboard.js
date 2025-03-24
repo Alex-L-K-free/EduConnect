@@ -3,6 +3,7 @@ import { Container, Row, Col, Card, Table } from 'react-bootstrap';
 import SidebarStudent from './layout/SidebarStudent';
 import { useUser } from '../UserContext';
 import '../styles/components/StudentDashboard.scss';
+import axios from 'axios';
 
 const StudentDashboard = () => {
   const { user } = useUser();
@@ -13,21 +14,43 @@ const StudentDashboard = () => {
     gradeIndex: '',
     firstName: '',
     lastName: '',
-    teachersInfo: []  // Добавляем информацию об учителях
+    teacherInfo: null // Добавляем информацию об учителе
   });
 
   useEffect(() => {
-    if (user) {
-      setStudentInfo({
-        subjects: user.subjects || [],
-        teachers: user.teachers || [],
-        grade: user.grade || '',
-        gradeIndex: user.grade?.match(/\d+/)?.[0] || '', // Извлекаем числовой индекс класса
-        firstName: user.first_name || '',
-        lastName: user.last_name || '',
-        teachersInfo: user.teachers || []
-      });
-    }
+    const fetchStudentData = async () => {
+      if (user && user.token) {
+        try {
+          // Получаем данные о текущем ученике
+          const response = await axios.get('http://127.0.0.1:8000/api/v1/students/current/', {
+            headers: {
+              'Authorization': `Token ${user.token}`
+            }
+          });
+
+          // Получаем данные об учителе
+          const teacherResponse = await axios.get(`http://127.0.0.1:8000/api/v1/teachers/${response.data.teacher}/`, {
+            headers: {
+              'Authorization': `Token ${user.token}`
+            }
+          });
+
+          setStudentInfo(prev => ({
+            ...prev,
+            subjects: response.data.subjects || [],
+            grade: response.data.grade || '',
+            gradeIndex: response.data.index || '',
+            firstName: response.data.firstName || '',
+            lastName: response.data.lastName || '',
+            teacherInfo: teacherResponse.data
+          }));
+        } catch (error) {
+          console.error('Ошибка при загрузке данных:', error);
+        }
+      }
+    };
+
+    fetchStudentData();
   }, [user]);
 
   return (
@@ -43,14 +66,41 @@ const StudentDashboard = () => {
           </Card.Header>
           <Card.Body>
             <p><strong>ФИО:</strong> {studentInfo.lastName} {studentInfo.firstName}</p>
-            <p><strong>Класс:</strong> {studentInfo.grade} ({studentInfo.gradeIndex})</p>
+            <p><strong>Класс:</strong> {studentInfo.grade} {studentInfo.gradeIndex}</p>
           </Card.Body>
         </Card>
 
-        {/* Предметы и учителя */}
+        {/* Информация об учителе */}
         <Card className="mb-4">
           <Card.Header>
-            <h4>Мои предметы и учителя</h4>
+            <h4>Мой учитель</h4>
+          </Card.Header>
+          <Card.Body>
+            {studentInfo.teacherInfo ? (
+              <>
+                <p><strong>ФИО:</strong> {studentInfo.teacherInfo.lastName} {studentInfo.teacherInfo.firstName} {studentInfo.teacherInfo.middleName}</p>
+                <p><strong>Школа:</strong> {studentInfo.teacherInfo.school_name}</p>
+                {studentInfo.teacherInfo.contacts && (
+                  <div>
+                    <strong>Контакты:</strong>
+                    <ul className="list-unstyled mt-2">
+                      {Object.entries(studentInfo.teacherInfo.contacts).map(([type, value]) => (
+                        <li key={type}><strong>{type}:</strong> {value}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p>Загрузка информации об учителе...</p>
+            )}
+          </Card.Body>
+        </Card>
+
+        {/* Предметы и успеваемость */}
+        <Card className="mb-4">
+          <Card.Header>
+            <h4>Мои предметы</h4>
           </Card.Header>
           <Card.Body>
             <Table striped bordered hover responsive>
@@ -59,16 +109,29 @@ const StudentDashboard = () => {
                   <th>№</th>
                   <th>Предмет</th>
                   <th>Учитель</th>
-                  <th>Класс</th>
+                  <th>Прогресс</th>
                 </tr>
               </thead>
               <tbody>
                 {studentInfo.subjects.map((subject, index) => (
                   <tr key={index}>
                     <td>{index + 1}</td>
-                    <td>{subject}</td>
-                    <td>{studentInfo.teachers[index] || 'Не назначен'}</td>
-                    <td>{studentInfo.grade}</td>
+                    <td>{subject.name}</td>
+                    <td>{studentInfo.teacherInfo?.firstName} {studentInfo.teacherInfo?.lastName}</td>
+                    <td>
+                      <div className="progress">
+                        <div 
+                          className="progress-bar" 
+                          role="progressbar" 
+                          style={{ width: `${subject.progress || 0}%` }}
+                          aria-valuenow={subject.progress || 0} 
+                          aria-valuemin="0" 
+                          aria-valuemax="100"
+                        >
+                          {subject.progress || 0}%
+                        </div>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -140,4 +203,4 @@ const StudentDashboard = () => {
   );
 };
 
-export default StudentDashboard; 
+export default StudentDashboard;
