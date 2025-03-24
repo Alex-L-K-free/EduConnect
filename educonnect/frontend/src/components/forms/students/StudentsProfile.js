@@ -1,0 +1,290 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { Form, Button, Card, Modal } from 'react-bootstrap';
+import { useUser } from '../../../UserContext';
+import './StudentsProfile.css';
+
+const StudentsProfile = () => {
+  const { user } = useUser();
+  const [profile, setProfile] = useState({
+    username: '',
+    first_name: '',
+    last_name: '',
+    middle_name: '',
+    grade: '',
+    about: '',
+    contacts: {}
+  });
+  const [isEditing, setIsEditing] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [newPassword, setNewPassword] = useState({ current: '', new: '', confirm: '' });
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [editedProfile, setEditedProfile] = useState({});
+
+  const fetchProfile = useCallback(async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/v1/students/profile/', {
+        headers: {
+          'Authorization': `Token ${user.token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setProfile(data);
+      setEditedProfile(data);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      setError('Ошибка при загрузке профиля');
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user && user.token) {
+      fetchProfile();
+    }
+  }, [user, fetchProfile]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!isEditing) return;
+
+    const updateData = {
+      first_name: editedProfile.first_name,
+      last_name: editedProfile.last_name,
+      middle_name: editedProfile.middle_name,
+      about: editedProfile.about || '',
+      contacts: editedProfile.contacts || {}
+    };
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/v1/students/profile/', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${user.token}`
+        },
+        body: JSON.stringify(updateData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Ошибка при обновлении профиля');
+      }
+
+      const updatedProfile = await response.json();
+      setProfile(updatedProfile);
+      setEditedProfile(updatedProfile);
+      setIsEditing(false);
+      setSuccess('Профиль успешно обновлен');
+    } catch (error) {
+      setError(error.message || 'Ошибка при обновлении профиля');
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setEditedProfile(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    setSuccess('');
+  };
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    if (newPassword.new !== newPassword.confirm) {
+      setError('Пароли не совпадают');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/v1/students/change-password/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${user.token}`
+        },
+        body: JSON.stringify({
+          current_password: newPassword.current,
+          new_password: newPassword.new
+        })
+      });
+
+      if (response.ok) {
+        setSuccess('Пароль успешно изменен');
+        setShowPasswordModal(false);
+        setNewPassword({ current: '', new: '', confirm: '' });
+      } else {
+        setError('Ошибка при изменении пароля');
+      }
+    } catch (error) {
+      setError('Ошибка сервера');
+    }
+  };
+
+  return (
+    <div className="student-profile">
+      <Card>
+        <Card.Header>
+          <h3>Профиль ученика</h3>
+        </Card.Header>
+        <Card.Body>
+          {error && <div className="alert alert-danger">{error}</div>}
+          {success && <div className="alert alert-success">{success}</div>}
+          
+          <Form onSubmit={handleSubmit}>
+            <Form.Group className="mb-3">
+              <Form.Label>Логин</Form.Label>
+              <Form.Control
+                type="text"
+                name="username"
+                value={profile.username}
+                disabled
+              />
+            </Form.Group>
+            
+            <Form.Group className="mb-3">
+              <Form.Label>Фамилия</Form.Label>
+              <Form.Control
+                type="text"
+                name="last_name"
+                value={isEditing ? editedProfile.last_name : profile.last_name}
+                onChange={handleChange}
+                disabled={!isEditing}
+              />
+            </Form.Group>
+            
+            <Form.Group className="mb-3">
+              <Form.Label>Имя</Form.Label>
+              <Form.Control
+                type="text"
+                name="first_name"
+                value={isEditing ? editedProfile.first_name : profile.first_name}
+                onChange={handleChange}
+                disabled={!isEditing}
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Отчество</Form.Label>
+              <Form.Control
+                type="text"
+                name="middle_name"
+                value={isEditing ? editedProfile.middle_name : profile.middle_name}
+                onChange={handleChange}
+                disabled={!isEditing}
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Класс</Form.Label>
+              <Form.Control
+                type="text"
+                name="grade"
+                value={profile.grade}
+                disabled
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>О себе</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                name="about"
+                value={isEditing ? editedProfile.about : profile.about}
+                onChange={handleChange}
+                disabled={!isEditing}
+              />
+            </Form.Group>
+
+            <div className="d-flex justify-content-between mt-4">
+              {!isEditing ? (
+                <>
+                  <Button 
+                    variant="primary" 
+                    onClick={() => {
+                      setIsEditing(true);
+                      setSuccess('');
+                      setError('');
+                    }}
+                  >
+                    Редактировать
+                  </Button>
+                  <Button 
+                    variant="outline-primary"
+                    onClick={() => setShowPasswordModal(true)}
+                  >
+                    Изменить пароль
+                  </Button>
+                </>
+              ) : (
+                <div className="d-flex gap-2">
+                  <Button variant="success" type="submit">
+                    Сохранить
+                  </Button>
+                  <Button 
+                    variant="secondary"
+                    onClick={() => {
+                      setIsEditing(false);
+                      setEditedProfile(profile);
+                      setSuccess('');
+                      setError('');
+                    }}
+                  >
+                    Отмена
+                  </Button>
+                </div>
+              )}
+            </div>
+          </Form>
+        </Card.Body>
+      </Card>
+
+      <Modal show={showPasswordModal} onHide={() => setShowPasswordModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Изменение пароля</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handlePasswordChange}>
+            <Form.Group className="mb-3">
+              <Form.Label>Текущий пароль</Form.Label>
+              <Form.Control
+                type="password"
+                value={newPassword.current}
+                onChange={(e) => setNewPassword({...newPassword, current: e.target.value})}
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Новый пароль</Form.Label>
+              <Form.Control
+                type="password"
+                value={newPassword.new}
+                onChange={(e) => setNewPassword({...newPassword, new: e.target.value})}
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Подтверждение пароля</Form.Label>
+              <Form.Control
+                type="password"
+                value={newPassword.confirm}
+                onChange={(e) => setNewPassword({...newPassword, confirm: e.target.value})}
+                required
+              />
+            </Form.Group>
+            <Button type="submit">Сохранить</Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+    </div>
+  );
+};
+
+export default StudentsProfile;

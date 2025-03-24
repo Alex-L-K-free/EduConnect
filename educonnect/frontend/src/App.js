@@ -11,6 +11,7 @@ import './App.css';
 import TeacherProfile from './components/forms/teachers/TeacherProfile';
 import SubjectsList from './components/forms/subjects/SubjectsList';
 import StudentsList from './components/forms/students/StudentsList';
+import StudentsProfile from './components/forms/students/StudentsProfile';
 
 const App = () => {
   return (
@@ -50,6 +51,11 @@ const App = () => {
            <Layout activePage="students">
              <StudentsList />
            </Layout>
+        } />
+        <Route path="/student/profile" element={
+          <Layout activePage="profile">
+            <StudentsProfile />
+          </Layout>
         } />
       </Routes>
     </Router>

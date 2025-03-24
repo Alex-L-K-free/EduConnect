@@ -100,9 +100,14 @@ const Header = () => {
         return renderTeacherSubmenu();
       case 'student':
         return (
-          <Dropdown.Item onClick={() => handleMenuClick('student')}>
-            Мой кабинет
-          </Dropdown.Item>
+          <>
+            <Dropdown.Item onClick={() => navigate('/student/profile')}>
+              Мой профиль
+            </Dropdown.Item>
+            {/* <Dropdown.Item onClick={() => handleMenuClick('student')}>
+              Мой кабинет
+            </Dropdown.Item> */}
+          </>
         );
       case 'admin':
         return (
@@ -178,4 +183,4 @@ const Header = () => {
   );
 };
 
-export default Header; 
+export default Header;

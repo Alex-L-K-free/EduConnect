@@ -1,5 +1,5 @@
 import React from 'react';
-import './Sidebar.css'; // Импортируйте стили для Sidebar
+import './Sidebar.css';
 
 const SidebarStudent = ({ activePage }) => {
   return (
@@ -8,7 +8,8 @@ const SidebarStudent = ({ activePage }) => {
       <ul>
         <li className={activePage === 'home' ? 'active' : ''}>
           <a href="/">Главная</a>
-        {/* </li>
+        </li>
+        {/* Закомментированные пункты меню 
         <li className={activePage === 'admin' ? 'active' : ''}>
           <a href="/admin">Панель управления</a>
         </li>
@@ -16,12 +17,12 @@ const SidebarStudent = ({ activePage }) => {
           <a href="/teacher">учителя</a>
         </li>
         <li className={activePage === 'student' ? 'active' : ''}>
-          <a href="/student">ученика</a> */}
+          <a href="/student">ученика</a>
         </li>
-         {/* Добавьте другие элементы навигации для ученика */}
+        */}
       </ul>
     </div>
   );
 };
 
-export default SidebarStudent; 
+export default SidebarStudent;
