@@ -59,10 +59,26 @@ const SidebarTeacher = ({ activePage, onNavigate, availableSubjects, availableCl
           }
         });
         
-        const formattedSubjects = subjectsResponse.data.map(subject => ({
-          id: subject.id.toString(),
-          label: subject.name || subject.subject_name
-        }));
+        // Создаем Set для хранения уникальных предметов
+        const uniqueSubjects = new Map();
+        
+        // Фильтруем дубликаты, оставляя только уникальные предметы
+        subjectsResponse.data.forEach(subject => {
+          const subjectName = subject.name || subject.subject_name;
+          if (!uniqueSubjects.has(subjectName)) {
+            uniqueSubjects.set(subjectName, {
+              id: subject.id.toString(),
+              label: subjectName
+            });
+          }
+        });
+        
+        // Преобразуем Map в массив
+        const formattedSubjects = Array.from(uniqueSubjects.values());
+        
+        // Сортируем предметы по названию
+        formattedSubjects.sort((a, b) => a.label.localeCompare(b.label));
+        
         setTeacherSubjects(formattedSubjects);
 
         // Получаем список учеников (и их классов)
