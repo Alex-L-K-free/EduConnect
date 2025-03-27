@@ -108,7 +108,6 @@ def get_student_materials(request, student_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_students_materials(request):
-    """Получение материалов для нескольких студентов за один запрос"""
     try:
         student_ids = request.query_params.get('student_ids', '').split(',')
         student_ids = [int(id) for id in student_ids if id.isdigit()]
@@ -119,15 +118,16 @@ def get_students_materials(request):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        materials_by_student = {}
-        materials = StudentMaterial.objects.filter(student_id__in=student_ids).order_by('-created_at')
+        materials = StudentMaterial.objects.filter(student_id__in=student_ids)
         
+        # Группируем материалы по студентам
+        materials_by_student = {}
         for material in materials:
             if material.student_id not in materials_by_student:
                 materials_by_student[material.student_id] = []
             materials_by_student[material.student_id].append(material)
 
-        # Сериализуем материалы для каждого студента
+        # Формируем ответ
         result = []
         for student_id in student_ids:
             student_materials = materials_by_student.get(student_id, [])
@@ -144,7 +144,6 @@ def get_students_materials(request):
         return Response(result)
 
     except Exception as e:
-        logger.error(f"Error getting materials for multiple students: {str(e)}")
         return Response(
             {'error': str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR

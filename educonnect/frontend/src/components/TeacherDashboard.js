@@ -550,7 +550,7 @@ const TeacherDashboard = () => {
     if (!token) return;
 
     try {
-      // Получаем всех студентов
+      // Получаем всех студентов с их материалами
       const studentsResponse = await axios.get('/api/v1/students/', {
         headers: {
           'Authorization': `Token ${token}`
@@ -558,6 +558,18 @@ const TeacherDashboard = () => {
       });
 
       const students = studentsResponse.data;
+
+      // Получаем материалы для всех студентов
+      const materialsResponse = await axios.get('/api/v1/materials/students/', {
+        headers: {
+          'Authorization': `Token ${token}`
+        },
+        params: {
+          student_ids: students.map(s => s.id).join(',')
+        }
+      });
+
+      const materialsData = materialsResponse.data;
 
       // Получаем все предметы
       const subjectsResponse = await axios.get('/api/v1/subjects/', {
@@ -579,7 +591,7 @@ const TeacherDashboard = () => {
         messagesCount: 0
       };
 
-      // Подсчет студентов по предметам
+      // Подсчет студентов по предметам и материалов
       students.forEach(student => {
         if (student.subject) {
           stats.studentsPerSubject[student.subject] = (stats.studentsPerSubject[student.subject] || 0) + 1;
@@ -588,18 +600,29 @@ const TeacherDashboard = () => {
         const classKey = `${student.grade}${student.index}`;
         stats.studentsPerClass[classKey] = (stats.studentsPerClass[classKey] || 0) + 1;
 
-        // Подсчитываем материалы, если они есть
-        if (student.materials) {
-          stats.materialsCount += student.materials.filter(m => m.material_type === 'document').length;
-          stats.tasksCount += student.materials.filter(m => m.material_type === 'task').length;
-          stats.messagesCount += student.materials.filter(m => m.material_type === 'message').length;
-        }
+        // Находим материалы для текущего студента
+        const studentMaterials = materialsData.find(m => m.id === student.id)?.materials || [];
+        
+        // Подсчитываем материалы по типам
+        studentMaterials.forEach(material => {
+          if (material.material_type === 'document') {
+            stats.materialsCount++;
+          } else if (material.material_type === 'task') {
+            stats.tasksCount++;
+          } else if (material.material_type === 'message') {
+            stats.messagesCount++;
+          }
+        });
       });
 
       setStatistics(stats);
+      console.log('Обновленная статистика:', stats); // Для отладки
 
     } catch (error) {
       console.error('Ошибка при загрузке статистики:', error);
+      if (error.response) {
+        console.log('Ответ сервера:', error.response.data);
+      }
     }
   };
 
