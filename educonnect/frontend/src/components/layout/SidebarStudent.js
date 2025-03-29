@@ -45,7 +45,7 @@ const SidebarStudent = ({ activePage }) => {
           onClick={handleMainClick}
         >
           <span className="menu-icon">🏠</span>
-          <span className="menu-text">Главная</span>
+          <span className="menu-text">Начальная</span>
         </li>
         <li className={activePage === 'subjects' ? 'active menu-item' : 'menu-item'}>
           <div className="menu-header">
