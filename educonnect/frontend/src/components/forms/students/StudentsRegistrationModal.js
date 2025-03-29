@@ -17,7 +17,6 @@ const StudentsRegistrationModal = ({ show, onHide, onStudentUpdate }) => {
     confirmPassword: ''
   });
   const [error, setError] = useState('');
-  const [isVerified, setIsVerified] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
 
   // Настраиваем базовый URL для axios
@@ -29,10 +28,6 @@ const StudentsRegistrationModal = ({ show, onHide, onStudentUpdate }) => {
       ...prevState,
       [name]: value
     }));
-    // Сбрасываем верификацию при изменении ФИО
-    if (['lastName', 'firstName', 'middleName'].includes(name)) {
-      setIsVerified(false);
-    }
   };
 
   // Функция проверки ученика по списку

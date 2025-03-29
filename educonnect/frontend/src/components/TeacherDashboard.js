@@ -4,14 +4,10 @@ import TeacherProfile from './forms/teachers/TeacherProfile';
 import TeacherSubjects from './forms/subjects/SubjectsList';
 import StudentsList from './forms/students/StudentsList';
 import StudentActions, { MaterialCell, DescriptionCell, MessageCell } from './forms/teachers/TeacherActions';
-import { useUser } from '../UserContext';
 import axios from 'axios';
 import './TeacherDashboard.css';
 
 const TeacherDashboard = () => {
-  const { user } = useUser();
-
-  // Загружаем сохраненное состояние из localStorage
   const [currentView, setCurrentView] = useState(() => {
     const saved = localStorage.getItem('teacherDashboardView');
     return saved || 'main';
@@ -31,19 +27,16 @@ const TeacherDashboard = () => {
   const [classStudentsMap, setClassStudentsMap] = useState({});
   const [subjectsData, setSubjectsData] = useState({});
 
-  // Добавляем состояние для отслеживания загрузки
   const [isLoading, setIsLoading] = useState(false);
 
-  // Добавляем состояния для доступных предметов и классов
   const [availableSubjects, setAvailableSubjects] = useState([]);
   const [availableClasses, setAvailableClasses] = useState([]);
 
-  // Добавляем состояние для выбранных учеников
   const [selectedStudents, setSelectedStudents] = useState({});
 
-  // Добавляем новые состояния для статистики
   const [statistics, setStatistics] = useState({
     totalStudents: 0,
+    registeredStudents: 0,
     totalSubjects: 0,
     studentsPerSubject: {},
     studentsPerClass: {},
@@ -53,7 +46,6 @@ const TeacherDashboard = () => {
   });
 
   const handleMaterialsUpdate = async (update, forceUpdate = false) => {
-    // Если передан forceUpdate или нет конкретного update
     if (forceUpdate || !update) {
       const selectedIds = Object.keys(selectedStudents)
         .filter(id => selectedStudents[id])
@@ -70,7 +62,6 @@ const TeacherDashboard = () => {
             }
           });
 
-          // Обновляем оба представления
           if (currentView === 'students-by-subjects') {
             setSubjectStudentsMap(prevMap => {
               const newMap = { ...prevMap };
@@ -113,7 +104,6 @@ const TeacherDashboard = () => {
       return;
     }
 
-    // Существующая логика обновления для одного студента
     const { studentId, materials } = update;
 
     if (currentView === 'students-by-subjects') {
@@ -151,7 +141,6 @@ const TeacherDashboard = () => {
     }
   };
 
-  // Сохраняем состояния при их изменении
   useEffect(() => {
     localStorage.setItem('teacherDashboardView', currentView);
   }, [currentView]);
@@ -164,7 +153,6 @@ const TeacherDashboard = () => {
     localStorage.setItem('teacherSelectedClasses', JSON.stringify(selectedClassIds));
   }, [selectedClassIds]);
 
-  // Загрузка предметов при монтировании
   useEffect(() => {
     const fetchSubjects = async () => {
       if (Object.keys(subjectsData).length === 0) {
@@ -186,12 +174,10 @@ const TeacherDashboard = () => {
     };
 
     fetchSubjects();
-  }, [subjectsData]); // Добавляем subjectsData в зависимости
+  }, [subjectsData]);
 
-  // Загрузка студентов при изменении выбранных предметов или классов
   useEffect(() => {
     const fetchStudents = async () => {
-      // Проверяем условия для запуска фильтрации
       const shouldFetchBySubjects = currentView === 'students-by-subjects' && selectedSubjectIds.length > 0;
       const shouldFetchByClasses = currentView === 'students-by-classes' && selectedClassIds.length > 0;
       
@@ -209,7 +195,6 @@ const TeacherDashboard = () => {
           student.username && student.username !== 'Не зарегистрирован'
         );
 
-        // Загружаем материалы для каждого студента
         const studentsWithMaterials = await Promise.all(
           studentsData.map(async (student) => {
             try {
@@ -229,7 +214,6 @@ const TeacherDashboard = () => {
           })
         );
 
-        // Обновляем студентов с материалами
         if (shouldFetchBySubjects) {
           const newStudentsBySubject = {};
           selectedSubjectIds.forEach(subjectId => {
@@ -263,7 +247,6 @@ const TeacherDashboard = () => {
     fetchStudents();
   }, [selectedSubjectIds, selectedClassIds, subjectsData, currentView]);
 
-  // Очистка данных при размонтировании
   useEffect(() => {
     return () => {
       setSubjectStudentsMap({});
@@ -271,11 +254,9 @@ const TeacherDashboard = () => {
     };
   }, []);
 
-  // Добавляем useEffect для обновления доступных предметов и классов
   useEffect(() => {
     if (!subjectStudentsMap || !classStudentsMap) return;
 
-    // Получаем доступные предметы на основе выбранных классов
     const getAvailableSubjects = () => {
       if (selectedClassIds.length === 0) return Object.keys(subjectsData);
 
@@ -292,7 +273,6 @@ const TeacherDashboard = () => {
       return Array.from(availableSubs);
     };
 
-    // Получаем доступные классы на основе выбранных предметов
     const getAvailableClasses = () => {
       if (selectedSubjectIds.length === 0) return [];
 
@@ -347,7 +327,6 @@ const TeacherDashboard = () => {
     }));
   };
 
-  // Добавляем функцию сортировки студентов
   const sortStudents = (students) => {
     return [...students].sort((a, b) => {
       const lastNameCompare = a.lastName.localeCompare(b.lastName);
@@ -363,7 +342,6 @@ const TeacherDashboard = () => {
       return <div>Загрузка учеников...</div>;
     }
 
-    // Фильтруем и группируем студентов
     let filteredStudents = students;
     if (selectedClassIds.length > 0) {
       filteredStudents = students.filter(student =>
@@ -373,7 +351,6 @@ const TeacherDashboard = () => {
       );
     }
 
-    // Группируем студентов по классам
     const studentsByClass = {};
     filteredStudents.forEach(student => {
       const classKey = `${student.grade}${student.index || ''}`;
@@ -383,12 +360,10 @@ const TeacherDashboard = () => {
       studentsByClass[classKey].push(student);
     });
 
-    // Сортируем студентов в каждом классе
     Object.keys(studentsByClass).forEach(classKey => {
       studentsByClass[classKey] = sortStudents(studentsByClass[classKey]);
     });
 
-    // Сортируем классы
     const sortedClasses = Object.keys(studentsByClass).sort();
     
     return (
@@ -490,7 +465,6 @@ const TeacherDashboard = () => {
       return <div>Загрузка учеников...</div>;
     }
 
-    // Сортируем список учеников
     const sortedStudents = sortStudents(students);
     
     return (
@@ -544,13 +518,11 @@ const TeacherDashboard = () => {
     );
   };
 
-  // Функция для получения статистики
   const fetchStatistics = async () => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
     try {
-      // Получаем всех студентов с их материалами
       const studentsResponse = await axios.get('/api/v1/students/', {
         headers: {
           'Authorization': `Token ${token}`
@@ -559,7 +531,6 @@ const TeacherDashboard = () => {
 
       const students = studentsResponse.data;
 
-      // Получаем материалы для всех студентов
       const materialsResponse = await axios.get('/api/v1/materials/students/', {
         headers: {
           'Authorization': `Token ${token}`
@@ -569,20 +540,13 @@ const TeacherDashboard = () => {
         }
       });
 
-      const materialsData = materialsResponse.data;
-
-      // Получаем все предметы
-      const subjectsResponse = await axios.get('/api/v1/subjects/', {
-        headers: {
-          'Authorization': `Token ${token}`
-        }
-      });
-
-      const subjects = subjectsResponse.data;
-
-      // Подсчитываем статистику
       const stats = {
         totalStudents: students.length,
+        registeredStudents: students.filter(student => 
+          student.username && 
+          student.username !== 'Не зарегистрирован' && 
+          student.username.trim() !== ''
+        ).length,
         totalSubjects: new Set(students.map(s => s.subject)).size,
         studentsPerSubject: {},
         studentsPerClass: {},
@@ -591,7 +555,6 @@ const TeacherDashboard = () => {
         messagesCount: 0
       };
 
-      // Подсчет студентов по предметам и материалов
       students.forEach(student => {
         if (student.subject) {
           stats.studentsPerSubject[student.subject] = (stats.studentsPerSubject[student.subject] || 0) + 1;
@@ -600,10 +563,8 @@ const TeacherDashboard = () => {
         const classKey = `${student.grade}${student.index}`;
         stats.studentsPerClass[classKey] = (stats.studentsPerClass[classKey] || 0) + 1;
 
-        // Находим материалы для текущего студента
-        const studentMaterials = materialsData.find(m => m.id === student.id)?.materials || [];
+        const studentMaterials = materialsResponse.data.find(m => m.id === student.id)?.materials || [];
         
-        // Подсчитываем материалы по типам
         studentMaterials.forEach(material => {
           if (material.material_type === 'document') {
             stats.materialsCount++;
@@ -616,17 +577,12 @@ const TeacherDashboard = () => {
       });
 
       setStatistics(stats);
-      console.log('Обновленная статистика:', stats); // Для отладки
 
     } catch (error) {
       console.error('Ошибка при загрузке статистики:', error);
-      if (error.response) {
-        console.log('Ответ сервера:', error.response.data);
-      }
     }
   };
 
-  // Загружаем статистику при монтировании и при изменении view на main
   useEffect(() => {
     if (currentView === 'main') {
       fetchStatistics();
@@ -748,7 +704,6 @@ const TeacherDashboard = () => {
             </div>
           );
         }
-        // Если предметы не выбраны, отображаем список по классам
         return (
           <div>
             {isLoading && <div>Загрузка данных...</div>}
