@@ -231,7 +231,7 @@ const SidebarTeacher = ({ activePage, onNavigate, availableSubjects, availableCl
           onClick={handleMainClick}
         >
           <span className="menu-icon">🏠</span>
-          <span className="menu-text">Начальная</span>
+          <span className="menu-text">Главная</span>
         </li>
         
         {menuItems.map(menu => (
