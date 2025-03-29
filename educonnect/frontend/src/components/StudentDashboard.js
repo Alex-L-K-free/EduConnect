@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table } from 'react-bootstrap';
 import SidebarStudent from './layout/SidebarStudent';
 import { useUser } from '../UserContext';
-import '../styles/components/StudentDashboard.css';
+import './StudentDashboard.css';
 import axios from 'axios';
 
 const StudentDashboard = () => {
