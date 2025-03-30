@@ -3,7 +3,7 @@ from rest_framework import viewsets, generics
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from education_core.models import User
-from .serializers import UserSerializer
+from .serializers import UserSerializer, StudentProfileSerializer  # Добавляем импорт
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
@@ -15,6 +15,10 @@ from django.contrib.auth import get_user_model
 from users_student.models import StudentUser  # Добавьте этот импорт
 from django.contrib.auth.hashers import check_password  # Добавляем импорт
 import uuid
+from rest_framework.authentication import BaseAuthentication
+from rest_framework.exceptions import AuthenticationFailed
+from django.core.cache import cache
+from rest_framework.permissions import BasePermission
 
 User = get_user_model()
 
@@ -61,6 +65,26 @@ def current_user(request):
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
 
+class StudentTokenAuthentication(BaseAuthentication):
+    def authenticate(self, request):
+        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+        if not auth_header.startswith('Token '):
+            return None
+            
+        try:
+            token = auth_header.split(' ')[1]
+            student = cache.get(f'student_token_{token}')
+            if not student:
+                student = StudentUser.objects.get(auth_token=token)
+                cache.set(f'student_token_{token}', student, 86400)
+            return (student, None)
+        except (IndexError, StudentUser.DoesNotExist):
+            return None
+
+class IsAuthenticatedStudent(BasePermission):
+    def has_permission(self, request, view):
+        return bool(request.user and hasattr(request.user, 'username'))
+
 class StudentLoginView(APIView):
     permission_classes = []
 
@@ -87,6 +111,9 @@ class StudentLoginView(APIView):
             if check_password(password, student.password):
                 # Генерируем простой токен на основе username
                 token = uuid.uuid4().hex
+                student.auth_token = token  # сохраняем токен
+                student.save()
+                cache.set(f'student_token_{token}', student, 86400)
                 
                 print(f"Login successful for student: {student.username}")
 
@@ -116,3 +143,40 @@ class StudentLoginView(APIView):
                 {"error": "Ошибка при входе"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+class StudentProfileView(APIView):
+    authentication_classes = [StudentTokenAuthentication]
+    permission_classes = [IsAuthenticatedStudent]
+    
+    def get_student(self, request):
+        try:
+            auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+            if auth_header.startswith('Token '):
+                token = auth_header.split(' ')[1]
+                return StudentUser.objects.get(auth_token=token)
+            return None
+        except (StudentUser.DoesNotExist, IndexError):
+            return None
+    
+    def get(self, request):
+        student = self.get_student(request)
+        if not student:
+            return Response(
+                {"error": "Профиль студента не найден"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = StudentProfileSerializer(student)
+        return Response(serializer.data)
+    
+    def put(self, request):
+        student = self.get_student(request)
+        if not student:
+            return Response(
+                {"error": "Профиль студента не найден"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = StudentProfileSerializer(student, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

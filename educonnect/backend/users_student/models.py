@@ -1,6 +1,7 @@
 from django.db import models
 from education_core.models import User
 from django.contrib.auth.hashers import make_password
+from django.db.models import JSONField  # Добавляем импорт
 
 # Create your models here.
 
@@ -20,6 +21,9 @@ class StudentUser(models.Model):
     subject = models.CharField('Предмет', max_length=100, blank=True)
     role = models.CharField('Роль', max_length=10, choices=ROLE_CHOICES, default=STUDENT)
     teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='students', null=True, blank=True)
+    auth_token = models.CharField(max_length=64, null=True, blank=True, unique=True)
+    about = models.TextField('О себе', blank=True, null=True)
+    contacts = JSONField('Контакты', default=dict, blank=True)
     
     class Meta:
         verbose_name = 'Ученик'
@@ -33,3 +37,14 @@ class StudentUser(models.Model):
 
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
+    
+    @property
+    def is_authenticated(self):
+        return True
+    
+    @property
+    def is_anonymous(self):
+        return False
+        
+    def get_username(self):
+        return self.username
