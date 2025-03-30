@@ -2,6 +2,7 @@ from rest_framework import serializers
 from education_core.models import User
 from users_student.models import StudentUser
 from users_teacher.models import TeacherUser
+from materials.models import Material
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -55,28 +56,34 @@ class StudentProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ('username',)
 
     def get_subjects_details(self, obj):
-        if not obj.subject:  # Проверяем наличие предмета у студента
+        if not obj.subject:
             return []
             
-        # Получаем список предметов, разделенных запятой
         student_subjects = [s.strip() for s in obj.subject.split(',') if s.strip()]
         
-        # Получаем информацию об учителе
-        teacher_name = (
-            f"{obj.teacher.first_name} {obj.teacher.last_name}"
-            if obj.teacher else "Не назначен"
-        )
-        
-        return [
-            {
+        subjects_with_materials = []
+        for subject in student_subjects:
+            # Получаем материалы для каждого предмета
+            materials = Material.objects.filter(
+                subject__iexact=subject,  # Ищем материалы по названию предмета
+                teacher=obj.teacher  # Только материалы от учителя студента
+            ).values('id', 'title', 'description', 'file_type', 'created_at')
+            
+            subjects_with_materials.append({
                 'name': subject,
-                'average_grade': None,
-                'teacher_name': teacher_name,
-                'schedule': [],
-                'next_lesson': None
-            }
-            for subject in student_subjects
-        ]
+                'materials': [
+                    {
+                        'id': material['id'],
+                        'title': material['title'],
+                        'description': material['description'],
+                        'file_type': material['file_type'],
+                        'created_at': material['created_at'].strftime("%d.%m.%Y")
+                    }
+                    for material in materials
+                ]
+            })
+        
+        return subjects_with_materials
 
     def get_classmates(self, obj):
         # Получаем список одноклассников (студентов того же класса)

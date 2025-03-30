@@ -255,3 +255,86 @@
   margin-bottom: 1rem;
   color: #2c3e50;
 }
+
+.subject-materials {
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 15px;
+}
+
+.materials-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.material-item {
+  background: white;
+  padding: 12px;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.material-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.material-header h6 {
+  margin: 0;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.material-date {
+  font-size: 0.8em;
+  color: #6c757d;
+}
+
+.material-description {
+  font-size: 0.9em;
+  color: #495057;
+  margin: 8px 0;
+}
+
+.material-type {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85em;
+  color: #6c757d;
+}
+
+.file-type-icon {
+  font-size: 1.2em;
+}
+
+.no-materials {
+  color: #6c757d;
+  font-style: italic;
+  text-align: center;
+  margin: 10px 0;
+}
+
+.subjects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.subject-card {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.subject-name {
+  color: #2c3e50;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e9ecef;
+}

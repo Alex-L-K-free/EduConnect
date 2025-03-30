@@ -123,7 +123,7 @@ const StudentDashboard = () => {
             <div className="info-tile subjects-tile">
               <div className="tile-header">
                 <span className="tile-icon">📚</span>
-                <h3 className="tile-title">Твой предмет</h3>
+                <h3 className="tile-title">Твои предметы</h3>
               </div>
               <div className="tile-content">
                 {studentData.subjects_details && studentData.subjects_details.length > 0 ? (
@@ -131,29 +131,35 @@ const StudentDashboard = () => {
                     {studentData.subjects_details.map((subject, index) => (
                       <div key={index} className="subject-card">
                         <h4 className="subject-name">{subject.name}</h4>
-                        <div className="subject-info">
-                          <p className="subject-grade">
-                            <strong>Средний балл:</strong> {subject.average_grade || 'Нет оценок'}
-                          </p>
-                          <p className="subject-teacher">
-                            <strong>Учитель:</strong> {subject.teacher_name || 'Не назначен'}
-                          </p>
-                          <div className="subject-schedule">
-                            <strong>Расписание:</strong>
-                            {subject.schedule ? (
-                              <ul>
-                                {subject.schedule.map((time, idx) => (
-                                  <li key={idx}>{time}</li>
+                        <div className="subject-materials">
+                          {subject.materials && subject.materials.length > 0 ? (
+                            <>
+                              <h5>Материалы по предмету:</h5>
+                              <div className="materials-list">
+                                {subject.materials.map((material, idx) => (
+                                  <div key={idx} className="material-item">
+                                    <div className="material-header">
+                                      <h6>{material.title}</h6>
+                                      <span className="material-date">{material.created_at}</span>
+                                    </div>
+                                    {material.description && (
+                                      <p className="material-description">{material.description}</p>
+                                    )}
+                                    <div className="material-type">
+                                      <span className="file-type-icon">
+                                        {material.file_type === 'pdf' && '📄'}
+                                        {material.file_type === 'doc' && '📝'}
+                                        {material.file_type === 'video' && '🎥'}
+                                        {material.file_type === 'image' && '🖼️'}
+                                      </span>
+                                      <span className="file-type-text">{material.file_type}</span>
+                                    </div>
+                                  </div>
                                 ))}
-                              </ul>
-                            ) : (
-                              <p>Расписание не установлено</p>
-                            )}
-                          </div>
-                          {subject.next_lesson && (
-                            <p className="next-lesson">
-                              <strong>Следующий урок:</strong> {subject.next_lesson}
-                            </p>
+                              </div>
+                            </>
+                          ) : (
+                            <p className="no-materials">Материалы пока не добавлены</p>
                           )}
                         </div>
                       </div>
