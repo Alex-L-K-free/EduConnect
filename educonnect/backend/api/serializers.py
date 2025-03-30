@@ -12,9 +12,9 @@ class StudentProfileSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(source='lastName')
     middle_name = serializers.CharField(source='middleName')
     about = serializers.CharField(allow_blank=True, required=False)
-    contacts = serializers.JSONField(required=False)
+    contacts = serializers.JSONField(required=False, default=dict)
     
     class Meta:
         model = StudentUser
-        fields = ('username', 'first_name', 'last_name', 'middle_name', 'grade', 'about', 'contacts')
-        read_only_fields = ('username', 'grade')
+        fields = ('username', 'first_name', 'last_name', 'middle_name', 'about', 'contacts')
+        read_only_fields = ('username',)

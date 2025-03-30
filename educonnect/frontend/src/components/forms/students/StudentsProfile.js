@@ -3,6 +3,19 @@ import { Form, Button, Card, Modal } from 'react-bootstrap';
 import { useUser } from '../../../UserContext';
 import './StudentsProfile.css';
 
+const contactOptions = [
+  { label: 'Телефон', value: 'phone' },
+  { label: 'Email', value: 'email' },
+  { label: 'Telegram', value: 'telegram' },
+  { label: 'Viber', value: 'viber' },
+  { label: 'WhatsApp', value: 'whatsapp' },
+  { label: 'Skype', value: 'skype' },
+  { label: 'Instagram', value: 'instagram' },
+  { label: 'VK', value: 'vk' },
+  { label: 'Facebook', value: 'facebook' },
+  { label: 'Twitter', value: 'twitter' }
+];
+
 const StudentsProfile = () => {
   const { user } = useUser();
   const [profile, setProfile] = useState({
@@ -10,9 +23,13 @@ const StudentsProfile = () => {
     first_name: '',
     last_name: '',
     middle_name: '',
-    grade: '',
     about: '',
-    contacts: {}
+    contacts: {
+      email: '',
+      phone: '',
+      telegram: '',
+      vk: ''
+    }
   });
   const [isEditing, setIsEditing] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -20,6 +37,8 @@ const StudentsProfile = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [editedProfile, setEditedProfile] = useState({});
+  const [editedContacts, setEditedContacts] = useState({});
+  const [selectedContactType, setSelectedContactType] = useState('');
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -37,6 +56,7 @@ const StudentsProfile = () => {
       const data = await response.json();
       setProfile(data);
       setEditedProfile(data);
+      setEditedContacts(data.contacts || {});
     } catch (error) {
       console.error('Error fetching profile:', error);
       setError('Ошибка при загрузке профиля');
@@ -59,7 +79,7 @@ const StudentsProfile = () => {
       last_name: editedProfile.last_name,
       middle_name: editedProfile.middle_name,
       about: editedProfile.about || '',
-      contacts: editedProfile.contacts || {}
+      contacts: editedContacts
     };
 
     try {
@@ -88,11 +108,36 @@ const StudentsProfile = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setEditedProfile(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    if (name.startsWith('contact_')) {
+      const contactField = name.replace('contact_', '');
+      setEditedProfile(prev => ({
+        ...prev,
+        contacts: {
+          ...prev.contacts,
+          [contactField]: value
+        }
+      }));
+    } else {
+      setEditedProfile(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
     setSuccess('');
+  };
+
+  const handleContactChange = (type, value) => {
+    setEditedContacts(prev => ({
+      ...prev,
+      [type]: value
+    }));
+  };
+
+  const handleAddContact = () => {
+    if (selectedContactType && !editedContacts[selectedContactType]) {
+      setEditedContacts(prev => ({ ...prev, [selectedContactType]: '' }));
+    }
+    setSelectedContactType('');
   };
 
   const handlePasswordChange = async (e) => {
@@ -182,16 +227,6 @@ const StudentsProfile = () => {
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Класс</Form.Label>
-              <Form.Control
-                type="text"
-                name="grade"
-                value={profile.grade}
-                disabled
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
               <Form.Label>О себе</Form.Label>
               <Form.Control
                 as="textarea"
@@ -201,6 +236,38 @@ const StudentsProfile = () => {
                 onChange={handleChange}
                 disabled={!isEditing}
               />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Контактные данные</Form.Label>
+              <div className="d-flex gap-2">
+                <Form.Select 
+                  value={selectedContactType} 
+                  onChange={(e) => setSelectedContactType(e.target.value)}
+                  disabled={!isEditing}
+                >
+                  <option value="">Выберите контакт</option>
+                  {contactOptions.map(option => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </Form.Select>
+                <Button onClick={handleAddContact} disabled={!isEditing || !selectedContactType}>
+                  Добавить
+                </Button>
+              </div>
+              {Object.entries(editedContacts).map(([type, value]) => (
+                <div key={type} className="d-flex gap-2 mt-2">
+                  <Form.Label className="me-2">
+                    {contactOptions.find(opt => opt.value === type)?.label}:
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={value}
+                    onChange={(e) => handleContactChange(type, e.target.value)}
+                    disabled={!isEditing}
+                  />
+                </div>
+              ))}
             </Form.Group>
 
             <div className="d-flex justify-content-between mt-4">
