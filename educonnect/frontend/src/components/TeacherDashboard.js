@@ -403,22 +403,22 @@ const TeacherDashboard = () => {
                       type="materials"
                     />
                   </th>
-                  <th>
+                  {/* <th>
                     <StudentActions 
                       students={studentsByClass[classKey]}
                       selectedStudents={selectedStudents}
                       onMaterialsUpdate={handleMaterialsUpdate}
                       type="tasks"
                     />
-                  </th>
-                  <th>
+                  </th> */}
+                  {/* <th>
                     <StudentActions 
                       students={studentsByClass[classKey]}
                       selectedStudents={selectedStudents}
                       onMaterialsUpdate={handleMaterialsUpdate}
                       type="messages"
                     />
-                  </th>
+                  </th> */}
                 </tr>
               </thead>
               <tbody>

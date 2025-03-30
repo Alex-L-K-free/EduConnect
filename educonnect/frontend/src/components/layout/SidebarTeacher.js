@@ -190,36 +190,36 @@ const SidebarTeacher = ({ activePage, onNavigate, availableSubjects, availableCl
     //     { id: 'class-7', label: '7 класс' }
     //   ]
     // },
-    {
-      id: 'materials',
-      label: 'Материалы',
-      icon: '📝',
-      items: [
-        { id: 'lessons', label: 'Уроки' },
-        { id: 'homework', label: 'Домашние задания' },
-        { id: 'tests', label: 'Тесты' }
-      ]
-    },
-    {
-      id: 'messages',
-      label: 'Сообщения',
-      icon: '✉️',
-      items: [
-        { id: 'inbox', label: 'Входящие' },
-        { id: 'sent', label: 'Отправленные' },
-        { id: 'drafts', label: 'Черновики' }
-      ]
-    },
-    {
-      id: 'notifications',
-      label: 'Уведомления',
-      icon: '🔔',
-      items: [
-        { id: 'new', label: 'Новые' },
-        { id: 'read', label: 'Прочитанные' },
-        { id: 'all', label: 'Все' }
-      ]
-    }
+    // {
+    //   id: 'materials',
+    //   label: 'Материалы',
+    //   icon: '📝',
+    //   items: [
+    //     { id: 'lessons', label: 'Уроки' },
+    //     { id: 'homework', label: 'Домашние задания' },
+    //     { id: 'tests', label: 'Тесты' }
+    //   ]
+    // },
+    // {
+    //   id: 'messages',
+    //   label: 'Сообщения',
+    //   icon: '✉️',
+    //   items: [
+    //     { id: 'inbox', label: 'Входящие' },
+    //     { id: 'sent', label: 'Отправленные' },
+    //     { id: 'drafts', label: 'Черновики' }
+    //   ]
+    // },
+    // {
+    //   id: 'notifications',
+    //   label: 'Уведомления',
+    //   icon: '🔔',
+    //   items: [
+    //     { id: 'new', label: 'Новые' },
+    //     { id: 'read', label: 'Прочитанные' },
+    //     { id: 'all', label: 'Все' }
+    //   ]
+    // }
   ];
 
   return (
@@ -231,7 +231,7 @@ const SidebarTeacher = ({ activePage, onNavigate, availableSubjects, availableCl
           onClick={handleMainClick}
         >
           <span className="menu-icon">🏠</span>
-          <span className="menu-text">Главная</span>
+          <span className="menu-text">Начальная</span>
         </li>
         
         {menuItems.map(menu => (
