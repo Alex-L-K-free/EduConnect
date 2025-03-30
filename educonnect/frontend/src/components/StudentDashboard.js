@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Container, Row, Col, Card } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 import SidebarStudent from './layout/SidebarStudent';
 import { useUser } from '../UserContext';
 import axios from 'axios';
@@ -14,7 +14,14 @@ const StudentDashboard = () => {
     grade: '',
     about: '',
     contacts: {},
-    subjects: []
+    subjects: [],
+    teacher: {
+      firstName: '',
+      lastName: '',
+      middleName: '',
+      subjects: [],
+      contacts: {}
+    }
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -39,7 +46,14 @@ const StudentDashboard = () => {
         grade: response.data.grade || '',
         about: response.data.about || '',
         contacts: response.data.contacts || {},
-        subjects: response.data.subjects || []
+        subjects: response.data.subjects || [],
+        teacher: response.data.teacher || {
+          firstName: '',
+          lastName: '',
+          middleName: '',
+          subjects: [],
+          contacts: {}
+        }
       });
     } catch (err) {
       console.error('Ошибка при загрузке данных:', err);
@@ -57,7 +71,7 @@ const StudentDashboard = () => {
     <div className="d-flex student-dashboard">
       <SidebarStudent activePage="student" />
       <Container fluid className="p-4">
-        <h2 className="mb-4">Личный кабинет ученика</h2>
+        {/* <h2 className="mb-4">Личный кабинет ученика</h2> */}
         
         {loading && (
           <div className="text-center">
@@ -72,62 +86,103 @@ const StudentDashboard = () => {
         )}
 
         {!loading && !error && (
-          <>
-            <Card className="mb-4">
-              <Card.Header>
-                <h4>Информация об ученике</h4>
-              </Card.Header>
-              <Card.Body>
-                <p><strong>ФИО:</strong> {studentData.lastName} {studentData.firstName} {studentData.middleName}</p>
-                <p><strong>Класс:</strong> {studentData.grade}</p>
-                {studentData.about && <p><strong>О себе:</strong> {studentData.about}</p>}
-              </Card.Body>
-            </Card>
+          <div className="student-tiles">
+            <div className="info-tile">
+              <div className="tile-header">
+                <span className="tile-icon">👤</span>
+                <h3 className="tile-title">Личная информация</h3>
+              </div>
+              <div className="tile-content">
+                <ul>
+                  <li><strong>Фамилия:</strong> {studentData.lastName}</li>
+                  <li><strong>Имя:</strong> {studentData.firstName}</li>
+                  <li><strong>Отчество:</strong> {studentData.middleName}</li>
+                  <li><strong>Класс:</strong> {studentData.grade}</li>
+                </ul>
+              </div>
+            </div>
 
-            <Row>
-              <Col md={6}>
-                <Card className="mb-4">
-                  <Card.Header>
-                    <h4>Предметы</h4>
-                  </Card.Header>
-                  <Card.Body>
-                    {studentData.subjects && studentData.subjects.length > 0 ? (
-                      <ul className="list-unstyled">
-                        {studentData.subjects.map((subject, index) => (
-                          <li key={index} className="mb-2">
-                            {subject}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p>Нет доступных предметов</p>
-                    )}
-                  </Card.Body>
-                </Card>
-              </Col>
+            <div className="info-tile">
+              <div className="tile-header">
+                <span className="tile-icon">📚</span>
+                <h3 className="tile-title">Предметы</h3>
+              </div>
+              <div className="tile-content">
+                {studentData.subjects && studentData.subjects.length > 0 ? (
+                  <ul>
+                    {studentData.subjects.map((subject, index) => (
+                      <li key={index}>{subject}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>Нет доступных предметов</p>
+                )}
+              </div>
+            </div>
 
-              <Col md={6}>
-                <Card className="mb-4">
-                  <Card.Header>
-                    <h4>Контактная информация</h4>
-                  </Card.Header>
-                  <Card.Body>
-                    {Object.keys(studentData.contacts).length > 0 ? (
-                      <ul className="list-unstyled">
-                        {Object.entries(studentData.contacts).map(([key, value]) => (
-                          <li key={key} className="mb-2">
-                            <strong>{key}:</strong> {value}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p>Контактная информация не указана</p>
+            <div className="info-tile">
+              <div className="tile-header">
+                <span className="tile-icon">📞</span>
+                <h3 className="tile-title">Контактная информация</h3>
+              </div>
+              <div className="tile-content">
+                {Object.keys(studentData.contacts).length > 0 ? (
+                  <ul>
+                    {Object.entries(studentData.contacts).map(([key, value]) => (
+                      <li key={key}>
+                        <strong>{key}:</strong> {value}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>Контактная информация не указана</p>
+                )}
+              </div>
+            </div>
+
+            <div className="info-tile">
+              <div className="tile-header">
+                <span className="tile-icon">ℹ️</span>
+                <h3 className="tile-title">Дополнительно</h3>
+              </div>
+              <div className="tile-content">
+                {studentData.about ? (
+                  <p>{studentData.about}</p>
+                ) : (
+                  <p>Дополнительная информация отсутствует</p>
+                )}
+              </div>
+            </div>
+
+            <div className="info-tile">
+              <div className="tile-header">
+                <span className="tile-icon">👨‍🏫</span>
+                <h3 className="tile-title">Учитель</h3>
+              </div>
+              <div className="tile-content">
+                {studentData.teacher && studentData.teacher.lastName ? (
+                  <ul>
+                    <li>
+                      <strong>ФИО:</strong> {`${studentData.teacher.lastName} ${studentData.teacher.firstName} ${studentData.teacher.middleName || ''}`}
+                    </li>
+                    {studentData.teacher.subjects && studentData.teacher.subjects.length > 0 && (
+                      <li>
+                        <strong>Предметы:</strong> {studentData.teacher.subjects.join(', ')}
+                      </li>
                     )}
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-          </>
+                    {Object.entries(studentData.teacher.contacts || {}).map(([key, value]) => (
+                      <li key={key}>
+                        <strong>{key}:</strong> {value}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>Информация о учителе отсутствует</p>
+                )}
+              </div>
+            </div>
+            
+          </div>
         )}
       </Container>
     </div>
