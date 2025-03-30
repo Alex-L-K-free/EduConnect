@@ -109,8 +109,13 @@ const StudentDashboard = () => {
                     <strong>Одноклассники:</strong>
                     <ul>
                       {studentData.classmates.map((classmate, index) => (
-                        <li key={index}>
+                        <li key={index} className={classmate.isRegistered ? 'registered-student' : ''}>
                           {`${classmate.lastName} ${classmate.firstName}`}
+                          {classmate.isRegistered && (
+                            <span className="registration-badge" title="Зарегистрирован">
+                              ✓
+                            </span>
+                          )}
                         </li>
                       ))}
                     </ul>

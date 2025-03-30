@@ -95,7 +95,8 @@ class StudentProfileSerializer(serializers.ModelSerializer):
         return [
             {
                 'firstName': classmate.firstName,
-                'lastName': classmate.lastName
+                'lastName': classmate.lastName,
+                'isRegistered': bool(classmate.auth_token)  # Проверяем наличие токена для определения регистрации
             }
             for classmate in classmates
         ]

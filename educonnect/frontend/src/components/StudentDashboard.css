@@ -219,10 +219,28 @@
   margin-bottom: 5px;
   border-radius: 4px;
   transition: background-color 0.2s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .classmates-list li:hover {
   background: #e9ecef;
+}
+
+.registered-student {
+  border-left: 3px solid #28a745;
+}
+
+.registration-badge {
+  color: #28a745;
+  font-weight: bold;
+  margin-left: 10px;
+  font-size: 0.9em;
+}
+
+.registration-badge:hover {
+  cursor: help;
 }
 
 @media (max-width: 768px) {
