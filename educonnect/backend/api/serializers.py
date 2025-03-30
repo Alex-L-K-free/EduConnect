@@ -3,6 +3,8 @@ from education_core.models import User
 from users_student.models import StudentUser
 from users_teacher.models import TeacherUser
 from materials.models import Material
+from materials.models import StudentMaterial
+from materials.serializers import StudentMaterialSerializer
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -63,24 +65,22 @@ class StudentProfileSerializer(serializers.ModelSerializer):
         
         subjects_with_materials = []
         for subject in student_subjects:
-            # Получаем материалы для каждого предмета
-            materials = Material.objects.filter(
-                subject__iexact=subject,  # Ищем материалы по названию предмета
-                teacher=obj.teacher  # Только материалы от учителя студента
-            ).values('id', 'title', 'description', 'file_type', 'created_at')
+            # Получаем материалы для текущего студента по предмету
+            materials = StudentMaterial.objects.filter(
+                student=obj,
+                material_type__in=['document', 'video', 'presentation']  # Исключаем другие типы материалов
+            ).order_by('-created_at')
+            
+            # Используем существующий сериализатор для материалов
+            materials_serializer = StudentMaterialSerializer(
+                materials, 
+                many=True,
+                context=self.context
+            )
             
             subjects_with_materials.append({
                 'name': subject,
-                'materials': [
-                    {
-                        'id': material['id'],
-                        'title': material['title'],
-                        'description': material['description'],
-                        'file_type': material['file_type'],
-                        'created_at': material['created_at'].strftime("%d.%m.%Y")
-                    }
-                    for material in materials
-                ]
+                'materials': materials_serializer.data
             })
         
         return subjects_with_materials

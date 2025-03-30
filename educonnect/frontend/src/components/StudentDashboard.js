@@ -140,20 +140,31 @@ const StudentDashboard = () => {
                                   <div key={idx} className="material-item">
                                     <div className="material-header">
                                       <h6>{material.title}</h6>
-                                      <span className="material-date">{material.created_at}</span>
+                                      <span className="material-date">
+                                        {new Date(material.created_at).toLocaleDateString()}
+                                      </span>
                                     </div>
                                     {material.description && (
                                       <p className="material-description">{material.description}</p>
                                     )}
                                     <div className="material-type">
                                       <span className="file-type-icon">
-                                        {material.file_type === 'pdf' && '📄'}
-                                        {material.file_type === 'doc' && '📝'}
-                                        {material.file_type === 'video' && '🎥'}
-                                        {material.file_type === 'image' && '🖼️'}
+                                        {material.material_type === 'document' && '📄'}
+                                        {material.material_type === 'video' && '🎥'}
+                                        {material.material_type === 'presentation' && '📊'}
                                       </span>
-                                      <span className="file-type-text">{material.file_type}</span>
+                                      <span className="file-type-text">{material.material_type}</span>
                                     </div>
+                                    {material.file_url && (
+                                      <a 
+                                        href={material.file_url} 
+                                        className="material-download"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                      >
+                                        Скачать материал
+                                      </a>
+                                    )}
                                   </div>
                                 ))}
                               </div>
