@@ -170,10 +170,8 @@ class StudentProfileView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
             
-        # Добавляем отладочную информацию
-        print(f"Student teacher: {student.teacher}")
-        if student.teacher:
-            print(f"Teacher profile: {student.teacher.teacher_profile}")
+        print(f"Student: {student.username}")
+        print(f"Student subjects: {student.subject}")
             
         serializer = StudentProfileSerializer(student)
         return Response(serializer.data)

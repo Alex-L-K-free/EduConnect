@@ -55,24 +55,27 @@ class StudentProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ('username',)
 
     def get_subjects_details(self, obj):
-        if not obj.teacher or not hasattr(obj.teacher, 'teacher_profile'):
+        if not obj.subject:  # Проверяем наличие предмета у студента
             return []
             
-        teacher = obj.teacher.teacher_profile
-        if not teacher or not teacher.specialization:
-            return []
-            
-        teacher_subjects = [s.strip() for s in teacher.specialization.split(',') if s.strip()]
+        # Получаем список предметов, разделенных запятой
+        student_subjects = [s.strip() for s in obj.subject.split(',') if s.strip()]
+        
+        # Получаем информацию об учителе
+        teacher_name = (
+            f"{obj.teacher.first_name} {obj.teacher.last_name}"
+            if obj.teacher else "Не назначен"
+        )
         
         return [
             {
                 'name': subject,
                 'average_grade': None,
-                'teacher_name': f"{teacher.user.first_name} {teacher.user.last_name}",
+                'teacher_name': teacher_name,
                 'schedule': [],
                 'next_lesson': None
             }
-            for subject in teacher_subjects
+            for subject in student_subjects
         ]
 
     def get_classmates(self, obj):
