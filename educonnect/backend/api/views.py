@@ -153,7 +153,10 @@ class StudentProfileView(APIView):
             auth_header = request.META.get('HTTP_AUTHORIZATION', '')
             if auth_header.startswith('Token '):
                 token = auth_header.split(' ')[1]
-                return StudentUser.objects.get(auth_token=token)
+                return StudentUser.objects.select_related(
+                    'teacher',
+                    'teacher__teacher_profile'
+                ).get(auth_token=token)
             return None
         except (StudentUser.DoesNotExist, IndexError):
             return None
