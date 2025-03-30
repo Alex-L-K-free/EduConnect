@@ -502,3 +502,54 @@
   background-color: #2e7d32;
   color: white;
 }
+
+/* Добавьте эти стили к существующим */
+
+.has-submenu {
+  cursor: pointer;
+}
+
+.has-submenu .menu-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+}
+
+.has-submenu .arrow {
+  margin-left: auto;
+  transition: transform 0.3s ease;
+}
+
+.has-submenu.open .arrow {
+  transform: rotate(90deg);
+}
+
+.submenu {
+  list-style: none;
+  padding-left: 20px;
+  margin: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.submenu-item {
+  padding: 8px 15px;
+  display: flex;
+  align-items: center;
+  color: #6c757d;
+  transition: color 0.2s ease;
+}
+
+.submenu-item:hover {
+  color: var(--bs-primary);
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+.submenu-item .menu-icon {
+  font-size: 0.9em;
+  margin-right: 10px;
+}
+
+.submenu-item .menu-text {
+  font-size: 0.9em;
+}
