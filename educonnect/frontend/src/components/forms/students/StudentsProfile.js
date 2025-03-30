@@ -75,12 +75,14 @@ const StudentsProfile = () => {
     if (!isEditing) return;
 
     const updateData = {
-      first_name: editedProfile.first_name,
-      last_name: editedProfile.last_name,
-      middle_name: editedProfile.middle_name,
+      firstName: editedProfile.first_name,  // Изменено с first_name на firstName
+      lastName: editedProfile.last_name,    // Изменено с last_name на lastName
+      middleName: editedProfile.middle_name,  // Изменено с middle_name на middleName
       about: editedProfile.about || '',
       contacts: editedContacts
     };
+
+    console.log('Sending data:', updateData);  // Добавим для отладки
 
     try {
       const response = await fetch('http://127.0.0.1:8000/api/v1/students/profile/', {
@@ -93,15 +95,30 @@ const StudentsProfile = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Ошибка при обновлении профиля');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Ошибка при обновлении профиля');
       }
 
       const updatedProfile = await response.json();
-      setProfile(updatedProfile);
-      setEditedProfile(updatedProfile);
+      console.log('Received data:', updatedProfile);  // Добавим для отладки
+      
+      setProfile({
+        ...updatedProfile,
+        first_name: updatedProfile.firstName,  // Преобразуем имена полей обратно
+        last_name: updatedProfile.lastName,
+        middle_name: updatedProfile.middleName
+      });
+      setEditedProfile({
+        ...updatedProfile,
+        first_name: updatedProfile.firstName,
+        last_name: updatedProfile.lastName,
+        middle_name: updatedProfile.middleName
+      });
+      setEditedContacts(updatedProfile.contacts || {});
       setIsEditing(false);
       setSuccess('Профиль успешно обновлен');
     } catch (error) {
+      console.error('Error:', error);  // Добавим для отладки
       setError(error.message || 'Ошибка при обновлении профиля');
     }
   };
