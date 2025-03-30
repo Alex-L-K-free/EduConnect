@@ -81,6 +81,7 @@ const StudentDashboard = () => {
 
         {!loading && !error && (
           <div className="student-tiles">
+            {/* Временно скрыта плитка "Личная информация"
             <div className="info-tile">
               <div className="tile-header">
                 <span className="tile-icon">👤</span>
@@ -94,8 +95,8 @@ const StudentDashboard = () => {
                 </ul>
               </div>
             </div>
+            */}
 
-            {/* Добавим новую плитку с информацией о классе после личной информации */}
             <div className="info-tile">
               <div className="tile-header">
                 <span className="tile-icon">🏫</span>
@@ -123,7 +124,7 @@ const StudentDashboard = () => {
             <div className="info-tile subjects-tile">
               <div className="tile-header">
                 <span className="tile-icon">📚</span>
-                <h3 className="tile-title">Твои предметы</h3>
+                <h3 className="tile-title">Твой предмет</h3>
               </div>
               <div className="tile-content">
                 {studentData.subjects_details && studentData.subjects_details.length > 0 ? (
@@ -182,6 +183,7 @@ const StudentDashboard = () => {
               </div>
             </div>
 
+            {/* Временно скрыта плитка "Контактная информация"
             <div className="info-tile">
               <div className="tile-header">
                 <span className="tile-icon">📞</span>
@@ -201,7 +203,9 @@ const StudentDashboard = () => {
                 )}
               </div>
             </div>
+            */}
 
+            {/* Временно скрыта плитка "Дополнительно"
             <div className="info-tile">
               <div className="tile-header">
                 <span className="tile-icon">ℹ️</span>
@@ -215,6 +219,7 @@ const StudentDashboard = () => {
                 )}
               </div>
             </div>
+            */}
 
             <div className="info-tile">
               <div className="tile-header">
@@ -226,13 +231,6 @@ const StudentDashboard = () => {
                   <div>
                     <h4>{`${studentData.teacher.last_name} ${studentData.teacher.first_name} ${studentData.teacher.middle_name || ''}`}</h4>
                     
-                    {studentData.teacher.specialization && (
-                      <div className="teacher-specialization">
-                        <strong>Специализация:</strong>
-                        <p>{studentData.teacher.specialization}</p>
-                      </div>
-                    )}
-
                     {studentData.teacher.school_name && (
                       <div className="teacher-school">
                         <strong>Школа:</strong>
@@ -279,7 +277,6 @@ const StudentDashboard = () => {
                 )}
               </div>
             </div>
-            
           </div>
         )}
       </Container>
