@@ -39,6 +39,7 @@ class StudentProfileSerializer(serializers.ModelSerializer):
     teacher = TeacherSerializer(source='teacher.teacher_profile', read_only=True)
     subjects_details = serializers.SerializerMethodField()
     classmates = serializers.SerializerMethodField()
+    subject = serializers.SerializerMethodField()
 
     class Meta:
         model = StudentUser
@@ -53,25 +54,44 @@ class StudentProfileSerializer(serializers.ModelSerializer):
             'index',
             'teacher',
             'subjects_details',
-            'classmates'
+            'classmates',
+            'subject'
         )
         read_only_fields = ('username',)
 
+    def get_subject(self, obj):
+        # Получаем все записи для данного студента
+        student_subjects = StudentUser.objects.filter(
+            username=obj.username
+        ).values_list('subject', flat=True)
+        
+        # Объединяем все предметы в одну строку через запятую
+        all_subjects = ','.join(filter(None, student_subjects))
+        return all_subjects
+
     def get_subjects_details(self, obj):
-        if not obj.subject:
-            return []
-            
-        student_subjects = [s.strip() for s in obj.subject.split(',') if s.strip()]
+        # Получаем все предметы студента
+        student_subjects = StudentUser.objects.filter(
+            username=obj.username
+        ).values_list('subject', flat=True)
+        
+        # Создаем список всех уникальных предметов
+        all_subjects = set()
+        for subjects in student_subjects:
+            if subjects:
+                all_subjects.update(s.strip() for s in subjects.split(','))
         
         subjects_with_materials = []
-        for subject in student_subjects:
+        for subject in all_subjects:
+            if not subject:
+                continue
+                
             # Получаем материалы для текущего студента по предмету
             materials = StudentMaterial.objects.filter(
                 student=obj,
-                material_type__in=['document', 'video', 'presentation']  # Исключаем другие типы материалов
+                material_type__in=['document', 'video', 'presentation']
             ).order_by('-created_at')
             
-            # Используем существующий сериализатор для материалов
             materials_serializer = StudentMaterialSerializer(
                 materials, 
                 many=True,

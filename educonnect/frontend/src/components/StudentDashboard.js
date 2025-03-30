@@ -17,7 +17,8 @@ const StudentDashboard = () => {
     about: '',
     contacts: {},
     teacher: null,
-    subjects_details: []
+    subjects_details: [],
+    subject: ''
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -47,7 +48,8 @@ const StudentDashboard = () => {
         about: response.data.about || '',
         contacts: response.data.contacts || {},
         teacher: response.data.teacher || null,
-        subjects_details: response.data.subjects_details || []
+        subjects_details: response.data.subjects_details || [],
+        subject: response.data.subject || ''
       });
     } catch (err) {
       console.error('Ошибка при загрузке данных:', err);
@@ -132,55 +134,65 @@ const StudentDashboard = () => {
                 <h3 className="tile-title">Твой предмет</h3>
               </div>
               <div className="tile-content">
-                {studentData.subjects_details && studentData.subjects_details.length > 0 ? (
+                {studentData.subject ? (
                   <div className="subjects-grid">
-                    {studentData.subjects_details.map((subject, index) => (
-                      <div key={index} className="subject-card">
-                        <h4 className="subject-name">{subject.name}</h4>
-                        <div className="subject-materials">
-                          {subject.materials && subject.materials.length > 0 ? (
-                            <>
-                              <h5>Материалы по предмету:</h5>
-                              <div className="materials-list">
-                                {subject.materials.map((material, idx) => (
-                                  <div key={idx} className="material-item">
-                                    <div className="material-header">
-                                      <h6>{material.title}</h6>
-                                      <span className="material-date">
-                                        {new Date(material.created_at).toLocaleDateString()}
-                                      </span>
+                    {studentData.subject.split(',').map((subject, index) => {
+                      const subjectName = subject.trim();
+                      if (!subjectName) return null; // Пропускаем пустые строки
+                      
+                      // Находим детали предмета в subjects_details
+                      const subjectDetails = studentData.subjects_details.find(
+                        detail => detail.name === subjectName
+                      ) || { materials: [] };
+
+                      return (
+                        <div key={index} className="subject-card">
+                          <h4 className="subject-name">{subjectName}</h4>
+                          <div className="subject-materials">
+                            {subjectDetails.materials && subjectDetails.materials.length > 0 ? (
+                              <>
+                                <h5>Материалы по предмету:</h5>
+                                <div className="materials-list">
+                                  {subjectDetails.materials.map((material, idx) => (
+                                    <div key={idx} className="material-item">
+                                      <div className="material-header">
+                                        <h6>{material.title}</h6>
+                                        <span className="material-date">
+                                          {new Date(material.created_at).toLocaleDateString()}
+                                        </span>
+                                      </div>
+                                      {material.description && (
+                                        <p className="material-description">{material.description}</p>
+                                      )}
+                                      <div className="material-type">
+                                        <span className="file-type-icon">
+                                          {material.material_type === 'document' && '📄'}
+                                          {material.material_type === 'video' && '🎥'}
+                                          {material.material_type === 'presentation' && '📊'}
+                                        </span>
+                                        <span className="file-type-text">{material.material_type}</span>
+                                      </div>
+                                      {material.file_url && (
+                                        <a 
+                                          href={material.file_url} 
+                                          className="material-download"
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                        >
+                                          Скачать материал
+                                        </a>
+                                      )}
                                     </div>
-                                    {material.description && (
-                                      <p className="material-description">{material.description}</p>
-                                    )}
-                                    <div className="material-type">
-                                      <span className="file-type-icon">
-                                        {material.material_type === 'document' && '📄'}
-                                        {material.material_type === 'video' && '🎥'}
-                                        {material.material_type === 'presentation' && '📊'}
-                                      </span>
-                                      <span className="file-type-text">{material.material_type}</span>
-                                    </div>
-                                    {material.file_url && (
-                                      <a 
-                                        href={material.file_url} 
-                                        className="material-download"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                      >
-                                        Скачать материал
-                                      </a>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            </>
-                          ) : (
-                            <p className="no-materials">Материалы пока не добавлены</p>
-                          )}
+                                  ))}
+                                </div>
+                              </>
+                            ) : (
+                              <p className="no-materials">Материалы пока не добавлены</p>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <p>Нет доступных предметов</p>
