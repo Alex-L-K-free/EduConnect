@@ -13,7 +13,7 @@ const SidebarStudent = ({ activePage }) => {
 
   return (
     <div className="sidebar" style={{ height: 'calc(100vh - 64px)', overflowY: 'auto' }}>
-      <h2>ученик</h2>
+      {/* <h2>ученик</h2> */}
       <ul className="sidebar-nav">
         <li 
           className={activePage === 'student' ? 'active' : ''}
