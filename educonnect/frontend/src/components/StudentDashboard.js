@@ -12,19 +12,12 @@ const StudentDashboard = () => {
     lastName: '',
     middleName: '',
     grade: '',
-    index: '', // добавляем индекс класса
-    classmates: [], // добавляем список одноклассников
+    index: '',
+    classmates: [],
     about: '',
     contacts: {},
-    subjects: [],
-    subjectsDetails: [],
-    teacher: {
-      firstName: '',
-      lastName: '',
-      middleName: '',
-      subjects: [],
-      contacts: {}
-    }
+    teacher: null,
+    subjects_details: []
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -42,24 +35,19 @@ const StudentDashboard = () => {
         }
       });
 
+      console.log('Received data:', response.data);
+
       setStudentData({
         firstName: response.data.first_name || '',
         lastName: response.data.last_name || '',
         middleName: response.data.middle_name || '',
         grade: response.data.grade || '',
         index: response.data.index || '',
-        classmates: response.data.classmates || [], // получаем список одноклассников
+        classmates: response.data.classmates || [],
         about: response.data.about || '',
         contacts: response.data.contacts || {},
-        subjects: response.data.subjects || [],
-        subjectsDetails: response.data.subjects_details || [],
-        teacher: response.data.teacher || {
-          firstName: '',
-          lastName: '',
-          middleName: '',
-          subjects: [],
-          contacts: {}
-        }
+        teacher: response.data.teacher || null,
+        subjects_details: response.data.subjects_details || []
       });
     } catch (err) {
       console.error('Ошибка при загрузке данных:', err);
@@ -138,9 +126,9 @@ const StudentDashboard = () => {
                 <h3 className="tile-title">Твой предмет</h3>
               </div>
               <div className="tile-content">
-                {studentData.subjectsDetails && studentData.subjectsDetails.length > 0 ? (
+                {studentData.subjects_details && studentData.subjects_details.length > 0 ? (
                   <div className="subjects-grid">
-                    {studentData.subjectsDetails.map((subject, index) => (
+                    {studentData.subjects_details.map((subject, index) => (
                       <div key={index} className="subject-card">
                         <h4 className="subject-name">{subject.name}</h4>
                         <div className="subject-info">
@@ -217,22 +205,58 @@ const StudentDashboard = () => {
                 <h3 className="tile-title">Твой учитель</h3>
               </div>
               <div className="tile-content">
-                {studentData.teacher && studentData.teacher.lastName ? (
-                  <ul>
-                    <li>
-                      <strong>ФИО:</strong> {`${studentData.teacher.lastName} ${studentData.teacher.firstName} ${studentData.teacher.middleName || ''}`}
-                    </li>
-                    {studentData.teacher.subjects && studentData.teacher.subjects.length > 0 && (
-                      <li>
-                        <strong>Предметы:</strong> {studentData.teacher.subjects.join(', ')}
-                      </li>
+                {studentData.teacher ? (
+                  <div>
+                    <h4>{`${studentData.teacher.last_name} ${studentData.teacher.first_name} ${studentData.teacher.middle_name || ''}`}</h4>
+                    
+                    {studentData.teacher.specialization && (
+                      <div className="teacher-specialization">
+                        <strong>Специализация:</strong>
+                        <p>{studentData.teacher.specialization}</p>
+                      </div>
                     )}
-                    {Object.entries(studentData.teacher.contacts || {}).map(([key, value]) => (
-                      <li key={key}>
-                        <strong>{key}:</strong> {value}
-                      </li>
-                    ))}
-                  </ul>
+
+                    {studentData.teacher.school_name && (
+                      <div className="teacher-school">
+                        <strong>Школа:</strong>
+                        <p>{studentData.teacher.school_name}</p>
+                      </div>
+                    )}
+
+                    {studentData.teacher.about && (
+                      <div className="teacher-about">
+                        <strong>О преподавателе:</strong>
+                        <p>{studentData.teacher.about}</p>
+                      </div>
+                    )}
+
+                    {studentData.teacher.contacts && Object.keys(studentData.teacher.contacts).length > 0 && (
+                      <div className="teacher-contacts">
+                        <strong>Контакты:</strong>
+                        <ul>
+                          {Object.entries(studentData.teacher.contacts).map(([key, value]) => (
+                            <li key={key}>
+                              <strong>{key}:</strong> {value}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {(studentData.teacher.telegram || studentData.teacher.viber) && (
+                      <div className="teacher-messenger">
+                        <strong>Мессенджеры:</strong>
+                        <ul>
+                          {studentData.teacher.telegram && (
+                            <li><strong>Telegram:</strong> {studentData.teacher.telegram}</li>
+                          )}
+                          {studentData.teacher.viber && (
+                            <li><strong>Viber:</strong> {studentData.teacher.viber}</li>
+                          )}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <p>Информация о учителе отсутствует</p>
                 )}

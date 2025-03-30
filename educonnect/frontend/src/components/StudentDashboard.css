@@ -230,3 +230,28 @@
     grid-column: span 1;
   }
 }
+
+.teacher-specialization,
+.teacher-school,
+.teacher-about,
+.teacher-contacts,
+.teacher-messenger {
+  margin-top: 1rem;
+}
+
+.teacher-contacts ul,
+.teacher-messenger ul {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 0.5rem;
+}
+
+.teacher-contacts li,
+.teacher-messenger li {
+  margin-bottom: 0.5rem;
+}
+
+.info-tile h4 {
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}

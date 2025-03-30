@@ -21,7 +21,10 @@ class TeacherSerializer(serializers.ModelSerializer):
             'middle_name',
             'specialization',
             'contacts',
-            'about'
+            'about',
+            'school_name',
+            'telegram',
+            'viber'
         )
 
 class StudentProfileSerializer(serializers.ModelSerializer):
@@ -52,19 +55,22 @@ class StudentProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ('username',)
 
     def get_subjects_details(self, obj):
-        # Получаем предметы из связи с учителем
-        if not obj.teacher or not obj.teacher.teacher_profile:
+        if not obj.teacher or not hasattr(obj.teacher, 'teacher_profile'):
             return []
             
-        teacher_subjects = obj.teacher.teacher_profile.specialization.split(',') if obj.teacher.teacher_profile.specialization else []
+        teacher = obj.teacher.teacher_profile
+        if not teacher or not teacher.specialization:
+            return []
+            
+        teacher_subjects = [s.strip() for s in teacher.specialization.split(',') if s.strip()]
         
         return [
             {
-                'name': subject.strip(),
-                'average_grade': None,  # Можно добавить расчет среднего балла
-                'teacher_name': f"{obj.teacher.first_name} {obj.teacher.last_name}" if obj.teacher else None,
-                'schedule': [],  # Можно добавить расписание
-                'next_lesson': None  # Можно добавить следующий урок
+                'name': subject,
+                'average_grade': None,
+                'teacher_name': f"{teacher.user.first_name} {teacher.user.last_name}",
+                'schedule': [],
+                'next_lesson': None
             }
             for subject in teacher_subjects
         ]

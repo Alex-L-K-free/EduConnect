@@ -155,7 +155,8 @@ class StudentProfileView(APIView):
                 token = auth_header.split(' ')[1]
                 return StudentUser.objects.select_related(
                     'teacher',
-                    'teacher__teacher_profile'
+                    'teacher__teacher_profile',
+                    'teacher__teacher_profile__user'
                 ).get(auth_token=token)
             return None
         except (StudentUser.DoesNotExist, IndexError):
@@ -168,6 +169,12 @@ class StudentProfileView(APIView):
                 {"error": "Профиль студента не найден"},
                 status=status.HTTP_404_NOT_FOUND
             )
+            
+        # Добавляем отладочную информацию
+        print(f"Student teacher: {student.teacher}")
+        if student.teacher:
+            print(f"Teacher profile: {student.teacher.teacher_profile}")
+            
         serializer = StudentProfileSerializer(student)
         return Response(serializer.data)
     
