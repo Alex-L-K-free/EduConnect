@@ -1,11 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Sidebar.css';
-import { useUser } from '../../UserContext';
+// import { useUser } from '../../UserContext';
 
 const SidebarStudent = ({ activePage }) => {
   const navigate = useNavigate();
-  const { user } = useUser();
+  // const { user } = useUser();
 
   const handleMainClick = () => {
     navigate('/student');
