@@ -12,9 +12,12 @@ const StudentDashboard = () => {
     lastName: '',
     middleName: '',
     grade: '',
+    index: '', // добавляем индекс класса
+    classmates: [], // добавляем список одноклассников
     about: '',
     contacts: {},
     subjects: [],
+    subjectsDetails: [],
     teacher: {
       firstName: '',
       lastName: '',
@@ -44,9 +47,12 @@ const StudentDashboard = () => {
         lastName: response.data.last_name || '',
         middleName: response.data.middle_name || '',
         grade: response.data.grade || '',
+        index: response.data.index || '',
+        classmates: response.data.classmates || [], // получаем список одноклассников
         about: response.data.about || '',
         contacts: response.data.contacts || {},
         subjects: response.data.subjects || [],
+        subjectsDetails: response.data.subjects_details || [],
         teacher: response.data.teacher || {
           firstName: '',
           lastName: '',
@@ -61,11 +67,11 @@ const StudentDashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, [user?.token]); // Зависимость от токена
+  }, [user?.token]);
 
   useEffect(() => {
     loadStudentData();
-  }, [loadStudentData]); // Теперь зависим от мемоизированной функции
+  }, [loadStudentData]);
 
   return (
     <div className="d-flex student-dashboard">
@@ -97,23 +103,74 @@ const StudentDashboard = () => {
                   <li><strong>Фамилия:</strong> {studentData.lastName}</li>
                   <li><strong>Имя:</strong> {studentData.firstName}</li>
                   <li><strong>Отчество:</strong> {studentData.middleName}</li>
-                  <li><strong>Класс:</strong> {studentData.grade}</li>
                 </ul>
               </div>
             </div>
 
+            {/* Добавим новую плитку с информацией о классе после личной информации */}
             <div className="info-tile">
               <div className="tile-header">
-                <span className="tile-icon">📚</span>
-                <h3 className="tile-title">Предметы</h3>
+                <span className="tile-icon">🏫</span>
+                <h3 className="tile-title">Твой класс</h3>
               </div>
               <div className="tile-content">
-                {studentData.subjects && studentData.subjects.length > 0 ? (
-                  <ul>
-                    {studentData.subjects.map((subject, index) => (
-                      <li key={index}>{subject}</li>
+                <h4 className="class-title">{studentData.grade}{studentData.index}</h4>
+                {studentData.classmates && studentData.classmates.length > 0 ? (
+                  <div className="classmates-list">
+                    <strong>Одноклассники:</strong>
+                    <ul>
+                      {studentData.classmates.map((classmate, index) => (
+                        <li key={index}>
+                          {`${classmate.lastName} ${classmate.firstName}`}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : (
+                  <p>Информация о классе отсутствует</p>
+                )}
+              </div>
+            </div>
+
+            <div className="info-tile subjects-tile">
+              <div className="tile-header">
+                <span className="tile-icon">📚</span>
+                <h3 className="tile-title">Твой предмет</h3>
+              </div>
+              <div className="tile-content">
+                {studentData.subjectsDetails && studentData.subjectsDetails.length > 0 ? (
+                  <div className="subjects-grid">
+                    {studentData.subjectsDetails.map((subject, index) => (
+                      <div key={index} className="subject-card">
+                        <h4 className="subject-name">{subject.name}</h4>
+                        <div className="subject-info">
+                          <p className="subject-grade">
+                            <strong>Средний балл:</strong> {subject.average_grade || 'Нет оценок'}
+                          </p>
+                          <p className="subject-teacher">
+                            <strong>Учитель:</strong> {subject.teacher_name || 'Не назначен'}
+                          </p>
+                          <div className="subject-schedule">
+                            <strong>Расписание:</strong>
+                            {subject.schedule ? (
+                              <ul>
+                                {subject.schedule.map((time, idx) => (
+                                  <li key={idx}>{time}</li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <p>Расписание не установлено</p>
+                            )}
+                          </div>
+                          {subject.next_lesson && (
+                            <p className="next-lesson">
+                              <strong>Следующий урок:</strong> {subject.next_lesson}
+                            </p>
+                          )}
+                        </div>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 ) : (
                   <p>Нет доступных предметов</p>
                 )}
@@ -157,7 +214,7 @@ const StudentDashboard = () => {
             <div className="info-tile">
               <div className="tile-header">
                 <span className="tile-icon">👨‍🏫</span>
-                <h3 className="tile-title">Учитель</h3>
+                <h3 className="tile-title">Твой учитель</h3>
               </div>
               <div className="tile-content">
                 {studentData.teacher && studentData.teacher.lastName ? (
