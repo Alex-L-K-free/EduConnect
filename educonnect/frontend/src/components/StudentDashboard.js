@@ -71,7 +71,7 @@ const StudentDashboard = () => {
       const selectedSubjects = subjects.split(',');
       
       return (
-        <div className="student-tiles">
+        <div className="student-tiles subjects-view">
           {selectedSubjects.map(subjectName => {
             const subjectDetails = studentData.subjects_details?.find(
               detail => detail.name === subjectName

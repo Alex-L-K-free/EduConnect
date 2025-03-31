@@ -69,6 +69,23 @@
   padding: 20px;
 }
 
+.student-tiles.subjects-view {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  padding: 20px;
+}
+
+.student-tiles.subjects-view .info-tile.subjects-tile {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.student-tiles.subjects-view .subject-card {
+  width: 100%;
+}
+
 .info-tile {
   background: white;
   border-radius: 10px;
@@ -288,9 +305,10 @@
 }
 
 .material-item {
-  background: white;
-  padding: 12px;
-  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: white;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
@@ -372,4 +390,13 @@
   background-color: #0056b3;
   color: white;
   text-decoration: none;
+}
+
+.info-tile.subjects-tile {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.subject-card {
+  width: 100%;
 }
