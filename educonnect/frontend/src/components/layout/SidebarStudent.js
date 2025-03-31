@@ -126,6 +126,14 @@ const SidebarStudent = ({ activePage }) => {
     }
   };
 
+  // Обработчик клика по пункту "Предметы"
+  const handleSubjectsClick = (menuId) => {
+    toggleSubmenu(menuId);
+    if (!openMenus[menuId]) {
+      navigate('/student/subjects');
+    }
+  };
+
   const menuItems = [
     {
       id: 'subjects',
@@ -149,8 +157,10 @@ const SidebarStudent = ({ activePage }) => {
         {menuItems.map(menu => (
           <li 
             key={menu.id}
-            className={`menu-item ${openMenus[menu.id] ? 'open' : ''}`}
-            onClick={() => toggleSubmenu(menu.id)}
+            className={`menu-item ${openMenus[menu.id] ? 'open' : ''} ${
+              activePage === 'subjects' ? 'active' : ''
+            }`}
+            onClick={() => handleSubjectsClick(menu.id)}
           >
             <div className="menu-header">
               <span className="menu-icon">{menu.icon}</span>

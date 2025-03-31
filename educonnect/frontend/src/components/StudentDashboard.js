@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import SidebarStudent from './layout/SidebarStudent';
 import { useUser } from '../UserContext';
 import axios from 'axios';
@@ -8,7 +8,12 @@ import './StudentDashboard.css';
 
 const StudentDashboard = () => {
   const { subjects } = useParams();
+  const location = useLocation();
   const { user } = useUser();
+  
+  // Определяем activePage на основе URL
+  const activePage = location.pathname.includes('/subjects') ? 'subjects' : 'student';
+
   const [studentData, setStudentData] = useState({
     firstName: '',
     lastName: '',
@@ -66,6 +71,23 @@ const StudentDashboard = () => {
   }, [loadStudentData]);
 
   const renderContent = () => {
+    if (activePage === 'subjects' && !subjects) {
+      // Если мы на странице предметов, но ничего не выбрано
+      return (
+        <div className="student-tiles subjects-view">
+          <div className="info-tile subjects-tile">
+            <div className="tile-content text-center">
+              <div className="empty-subjects-message">
+                <span className="message-icon">📚</span>
+                <h4>Выберите предметы</h4>
+                <p>Отметьте галочками интересующие вас предметы в меню слева</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     if (subjects) {
       // Разбиваем строку предметов на массив
       const selectedSubjects = subjects.split(',');
@@ -360,7 +382,7 @@ const StudentDashboard = () => {
 
   return (
     <div className="d-flex student-dashboard">
-      <SidebarStudent activePage={subjects ? 'subjects' : 'student'} />
+      <SidebarStudent activePage={activePage} />
       <Container fluid className="p-4">
         {/* <h2 className="mb-4">Личный кабинет ученика</h2> */}
         

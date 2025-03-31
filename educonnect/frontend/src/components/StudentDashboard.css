@@ -400,3 +400,35 @@
 .subject-card {
   width: 100%;
 }
+
+.empty-subjects-message {
+  padding: 40px 20px;
+  text-align: center;
+  color: #6c757d;
+}
+
+.empty-subjects-message .message-icon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 20px;
+}
+
+.empty-subjects-message h4 {
+  color: #495057;
+  margin-bottom: 15px;
+}
+
+.empty-subjects-message p {
+  color: #6c757d;
+  font-size: 0.95rem;
+}
+
+.menu-item.active > .menu-header {
+  background-color: rgba(46, 125, 50, 0.1);
+  color: #2e7d32;
+}
+
+.menu-item.active > .menu-header .menu-icon,
+.menu-item.active > .menu-header .menu-text {
+  color: #2e7d32;
+}
