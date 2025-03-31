@@ -70,7 +70,7 @@ const SidebarStudent = ({ activePage }) => {
     }));
   };
 
-  // Обработчик выбора элемента подменю
+  // Обновляем обработчик клика по элементу подменю
   const handleSubmenuItemClick = (menuId, itemId, e) => {
     e.stopPropagation();
     setSelectedItems(prev => ({
@@ -80,6 +80,14 @@ const SidebarStudent = ({ activePage }) => {
         [itemId]: !prev[menuId]?.[itemId]
       }
     }));
+
+    // Если это предмет, переходим на его страницу
+    if (menuId === 'subjects') {
+      const subject = studentSubjects.find(s => s.id === itemId);
+      if (subject) {
+        navigate(`/student/subjects/${subject.label}`);
+      }
+    }
   };
 
   const menuItems = [
