@@ -7,7 +7,7 @@ import axios from 'axios';
 import './StudentDashboard.css';
 
 const StudentDashboard = () => {
-  const { subject } = useParams(); // Получаем параметр предмета из URL
+  const { subjects } = useParams();
   const { user } = useUser();
   const [studentData, setStudentData] = useState({
     firstName: '',
@@ -66,70 +66,76 @@ const StudentDashboard = () => {
   }, [loadStudentData]);
 
   const renderContent = () => {
-    if (subject) {
-      // Если выбран предмет, показываем только его материалы
-      const subjectDetails = studentData.subjects_details?.find(
-        detail => detail.name === subject
-      );
-
+    if (subjects) {
+      // Разбиваем строку предметов на массив
+      const selectedSubjects = subjects.split(',');
+      
       return (
         <div className="student-tiles">
-          <div className="info-tile subjects-tile">
-            <div className="tile-header">
-              <span className="tile-icon">📚</span>
-              <h3 className="tile-title">{subject}</h3>
-            </div>
-            <div className="tile-content">
-              {subjectDetails ? (
-                <div className="subject-card">
-                  <div className="subject-materials">
-                    {subjectDetails.materials && subjectDetails.materials.length > 0 ? (
-                      <>
-                        <h5>Материалы по предмету:</h5>
-                        <div className="materials-list">
-                          {subjectDetails.materials.map((material, idx) => (
-                            <div key={idx} className="material-item">
-                              <div className="material-header">
-                                <h6>{material.title}</h6>
-                                <span className="material-date">
-                                  {new Date(material.created_at).toLocaleDateString()}
-                                </span>
-                              </div>
-                              {material.description && (
-                                <p className="material-description">{material.description}</p>
-                              )}
-                              <div className="material-type">
-                                <span className="file-type-icon">
-                                  {material.material_type === 'document' && '📄'}
-                                  {material.material_type === 'video' && '🎥'}
-                                  {material.material_type === 'presentation' && '📊'}
-                                </span>
-                                <span className="file-type-text">{material.material_type}</span>
-                              </div>
-                              {material.file_url && (
-                                <a 
-                                  href={material.file_url} 
-                                  className="material-download"
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  Скачать материал
-                                </a>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </>
-                    ) : (
-                      <p className="no-materials">Материалы пока не добавлены</p>
-                    )}
-                  </div>
+          {selectedSubjects.map(subjectName => {
+            const subjectDetails = studentData.subjects_details?.find(
+              detail => detail.name === subjectName
+            );
+
+            return (
+              <div key={subjectName} className="info-tile subjects-tile">
+                <div className="tile-header">
+                  <span className="tile-icon">📚</span>
+                  <h3 className="tile-title">{subjectName}</h3>
                 </div>
-              ) : (
-                <p>Предмет не найден</p>
-              )}
-            </div>
-          </div>
+                <div className="tile-content">
+                  {subjectDetails ? (
+                    <div className="subject-card">
+                      <div className="subject-materials">
+                        {subjectDetails.materials && subjectDetails.materials.length > 0 ? (
+                          <>
+                            <h5>Материалы по предмету:</h5>
+                            <div className="materials-list">
+                              {subjectDetails.materials.map((material, idx) => (
+                                <div key={idx} className="material-item">
+                                  <div className="material-header">
+                                    <h6>{material.title}</h6>
+                                    <span className="material-date">
+                                      {new Date(material.created_at).toLocaleDateString()}
+                                    </span>
+                                  </div>
+                                  {material.description && (
+                                    <p className="material-description">{material.description}</p>
+                                  )}
+                                  <div className="material-type">
+                                    <span className="file-type-icon">
+                                      {material.material_type === 'document' && '📄'}
+                                      {material.material_type === 'video' && '🎥'}
+                                      {material.material_type === 'presentation' && '📊'}
+                                    </span>
+                                    <span className="file-type-text">{material.material_type}</span>
+                                  </div>
+                                  {material.file_url && (
+                                    <a 
+                                      href={material.file_url} 
+                                      className="material-download"
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      Скачать материал
+                                    </a>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        ) : (
+                          <p className="no-materials">Материалы пока не добавлены</p>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <p>Предмет не найден</p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       );
     }
@@ -354,7 +360,7 @@ const StudentDashboard = () => {
 
   return (
     <div className="d-flex student-dashboard">
-      <SidebarStudent activePage={subject ? 'subjects' : 'student'} />
+      <SidebarStudent activePage={subjects ? 'subjects' : 'student'} />
       <Container fluid className="p-4">
         {/* <h2 className="mb-4">Личный кабинет ученика</h2> */}
         
