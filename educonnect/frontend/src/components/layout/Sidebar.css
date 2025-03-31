@@ -114,10 +114,11 @@
 .menu-item {
   display: flex;
   flex-direction: column;
+  background-color: transparent !important;
 }
 
-.menu-item.open {
-  background-color: rgba(46, 125, 50, 0.02);
+.menu-item.open > .menu-header {
+  background-color: rgba(46, 125, 50, 0.05);
 }
 
 /* Стили для скроллбара */
@@ -552,4 +553,9 @@
 
 .submenu-item .menu-text {
   font-size: 0.9em;
+}
+
+.submenu-item.active {
+  background-color: rgba(46, 125, 50, 0.1);
+  color: #2e7d32;
 }

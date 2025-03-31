@@ -113,9 +113,7 @@ const SidebarStudent = ({ activePage }) => {
         {menuItems.map(menu => (
           <li 
             key={menu.id}
-            className={`menu-item ${openMenus[menu.id] ? 'open' : ''} ${
-              activePage.startsWith(menu.id) ? 'active' : ''
-            }`}
+            className={`menu-item ${openMenus[menu.id] ? 'open' : ''}`}
             onClick={() => toggleSubmenu(menu.id)}
           >
             <div className="menu-header">
@@ -130,7 +128,7 @@ const SidebarStudent = ({ activePage }) => {
                   <li
                     key={item.id}
                     className={`submenu-item ${
-                      selectedItems[menu.id]?.[item.id] ? 'selected' : ''
+                      item.label === activePage ? 'active' : ''
                     }`}
                     onClick={(e) => handleSubmenuItemClick(menu.id, item.id, e)}
                   >
