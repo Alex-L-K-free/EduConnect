@@ -26,21 +26,31 @@ const SidebarStudent = ({ activePage }) => {
   useEffect(() => {
     if (subjects) {
       const selectedSubjects = subjects.split(',');
-      const newSelectedItems = { subjects: {} };
-      
-      studentSubjects.forEach(subject => {
-        newSelectedItems.subjects[subject.id] = selectedSubjects.includes(subject.label);
+      setSelectedItems(prevItems => {
+        // Проверяем, нужно ли обновлять состояние
+        const currentSelected = studentSubjects
+          .filter(s => prevItems.subjects?.[s.id])
+          .map(s => s.label);
+        
+        const needsUpdate = selectedSubjects.length !== currentSelected.length ||
+          !selectedSubjects.every(s => currentSelected.includes(s));
+
+        if (!needsUpdate) return prevItems;
+
+        // Обновляем состояние только если есть изменения
+        return {
+          ...prevItems,
+          subjects: {
+            ...prevItems.subjects,
+            ...studentSubjects.reduce((acc, subject) => ({
+              ...acc,
+              [subject.id]: selectedSubjects.includes(subject.label)
+            }), {})
+          }
+        };
       });
-      
-      setSelectedItems(newSelectedItems);
-    } else {
-      // Если нет выбранных предметов, очищаем чекбоксы
-      setSelectedItems(prev => ({
-        ...prev,
-        subjects: {}
-      }));
     }
-  }, [subjects, studentSubjects]);
+  }, [subjects, studentSubjects, selectedItems]);
 
   // Сохраняем состояния в localStorage
   useEffect(() => {
@@ -83,10 +93,6 @@ const SidebarStudent = ({ activePage }) => {
 
   const handleMainClick = () => {
     navigate('/student');
-    setSelectedItems(prev => ({
-      ...prev,
-      subjects: {}
-    }));
   };
 
   const toggleSubmenu = (menuId) => {
@@ -94,6 +100,21 @@ const SidebarStudent = ({ activePage }) => {
       ...prev,
       [menuId]: !prev[menuId]
     }));
+  };
+
+  // Обработчик клика по пункту "Предметы"
+  const handleSubjectsClick = (menuId) => {
+    toggleSubmenu(menuId);
+    // Если есть выбранные предметы, сохраняем их в URL
+    const selectedSubjects = studentSubjects
+      .filter(s => selectedItems.subjects?.[s.id])
+      .map(s => s.label);
+
+    if (selectedSubjects.length > 0) {
+      navigate(`/student/subjects/${selectedSubjects.join(',')}`);
+    } else {
+      navigate('/student/subjects');
+    }
   };
 
   // Обновленный обработчик клика по чекбоксу
@@ -122,14 +143,6 @@ const SidebarStudent = ({ activePage }) => {
     if (selectedSubjects.length > 0) {
       navigate(`/student/subjects/${selectedSubjects.join(',')}`);
     } else {
-      navigate('/student');
-    }
-  };
-
-  // Обработчик клика по пункту "Предметы"
-  const handleSubjectsClick = (menuId) => {
-    toggleSubmenu(menuId);
-    if (!openMenus[menuId]) {
       navigate('/student/subjects');
     }
   };
