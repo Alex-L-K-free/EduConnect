@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Container } from 'react-bootstrap';
 import { useParams, useLocation } from 'react-router-dom';
 import SidebarStudent from './layout/SidebarStudent';
-import SlideTransition from './transitions/SlideTransition';
+import SlideTransition from './forms/students/SlideTransition';
 import { useUser } from '../UserContext';
 import axios from 'axios';
 import './StudentDashboard.css';
