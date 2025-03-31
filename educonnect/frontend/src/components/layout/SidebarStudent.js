@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import './Sidebar.css';
 import { useUser } from '../../UserContext';
@@ -17,40 +17,38 @@ const SidebarStudent = ({ activePage }) => {
 
   const [selectedItems, setSelectedItems] = useState(() => {
     const saved = localStorage.getItem('studentSidebarSelectedItems');
-    return saved ? JSON.parse(saved) : {};
+    return saved ? JSON.parse(saved) : { subjects: {} };
   });
 
   const [studentSubjects, setStudentSubjects] = useState([]);
 
-  // При монтировании компонента устанавливаем чекбоксы из URL
-  useEffect(() => {
-    if (subjects) {
-      const selectedSubjects = subjects.split(',');
+  // Выносим логику обновления в отдельную мемоизированную функцию
+  const updateSelectedItems = useCallback(() => {
+    if (studentSubjects.length > 0) {
+      const currentSubjects = subjects ? subjects.split(',') : [];
       setSelectedItems(prevItems => {
-        // Проверяем, нужно ли обновлять состояние
-        const currentSelected = studentSubjects
-          .filter(s => prevItems.subjects?.[s.id])
-          .map(s => s.label);
-        
-        const needsUpdate = selectedSubjects.length !== currentSelected.length ||
-          !selectedSubjects.every(s => currentSelected.includes(s));
+        const newSubjects = studentSubjects.reduce((acc, subject) => ({
+          ...acc,
+          [subject.id]: currentSubjects.includes(subject.label)
+        }), {});
 
-        if (!needsUpdate) return prevItems;
+        // Проверяем, действительно ли нужно обновлять состояние
+        if (JSON.stringify(prevItems.subjects) === JSON.stringify(newSubjects)) {
+          return prevItems;
+        }
 
-        // Обновляем состояние только если есть изменения
         return {
           ...prevItems,
-          subjects: {
-            ...prevItems.subjects,
-            ...studentSubjects.reduce((acc, subject) => ({
-              ...acc,
-              [subject.id]: selectedSubjects.includes(subject.label)
-            }), {})
-          }
+          subjects: newSubjects
         };
       });
     }
-  }, [subjects, studentSubjects, selectedItems]);
+  }, [subjects, studentSubjects]);
+
+  // Используем мемоизированную функцию в useEffect
+  useEffect(() => {
+    updateSelectedItems();
+  }, [updateSelectedItems]);
 
   // Сохраняем состояния в localStorage
   useEffect(() => {
@@ -91,7 +89,30 @@ const SidebarStudent = ({ activePage }) => {
     loadSubjects();
   }, [user]);
 
+  // Загружаем сохраненные выбранные предметы при монтировании
+  useEffect(() => {
+    const savedSelectedSubjects = localStorage.getItem('selectedSubjects');
+    if (savedSelectedSubjects) {
+      const parsedSubjects = JSON.parse(savedSelectedSubjects);
+      if (Array.isArray(parsedSubjects) && parsedSubjects.length > 0) {
+        // Если есть сохраненные предметы, но URL пустой - восстанавливаем URL
+        if (!subjects && activePage === 'subjects') {
+          navigate(`/student/subjects/${parsedSubjects.join(',')}`);
+        }
+      }
+    }
+  }, [activePage, navigate, subjects]);
+
+  // Сохраняем выбранные предметы в localStorage при изменении
+  useEffect(() => {
+    const selectedSubjects = studentSubjects
+      .filter(s => selectedItems.subjects?.[s.id])
+      .map(s => s.label);
+    localStorage.setItem('selectedSubjects', JSON.stringify(selectedSubjects));
+  }, [selectedItems, studentSubjects]);
+
   const handleMainClick = () => {
+    // При переходе на главную сохраняем выбранные предметы
     navigate('/student');
   };
 
@@ -105,11 +126,13 @@ const SidebarStudent = ({ activePage }) => {
   // Обработчик клика по пункту "Предметы"
   const handleSubjectsClick = (menuId) => {
     toggleSubmenu(menuId);
-    // Если есть выбранные предметы, сохраняем их в URL
+    // Получаем текущие выбранные предметы
     const selectedSubjects = studentSubjects
       .filter(s => selectedItems.subjects?.[s.id])
       .map(s => s.label);
 
+    // При клике на "Предметы" всегда переходим на страницу предметов
+    // с сохранением выбранных предметов
     if (selectedSubjects.length > 0) {
       navigate(`/student/subjects/${selectedSubjects.join(',')}`);
     } else {
@@ -117,7 +140,7 @@ const SidebarStudent = ({ activePage }) => {
     }
   };
 
-  // Обновленный обработчик клика по чекбоксу
+  // Обработчик клика по чекбоксу
   const handleSubmenuItemClick = (menuId, itemId, e) => {
     e.stopPropagation();
     
@@ -132,14 +155,15 @@ const SidebarStudent = ({ activePage }) => {
         [itemId]: !selectedItems[menuId]?.[itemId]
       }
     };
+
+    // Обновляем состояние
     setSelectedItems(newSelectedItems);
 
-    // Формируем список выбранных предметов
+    // Обновляем URL с учетом всех выбранных предметов
     const selectedSubjects = studentSubjects
       .filter(s => newSelectedItems[menuId]?.[s.id])
       .map(s => s.label);
 
-    // Обновляем URL в зависимости от выбранных предметов
     if (selectedSubjects.length > 0) {
       navigate(`/student/subjects/${selectedSubjects.join(',')}`);
     } else {
