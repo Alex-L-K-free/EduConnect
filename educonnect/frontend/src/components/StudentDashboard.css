@@ -432,3 +432,29 @@
 .menu-item.active > .menu-header .menu-text {
   color: #2e7d32;
 }
+
+.student-dashboard {
+  position: relative;
+  overflow-x: hidden;
+}
+
+.student-dashboard > .container-fluid {
+  flex: 1;
+  position: relative;
+  min-height: calc(100vh - 64px);
+}
+
+.student-tiles {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Container } from 'react-bootstrap';
 import { useParams, useLocation } from 'react-router-dom';
 import SidebarStudent from './layout/SidebarStudent';
+import SlideTransition from './transitions/SlideTransition';
 import { useUser } from '../UserContext';
 import axios from 'axios';
 import './StudentDashboard.css';
@@ -383,23 +384,25 @@ const StudentDashboard = () => {
   return (
     <div className="d-flex student-dashboard">
       <SidebarStudent activePage={activePage} />
-      <Container fluid className="p-4">
-        {/* <h2 className="mb-4">Личный кабинет ученика</h2> */}
-        
-        {loading && (
-          <div className="text-center">
-            <p>Загрузка данных...</p>
-          </div>
-        )}
+      <SlideTransition>
+        <Container fluid className="p-4">
+          {/* <h2 className="mb-4">Личный кабинет ученика</h2> */}
+          
+          {loading && (
+            <div className="text-center">
+              <p>Загрузка данных...</p>
+            </div>
+          )}
 
-        {error && (
-          <div className="alert alert-danger">
-            {error}
-          </div>
-        )}
+          {error && (
+            <div className="alert alert-danger">
+              {error}
+            </div>
+          )}
 
-        {!loading && !error && renderContent()}
-      </Container>
+          {!loading && !error && renderContent()}
+        </Container>
+      </SlideTransition>
     </div>
   );
 };
