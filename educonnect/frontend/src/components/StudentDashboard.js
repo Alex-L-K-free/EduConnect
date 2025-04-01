@@ -30,6 +30,14 @@ const StudentDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [uploadData, setUploadData] = useState({
+    title: '',
+    description: '',
+    file: null,
+    materialType: 'document'
+  });
+  const [uploadError, setUploadError] = useState(null);
 
   const loadStudentData = useCallback(async () => {
     if (!user?.token) return;
@@ -71,6 +79,63 @@ const StudentDashboard = () => {
     loadStudentData();
   }, [loadStudentData]);
 
+  const handleUploadClick = () => {
+    setUploadModalOpen(true);
+    setUploadError(null);
+  };
+
+  const handleUploadClose = () => {
+    setUploadModalOpen(false);
+    setUploadData({
+      title: '',
+      description: '',
+      file: null,
+      materialType: 'document'
+    });
+    setUploadError(null);
+  };
+
+  const handleUploadSubmit = async (subjectName) => {
+    try {
+      const formData = new FormData();
+      formData.append('title', uploadData.title);
+      formData.append('description', uploadData.description);
+      formData.append('file', uploadData.file);
+      formData.append('material_type', uploadData.materialType);
+      formData.append('subject', subjectName);
+      formData.append('is_student_material', 'true');
+
+      await axios.post('http://127.0.0.1:8000/api/v1/materials/upload/', formData, {
+        headers: {
+          'Authorization': `Token ${user.token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      handleUploadClose();
+      loadStudentData();
+    } catch (error) {
+      setUploadError('Ошибка при загрузке материала');
+      console.error('Upload error:', error);
+    }
+  };
+
+  const handleDeleteMaterial = async (materialId) => {
+    if (window.confirm('Вы уверены, что хотите удалить этот материал?')) {
+      try {
+        await axios.delete(`http://127.0.0.1:8000/api/v1/materials/${materialId}/`, {
+          headers: {
+            'Authorization': `Token ${user.token}`
+          }
+        });
+        loadStudentData();
+      } catch (error) {
+        setError('Ошибка при удалении материала');
+        console.error('Delete error:', error);
+      }
+    }
+  };
+
   const renderContent = () => {
     if (activePage === 'subjects' && !subjects) {
       // Если мы на странице предметов, но ничего не выбрано
@@ -111,70 +176,116 @@ const StudentDashboard = () => {
                 <div className="tile-content">
                   {subjectDetails ? (
                     <div className="subject-card">
-                      <div className="subject-materials">
-                        {subjectDetails.materials && subjectDetails.materials.length > 0 ? (
-                          <>
-                            <h5>Материалы по предмету:</h5>
-                            <div className="materials-list">
-                              {subjectDetails.materials.map((material) => (
-                                <div key={material.id} className="material-item">
-                                  <div className="material-header">
-                                    <h6>{material.title}</h6>
-                                    <span className="material-date">
-                                      {new Date(material.created_at).toLocaleDateString()}
-                                    </span>
-                                  </div>
-                                  {material.description && (
-                                    <p className="material-description">{material.description}</p>
-                                  )}
-                                  <div className="material-type">
-                                    <span className="file-type-icon">
-                                      {material.material_type === 'document' && '📄'}
-                                      {material.material_type === 'video' && '🎥'}
-                                      {material.material_type === 'presentation' && '📊'}
-                                    </span>
-                                    <span className="file-type-text">{material.material_type}</span>
-                                  </div>
-                                  {material.file && (
-                                    <a 
-                                      href={`http://127.0.0.1:8000${material.file}`}
-                                      className="material-download-btn"
-                                      download={material.title}
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        fetch(`http://127.0.0.1:8000${material.file}`, {
-                                          headers: {
-                                            'Authorization': `Token ${user.token}`
-                                          }
-                                        })
-                                        .then(response => response.blob())
-                                        .then(blob => {
-                                          const url = window.URL.createObjectURL(blob);
-                                          const link = document.createElement('a');
-                                          link.href = url;
-                                          link.setAttribute('download', material.title);
-                                          document.body.appendChild(link);
-                                          link.click();
-                                          link.remove();
-                                          window.URL.revokeObjectURL(url);
-                                        })
-                                        .catch(error => {
-                                          console.error('Ошибка при скачивании:', error);
-                                          setError('Ошибка при скачивании файла');
-                                        });
-                                      }}
-                                    >
-                                      <span className="download-icon">⭳</span>
-                                      <span>Скачать материал</span>
-                                    </a>
-                                  )}
-                                </div>
-                              ))}
+                      <div className="subject-materials teacher-materials">
+                        <h5>Материалы от учителя:</h5>
+                        <div className="materials-list">
+                          {subjectDetails.materials?.filter(m => !m.is_student_material).map((material) => (
+                            <div key={material.id} className="material-item">
+                              <div className="material-header">
+                                <h6>{material.title}</h6>
+                                <span className="material-date">
+                                  {new Date(material.created_at).toLocaleDateString()}
+                                </span>
+                              </div>
+                              {material.description && (
+                                <p className="material-description">{material.description}</p>
+                              )}
+                              <div className="material-type">
+                                <span className="file-type-icon">
+                                  {material.material_type === 'document' && '📄'}
+                                  {material.material_type === 'video' && '🎥'}
+                                  {material.material_type === 'presentation' && '📊'}
+                                </span>
+                                <span className="file-type-text">{material.material_type}</span>
+                              </div>
+                              {material.file && (
+                                <a 
+                                  href={`http://127.0.0.1:8000${material.file}`}
+                                  className="material-download-btn"
+                                  download={material.title}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    fetch(`http://127.0.0.1:8000${material.file}`, {
+                                      headers: {
+                                        'Authorization': `Token ${user.token}`
+                                      }
+                                    })
+                                    .then(response => response.blob())
+                                    .then(blob => {
+                                      const url = window.URL.createObjectURL(blob);
+                                      const link = document.createElement('a');
+                                      link.href = url;
+                                      link.setAttribute('download', material.title);
+                                      document.body.appendChild(link);
+                                      link.click();
+                                      link.remove();
+                                      window.URL.revokeObjectURL(url);
+                                    })
+                                    .catch(error => {
+                                      console.error('Ошибка при скачивании:', error);
+                                      setError('Ошибка при скачивании файла');
+                                    });
+                                  }}
+                                >
+                                  <span className="download-icon">⭳</span>
+                                  <span>Скачать материал</span>
+                                </a>
+                              )}
                             </div>
-                          </>
-                        ) : (
-                          <p className="no-materials">Материалы пока не добавлены</p>
-                        )}
+                          ))}
+                        </div>
+                      </div>
+                      <div className="subject-materials student-materials">
+                        <div className="student-materials-header">
+                          <h5>Ваши материалы:</h5>
+                          <button 
+                            className="upload-material-btn"
+                            onClick={handleUploadClick}
+                          >
+                            <span>📤</span>
+                            <span>Загрузить материал</span>
+                          </button>
+                        </div>
+                        <div className="materials-list">
+                          {subjectDetails.materials?.filter(m => m.is_student_material).map((material) => (
+                            <div key={material.id} className="material-item student-material">
+                              <div className="material-header">
+                                <h6>{material.title}</h6>
+                                <span className="material-date">
+                                  {new Date(material.created_at).toLocaleDateString()}
+                                </span>
+                              </div>
+                              {material.description && (
+                                <p className="material-description">{material.description}</p>
+                              )}
+                              <div className="material-type">
+                                <span className="file-type-icon">
+                                  {material.material_type === 'document' && '📄'}
+                                  {material.material_type === 'video' && '🎥'}
+                                  {material.material_type === 'presentation' && '📊'}
+                                </span>
+                                <span className="file-type-text">{material.material_type}</span>
+                              </div>
+                              <div className="material-actions">
+                                <a 
+                                  href={`http://127.0.0.1:8000${material.file}`}
+                                  className="material-download-btn"
+                                  download={material.title}
+                                >
+                                  <span>⭳</span>
+                                  <span>Скачать</span>
+                                </a>
+                                <button 
+                                  className="material-delete-btn"
+                                  onClick={() => handleDeleteMaterial(material.id)}
+                                >
+                                  <span>🗑️</span>
+                                  <span>Удалить</span>
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   ) : (
@@ -394,6 +505,58 @@ const StudentDashboard = () => {
           )}
 
           {!loading && !error && renderContent()}
+
+          {/* Модальное окно загрузки */}
+          {uploadModalOpen && (
+            <div className="upload-modal" onClick={handleUploadClose}>
+              <div className="upload-modal-content" onClick={e => e.stopPropagation()}>
+                <h4>Загрузка материала</h4>
+                {uploadError && (
+                  <div className="alert alert-danger">
+                    {uploadError}
+                  </div>
+                )}
+                <form className="upload-form" onSubmit={e => {
+                  e.preventDefault();
+                  handleUploadSubmit(subjects);
+                }}>
+                  <input
+                    type="text"
+                    placeholder="Название материала"
+                    value={uploadData.title}
+                    onChange={e => setUploadData({...uploadData, title: e.target.value})}
+                    required
+                  />
+                  <textarea
+                    placeholder="Описание материала"
+                    value={uploadData.description}
+                    onChange={e => setUploadData({...uploadData, description: e.target.value})}
+                  />
+                  <select
+                    value={uploadData.materialType}
+                    onChange={e => setUploadData({...uploadData, materialType: e.target.value})}
+                  >
+                    <option value="document">Документ</option>
+                    <option value="presentation">Презентация</option>
+                    <option value="video">Видео</option>
+                  </select>
+                  <input
+                    type="file"
+                    onChange={e => setUploadData({...uploadData, file: e.target.files[0]})}
+                    required
+                  />
+                  <div className="upload-form-buttons">
+                    <button type="button" className="cancel-btn" onClick={handleUploadClose}>
+                      Отмена
+                    </button>
+                    <button type="submit" className="submit-btn">
+                      Загрузить
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
         </Container>
       </SlideTransition>
     </div>
