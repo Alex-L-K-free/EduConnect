@@ -137,9 +137,30 @@ const StudentDashboard = () => {
                                     <a 
                                       href={`http://127.0.0.1:8000${material.file}`}
                                       className="material-download-btn"
-                                      download
-                                      target="_blank"
-                                      rel="noopener noreferrer"
+                                      download={material.title}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        fetch(`http://127.0.0.1:8000${material.file}`, {
+                                          headers: {
+                                            'Authorization': `Token ${user.token}`
+                                          }
+                                        })
+                                        .then(response => response.blob())
+                                        .then(blob => {
+                                          const url = window.URL.createObjectURL(blob);
+                                          const link = document.createElement('a');
+                                          link.href = url;
+                                          link.setAttribute('download', material.title);
+                                          document.body.appendChild(link);
+                                          link.click();
+                                          link.remove();
+                                          window.URL.revokeObjectURL(url);
+                                        })
+                                        .catch(error => {
+                                          console.error('Ошибка при скачивании:', error);
+                                          setError('Ошибка при скачивании файла');
+                                        });
+                                      }}
                                     >
                                       <span className="download-icon">⭳</span>
                                       <span>Скачать материал</span>
