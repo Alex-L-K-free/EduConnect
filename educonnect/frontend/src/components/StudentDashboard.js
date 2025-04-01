@@ -104,7 +104,9 @@ const StudentDashboard = () => {
               <div key={subjectName} className="info-tile subjects-tile">
                 <div className="tile-header">
                   <span className="tile-icon">📚</span>
-                  <h3 className="tile-title">{subjectName}</h3>
+                  <h3 className="tile-title">
+                    {subjectName} ({studentData.grade}{studentData.index})
+                  </h3>
                 </div>
                 <div className="tile-content">
                   {subjectDetails ? (
@@ -246,14 +248,15 @@ const StudentDashboard = () => {
                   const subjectName = subject.trim();
                   if (!subjectName) return null;
                   
-                  // Находим детали предмета в subjects_details
                   const subjectDetails = studentData.subjects_details.find(
                     detail => detail.name === subjectName
                   ) || { materials: [] };
 
                   return (
                     <div key={index} className="subject-card">
-                      <h4 className="subject-name">{subjectName}</h4>
+                      <h4 className="subject-name">
+                        {subjectName} ({studentData.grade}{studentData.index})
+                      </h4>
                       <div className="subject-materials">
                         {subjectDetails.materials && subjectDetails.materials.length > 0 ? (
                           <div className="materials-available">
