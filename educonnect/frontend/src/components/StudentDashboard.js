@@ -32,10 +32,8 @@ const StudentDashboard = () => {
   const [error, setError] = useState(null);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [uploadData, setUploadData] = useState({
-    title: '',
     description: '',
-    file: null,
-    materialType: 'document'
+    file: null
   });
   const [uploadError, setUploadError] = useState(null);
 
@@ -87,10 +85,8 @@ const StudentDashboard = () => {
   const handleUploadClose = () => {
     setUploadModalOpen(false);
     setUploadData({
-      title: '',
       description: '',
-      file: null,
-      materialType: 'document'
+      file: null
     });
     setUploadError(null);
   };
@@ -98,10 +94,9 @@ const StudentDashboard = () => {
   const handleUploadSubmit = async (subjectName) => {
     try {
       const formData = new FormData();
-      formData.append('title', uploadData.title);
+      formData.append('title', uploadData.file.name);
       formData.append('description', uploadData.description);
       formData.append('file', uploadData.file);
-      formData.append('material_type', uploadData.materialType);
       formData.append('subject', subjectName);
       formData.append('is_student_material', 'true');
 
@@ -520,26 +515,11 @@ const StudentDashboard = () => {
                   e.preventDefault();
                   handleUploadSubmit(subjects);
                 }}>
-                  <input
-                    type="text"
-                    placeholder="Название материала"
-                    value={uploadData.title}
-                    onChange={e => setUploadData({...uploadData, title: e.target.value})}
-                    required
-                  />
                   <textarea
-                    placeholder="Описание материала"
+                    placeholder="Описание материала (необязательно)"
                     value={uploadData.description}
                     onChange={e => setUploadData({...uploadData, description: e.target.value})}
                   />
-                  <select
-                    value={uploadData.materialType}
-                    onChange={e => setUploadData({...uploadData, materialType: e.target.value})}
-                  >
-                    <option value="document">Документ</option>
-                    <option value="presentation">Презентация</option>
-                    <option value="video">Видео</option>
-                  </select>
                   <input
                     type="file"
                     onChange={e => setUploadData({...uploadData, file: e.target.files[0]})}
