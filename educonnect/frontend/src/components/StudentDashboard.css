@@ -482,3 +482,22 @@
 .download-icon {
   font-size: 1.2em;
 }
+
+.materials-available {
+  color: #2e7d32;
+  font-size: 0.9em;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.materials-available:before {
+  content: "📄";
+}
+
+.no-materials {
+  color: #757575;
+  font-size: 0.9em;
+  margin-top: 8px;
+}

@@ -223,7 +223,7 @@ const StudentDashboard = () => {
               <div className="subjects-grid">
                 {studentData.subject.split(',').map((subject, index) => {
                   const subjectName = subject.trim();
-                  if (!subjectName) return null; // Пропускаем пустые строки
+                  if (!subjectName) return null;
                   
                   // Находим детали предмета в subjects_details
                   const subjectDetails = studentData.subjects_details.find(
@@ -235,44 +235,9 @@ const StudentDashboard = () => {
                       <h4 className="subject-name">{subjectName}</h4>
                       <div className="subject-materials">
                         {subjectDetails.materials && subjectDetails.materials.length > 0 ? (
-                          <>
-                            <h5>Материалы по предмету:</h5>
-                            <div className="materials-list">
-                              {subjectDetails.materials.map((material) => (
-                                <div key={material.id} className="material-item">
-                                  <div className="material-header">
-                                    <h6>{material.title}</h6>
-                                    <span className="material-date">
-                                      {new Date(material.created_at).toLocaleDateString()}
-                                    </span>
-                                  </div>
-                                  {material.description && (
-                                    <p className="material-description">{material.description}</p>
-                                  )}
-                                  <div className="material-type">
-                                    <span className="file-type-icon">
-                                      {material.material_type === 'document' && '📄'}
-                                      {material.material_type === 'video' && '🎥'}
-                                      {material.material_type === 'presentation' && '📊'}
-                                    </span>
-                                    <span className="file-type-text">{material.material_type}</span>
-                                  </div>
-                                  {material.file && (
-                                    <a 
-                                      href={`http://127.0.0.1:8000${material.file}`}
-                                      className="material-download-btn"
-                                      download
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                    >
-                                      <span className="download-icon">⭳</span>
-                                      <span>Скачать материал</span>
-                                    </a>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          </>
+                          <div className="materials-available">
+                            Доступно материалов: {subjectDetails.materials.length}
+                          </div>
                         ) : (
                           <p className="no-materials">Материалы пока не добавлены</p>
                         )}
