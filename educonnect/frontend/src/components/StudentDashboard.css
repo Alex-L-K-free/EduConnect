@@ -458,3 +458,27 @@
     transform: translateY(0);
   }
 }
+
+.material-download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.material-download-btn:hover {
+  background: #1b5e20;
+  color: white;
+  text-decoration: none;
+}
+
+.download-icon {
+  font-size: 1.2em;
+}

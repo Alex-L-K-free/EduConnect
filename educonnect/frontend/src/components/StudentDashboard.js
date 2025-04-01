@@ -114,8 +114,8 @@ const StudentDashboard = () => {
                           <>
                             <h5>Материалы по предмету:</h5>
                             <div className="materials-list">
-                              {subjectDetails.materials.map((material, idx) => (
-                                <div key={idx} className="material-item">
+                              {subjectDetails.materials.map((material) => (
+                                <div key={material.id} className="material-item">
                                   <div className="material-header">
                                     <h6>{material.title}</h6>
                                     <span className="material-date">
@@ -133,14 +133,16 @@ const StudentDashboard = () => {
                                     </span>
                                     <span className="file-type-text">{material.material_type}</span>
                                   </div>
-                                  {material.file_url && (
+                                  {material.file && (
                                     <a 
-                                      href={material.file_url} 
-                                      className="material-download"
+                                      href={`http://127.0.0.1:8000${material.file}`}
+                                      className="material-download-btn"
+                                      download
                                       target="_blank"
                                       rel="noopener noreferrer"
                                     >
-                                      Скачать материал
+                                      <span className="download-icon">⭳</span>
+                                      <span>Скачать материал</span>
                                     </a>
                                   )}
                                 </div>
@@ -236,8 +238,8 @@ const StudentDashboard = () => {
                           <>
                             <h5>Материалы по предмету:</h5>
                             <div className="materials-list">
-                              {subjectDetails.materials.map((material, idx) => (
-                                <div key={idx} className="material-item">
+                              {subjectDetails.materials.map((material) => (
+                                <div key={material.id} className="material-item">
                                   <div className="material-header">
                                     <h6>{material.title}</h6>
                                     <span className="material-date">
@@ -255,14 +257,16 @@ const StudentDashboard = () => {
                                     </span>
                                     <span className="file-type-text">{material.material_type}</span>
                                   </div>
-                                  {material.file_url && (
+                                  {material.file && (
                                     <a 
-                                      href={material.file_url} 
-                                      className="material-download"
+                                      href={`http://127.0.0.1:8000${material.file}`}
+                                      className="material-download-btn"
+                                      download
                                       target="_blank"
                                       rel="noopener noreferrer"
                                     >
-                                      Скачать материал
+                                      <span className="download-icon">⭳</span>
+                                      <span>Скачать материал</span>
                                     </a>
                                   )}
                                 </div>
