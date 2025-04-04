@@ -297,3 +297,37 @@ def student_upload_material(request):
             {'error': str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+@api_view(['DELETE'])
+@authentication_classes([StudentTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def student_delete_material(request, material_id):
+    try:
+        # Получаем материал и проверяем, что он принадлежит текущему студенту
+        material = StudentMaterial.objects.get(
+            id=material_id,
+            student=request.user,
+            is_student_material=True  # Проверяем, что это материал студента
+        )
+        
+        # Удаляем файл
+        if material.file:
+            if os.path.exists(material.file.path):
+                os.remove(material.file.path)
+        
+        # Удаляем запись из базы данных
+        material.delete()
+        
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    except StudentMaterial.DoesNotExist:
+        return Response(
+            {'error': 'Материал не найден или у вас нет прав на его удаление'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        logger.error(f"Error deleting student material: {str(e)}")
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

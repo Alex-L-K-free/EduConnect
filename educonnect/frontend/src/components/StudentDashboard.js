@@ -135,7 +135,7 @@ const StudentDashboard = () => {
   const handleDeleteMaterial = async (materialId) => {
     if (window.confirm('Вы уверены, что хотите удалить этот материал?')) {
       try {
-        await axios.delete(`http://127.0.0.1:8000/api/v1/materials/${materialId}/`, {
+        await axios.delete(`http://127.0.0.1:8000/api/v1/materials/student-delete/${materialId}/`, {
           headers: {
             'Authorization': `Token ${user.token}`
           }

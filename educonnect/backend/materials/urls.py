@@ -11,4 +11,5 @@ urlpatterns = [
     path('delete/<int:material_id>/', views.delete_material, name='delete-material'),
     path('bulk-delete/', views.bulk_delete_materials, name='bulk-delete-materials'),
     path('student-upload/', views.student_upload_material, name='student-upload-material'),  # новый URL для студентов
+    path('student-delete/<int:material_id>/', views.student_delete_material, name='student-delete-material'),  # Новый URL
 ]
