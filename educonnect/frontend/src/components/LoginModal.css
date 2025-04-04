@@ -1,18 +1,82 @@
 .login-modal .modal-content {
-  background-color: #f1f8e9; /* Светлый фон */
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+  background: linear-gradient(145deg, #ffffff, #f6f6f6);
+  border-radius: 15px;
+  box-shadow: 
+    20px 20px 60px #d1d1d1,
+    -20px -20px 60px #ffffff;
 }
 
 .login-modal .modal-header {
-  background: var(--gradient-primary);
-  color: white;
-  border-radius: 12px 12px 0 0;
-  border-bottom: 1px solid #c8e6c9;
+  border-bottom: 2px solid #e0e0e0;
+  padding: 15px 20px;
 }
 
 .login-modal .modal-title {
+  color: #1a5f7a;
+  font-size: 1.4rem;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.login-modal .modal-body {
+  padding: 20px;
+  color: #555;
+}
+
+.login-modal .form-control {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.login-modal .form-control:focus {
+  box-shadow: 3px 3px 8px rgba(0,0,0,0.1);
+  border-color: #2e7d32;
+}
+
+.login-modal .btn-success {
+  background: linear-gradient(145deg, #2e7d32, #1b5e20);
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.login-modal .btn-outline-primary {
+  background: linear-gradient(145deg, #6c757d, #5a6268);
   color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.login-modal button:hover {
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 8px rgba(0,0,0,0.3);
+}
+
+.login-modal button:active {
+  transform: translateY(0);
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+}
+
+.login-modal .alert {
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.login-modal .form-label {
+  color: #1a5f7a;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.login-modal .d-flex {
+  margin-top: 20px;
 }
 
 .login-modal .modal-header .btn-close {
@@ -24,40 +88,6 @@
   opacity: 1;
 }
 
-.login-modal .alert {
-  margin-bottom: 1rem;
-}
-
-.login-modal .form-group {
-  margin-bottom: 1.5rem;
-}
-
-.login-modal .form-label {
-  color: #2e7d32;
-  font-weight: 500;
-}
-
-.login-modal .form-control {
-  border-radius: 8px;
-  border: 1px solid #c8e6c9;
-  padding: 0.75rem;
-}
-
-.login-modal .form-control:focus {
-  border-color: #2e7d32;
-  box-shadow: 0 0 0 0.2rem rgba(46, 125, 50, 0.25);
-}
-
-.login-modal .btn-success {
-  background-color: #2e7d32;
-  border: none;
-  padding: 0.75rem 1.5rem;
-}
-
-.login-modal .btn-success:hover {
-  background-color: #1b5e20;
-}
-
 .login-modal .registration-btn {
   color: #2e7d32;
   border-color: #2e7d32;
@@ -67,10 +97,6 @@
 .login-modal .registration-btn:hover {
   background-color: #2e7d32;
   color: white;
-}
-
-.login-modal .d-flex {
-  gap: 1rem;
 }
 
 .login-modal .btn-primary {
