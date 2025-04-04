@@ -148,6 +148,75 @@ const StudentDashboard = () => {
     }
   };
 
+  const renderSubjectMaterials = (subjectDetails) => {
+    // Разделяем материалы на учительские и студенческие
+    const teacherMaterials = subjectDetails.materials.filter(m => !m.is_student_material);
+    const studentMaterials = subjectDetails.materials.filter(m => m.is_student_material);
+
+    return (
+        <div className="subject-materials">
+            {/* Материалы от учителя */}
+            <div className="teacher-materials">
+                <h4>Материалы от учителя</h4>
+                {teacherMaterials.length > 0 ? (
+                    <div className="materials-list">
+                        {teacherMaterials.map((material) => (
+                            <div key={material.id} className="material-item">
+                                <h5>{material.title}</h5>
+                                <p>{material.description}</p>
+                                {material.file_url && (
+                                    <a href={material.file_url} target="_blank" rel="noopener noreferrer">
+                                        Скачать материал
+                                    </a>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p>Нет материалов от учителя</p>
+                )}
+            </div>
+
+            {/* Материалы студента */}
+            <div className="student-materials">
+                <div className="student-materials-header">
+                    <h4>Ваши материалы</h4>
+                    <button 
+                        className="upload-material-btn"
+                        onClick={handleUploadClick}
+                    >
+                        <span>📤</span>
+                        <span>Загрузить материал</span>
+                    </button>
+                </div>
+                {studentMaterials.length > 0 ? (
+                    <div className="materials-list">
+                        {studentMaterials.map((material) => (
+                            <div key={material.id} className="material-item">
+                                <h5>{material.title}</h5>
+                                <p>{material.description}</p>
+                                {material.file_url && (
+                                    <a href={material.file_url} target="_blank" rel="noopener noreferrer">
+                                        Скачать материал
+                                    </a>
+                                )}
+                                <button 
+                                    onClick={() => handleDeleteMaterial(material.id)}
+                                    className="btn btn-danger btn-sm"
+                                >
+                                    Удалить
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p>У вас пока нет загруженных материалов</p>
+                )}
+            </div>
+        </div>
+    );
+  };
+
   const renderContent = () => {
     if (activePage === 'subjects' && !subjects) {
       // Если мы на странице предметов, но ничего не выбрано
@@ -188,117 +257,7 @@ const StudentDashboard = () => {
                 <div className="tile-content">
                   {subjectDetails ? (
                     <div className="subject-card">
-                      <div className="subject-materials teacher-materials">
-                        <h5>Материалы от учителя:</h5>
-                        <div className="materials-list">
-                          {subjectDetails.materials?.filter(m => !m.is_student_material).map((material) => (
-                            <div key={material.id} className="material-item">
-                              <div className="material-header">
-                                <h6>{material.title}</h6>
-                                <span className="material-date">
-                                  {new Date(material.created_at).toLocaleDateString()}
-                                </span>
-                              </div>
-                              {material.description && (
-                                <p className="material-description">{material.description}</p>
-                              )}
-                              <div className="material-type">
-                                <span className="file-type-icon">
-                                  {material.material_type === 'document' && '📄'}
-                                  {material.material_type === 'video' && '🎥'}
-                                  {material.material_type === 'presentation' && '📊'}
-                                </span>
-                                <span className="file-type-text">{material.material_type}</span>
-                              </div>
-                              {material.file && (
-                                <a 
-                                  href={`http://127.0.0.1:8000${material.file}`}
-                                  className="material-download-btn"
-                                  download={material.title}
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    fetch(`http://127.0.0.1:8000${material.file}`, {
-                                      headers: {
-                                        'Authorization': `Token ${user.token}`
-                                      }
-                                    })
-                                    .then(response => response.blob())
-                                    .then(blob => {
-                                      const url = window.URL.createObjectURL(blob);
-                                      const link = document.createElement('a');
-                                      link.href = url;
-                                      link.setAttribute('download', material.title);
-                                      document.body.appendChild(link);
-                                      link.click();
-                                      link.remove();
-                                      window.URL.revokeObjectURL(url);
-                                    })
-                                    .catch(error => {
-                                      console.error('Ошибка при скачивании:', error);
-                                      setError('Ошибка при скачивании файла');
-                                    });
-                                  }}
-                                >
-                                  <span className="download-icon">⭳</span>
-                                  <span>Скачать материал</span>
-                                </a>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="subject-materials student-materials">
-                        <div className="student-materials-header">
-                          <h5>Ваши материалы:</h5>
-                          <button 
-                            className="upload-material-btn"
-                            onClick={handleUploadClick}
-                          >
-                            <span>📤</span>
-                            <span>Загрузить материал</span>
-                          </button>
-                        </div>
-                        <div className="materials-list">
-                          {subjectDetails.materials?.filter(m => m.is_student_material).map((material) => (
-                            <div key={material.id} className="material-item student-material">
-                              <div className="material-header">
-                                <h6>{material.title}</h6>
-                                <span className="material-date">
-                                  {new Date(material.created_at).toLocaleDateString()}
-                                </span>
-                              </div>
-                              {material.description && (
-                                <p className="material-description">{material.description}</p>
-                              )}
-                              <div className="material-type">
-                                <span className="file-type-icon">
-                                  {material.material_type === 'document' && '📄'}
-                                  {material.material_type === 'video' && '🎥'}
-                                  {material.material_type === 'presentation' && '📊'}
-                                </span>
-                                <span className="file-type-text">{material.material_type}</span>
-                              </div>
-                              <div className="material-actions">
-                                <a 
-                                  href={`http://127.0.0.1:8000${material.file}`}
-                                  className="material-download-btn"
-                                  download={material.title}
-                                >
-                                  <span>⭳</span>
-                                  <span>Скачать</span>
-                                </a>
-                                <button 
-                                  className="material-delete-btn"
-                                  onClick={() => handleDeleteMaterial(material.id)}
-                                >
-                                  <span>🗑️</span>
-                                  <span>Удалить</span>
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+                      {renderSubjectMaterials(subjectDetails)}
                     </div>
                   ) : (
                     <p>Предмет не найден</p>

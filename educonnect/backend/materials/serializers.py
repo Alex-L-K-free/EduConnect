@@ -19,4 +19,14 @@ class StudentMaterialSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StudentMaterial
-        fields = ['id', 'title', 'description', 'file', 'file_url', 'material_type', 'created_at', 'is_viewed']
+        fields = [
+            'id', 
+            'title', 
+            'description', 
+            'file', 
+            'file_url', 
+            'material_type', 
+            'created_at', 
+            'is_viewed',
+            'is_student_material'
+        ]
