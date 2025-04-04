@@ -166,7 +166,7 @@ class StudentProfileView(APIView):
         student = self.get_student(request)
         if not student:
             return Response(
-                {"error": "Профиль студента не найден"},
+                {"error": "Профиль ученика не найден"},
                 status=status.HTTP_404_NOT_FOUND
             )
             
@@ -180,7 +180,7 @@ class StudentProfileView(APIView):
         student = self.get_student(request)
         if not student:
             return Response(
-                {"error": "Профиль студента не найден"},
+                {"error": "Профиль ученика не найден"},
                 status=status.HTTP_404_NOT_FOUND
             )
         serializer = StudentProfileSerializer(student, data=request.data, partial=True)

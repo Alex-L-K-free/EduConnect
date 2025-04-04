@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentmaterial',
             name='is_student_material',
-            field=models.BooleanField(default=False, verbose_name='Загружено студентом'),
+            field=models.BooleanField(default=False, verbose_name='Загружено учеником'),
         ),
     ]

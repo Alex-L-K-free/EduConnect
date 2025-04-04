@@ -168,7 +168,7 @@ const StudentDashboard = () => {
         <div className="subject-materials">
             {/* Материалы от учителя */}
             <div className="teacher-materials">
-                <h4>Материалы от учителя</h4>
+                <h4>Материал учителя</h4>
                 {teacherMaterials.length > 0 ? (
                     <div className="materials-list">
                         {teacherMaterials.map((material) => (
@@ -191,10 +191,10 @@ const StudentDashboard = () => {
                 )}
             </div>
 
-            {/* Материалы студента */}
+            {/* Материалы ученика */}
             <div className="student-materials">
                 <div className="student-materials-header">
-                    <h4>Ваши материалы</h4>
+                    <h4>Твой материал</h4>
                     <button 
                         className="upload-material-btn"
                         onClick={handleUploadClick}
@@ -362,7 +362,7 @@ const StudentDashboard = () => {
                             Доступно материалов: {subjectDetails.materials.length}
                           </div>
                         ) : (
-                          <p className="no-materials">Материалы пока не добавлены</p>
+                          <p className="no-materials">Материал пока не добавлены</p>
                         )}
                       </div>
                     </div>
@@ -432,7 +432,7 @@ const StudentDashboard = () => {
 
                 {studentData.teacher.about && (
                   <div className="teacher-about">
-                    <strong>О преподавателе:</strong>
+                    <strong>О учителе:</strong>
                     <p>{studentData.teacher.about}</p>
                   </div>
                 )}

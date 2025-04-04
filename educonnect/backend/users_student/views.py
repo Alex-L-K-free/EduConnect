@@ -216,7 +216,7 @@ def get_current_student(request):
         return Response(data)
     except StudentUser.DoesNotExist:
         return Response(
-            {'error': 'Студент не найден'},
+            {'error': 'Ученик не найден'},
             status=status.HTTP_404_NOT_FOUND
         )
     except Exception as e:

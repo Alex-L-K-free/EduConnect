@@ -324,7 +324,7 @@ const StudentsList = () => {
                     return;
                 }
 
-                // Добавляем всех студентов из файла
+                // Добавляем всех учеников из файла
                 Promise.all(jsonData.map(row => {
                     const studentData = {
                         firstName: row[firstNameKey].toString().trim(),
@@ -336,7 +336,7 @@ const StudentsList = () => {
                         teacher: user.id
                     };
 
-                    console.log('Отправляем данные студента:', studentData);
+                    console.log('Отправляем данные ученика:', studentData);
 
                     return fetch('http://127.0.0.1:8000/api/v1/students/', {
                         method: 'POST',
@@ -383,7 +383,7 @@ const StudentsList = () => {
         reader.readAsArrayBuffer(file);
     };
 
-    // Функция фильтрации студентов
+    // Функция фильтрации учеников
     const filteredStudents = students.filter(student => {
         const fullName = `${student.lastName} ${student.firstName} ${student.middleName}`.toLowerCase();
         const searchLower = searchTerm.toLowerCase();

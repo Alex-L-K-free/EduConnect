@@ -60,7 +60,7 @@ class StudentProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ('username',)
 
     def get_subject(self, obj):
-        # Получаем все записи для данного студента
+        # Получаем все записи для данного ученика
         student_subjects = StudentUser.objects.filter(
             username=obj.username
         ).values_list('subject', flat=True)
@@ -70,7 +70,7 @@ class StudentProfileSerializer(serializers.ModelSerializer):
         return all_subjects
 
     def get_subjects_details(self, obj):
-        # Получаем все предметы студента
+        # Получаем все предметы ученика
         student_subjects = StudentUser.objects.filter(
             username=obj.username
         ).values_list('subject', flat=True)
@@ -86,7 +86,7 @@ class StudentProfileSerializer(serializers.ModelSerializer):
             if not subject:
                 continue
                 
-            # Получаем все материалы для текущего студента по предмету
+            # Получаем все материалы для текущего ученика по предмету
             materials = StudentMaterial.objects.filter(
                 student=obj,
                 material_type__in=['document', 'video', 'presentation']
@@ -106,7 +106,7 @@ class StudentProfileSerializer(serializers.ModelSerializer):
         return subjects_with_materials
 
     def get_classmates(self, obj):
-        # Получаем список одноклассников (студентов того же класса)
+        # Получаем список одноклассников (учеников того же класса)
         classmates = StudentUser.objects.filter(
             grade=obj.grade,
             index=obj.index

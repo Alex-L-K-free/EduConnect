@@ -34,7 +34,7 @@ def add_material(request):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-        # Проверяем, что пользователь - студент
+        # Проверяем, что пользователь - ученик
         student = None
         if isinstance(request.user, StudentUser):
             student = request.user
@@ -47,7 +47,7 @@ def add_material(request):
             except (IndexError, StudentUser.DoesNotExist) as e:
                 logger.error(f"Error finding student: {str(e)}")
                 return Response(
-                    {'error': 'Студент не найден'},
+                    {'error': 'Ученик не найден'},
                     status=status.HTTP_404_NOT_FOUND
                 )
 
@@ -58,7 +58,7 @@ def add_material(request):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Создаем материал для студента
+        # Создаем материал для ученика
         material = StudentMaterial(
             student=student,
             title=file.name,
@@ -96,7 +96,7 @@ def get_student_materials(request, student_id):
         return Response(serializer.data)
     except StudentUser.DoesNotExist:
         return Response(
-            {'error': 'Студент не найден'},
+            {'error': 'Ученик не найден'},
             status=status.HTTP_404_NOT_FOUND
         )
     except Exception as e:
@@ -115,13 +115,13 @@ def get_students_materials(request):
         
         if not student_ids:
             return Response(
-                {'error': 'Не указаны ID студентов'},
+                {'error': 'Не указаны ID учеников'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         materials = StudentMaterial.objects.filter(student_id__in=student_ids)
         
-        # Группируем материалы по студентам
+        # Группируем материалы по ученикам
         materials_by_student = {}
         for material in materials:
             if material.student_id not in materials_by_student:
@@ -223,7 +223,7 @@ def bulk_delete_materials(request):
         student_ids = request.data.get('student_ids', [])
         material_type = request.data.get('type', 'materials')
 
-        # Удаляем соответствующие материалы для выбранных студентов
+        # Удаляем соответствующие материалы для выбранных учеников
         if material_type == 'materials':
             materials = StudentMaterial.objects.filter(student_id__in=student_ids)
         elif material_type == 'tasks':
@@ -303,11 +303,11 @@ def student_upload_material(request):
 @permission_classes([IsAuthenticated])
 def student_delete_material(request, material_id):
     try:
-        # Получаем материал и проверяем, что он принадлежит текущему студенту
+        # Получаем материал и проверяем, что он принадлежит текущему ученику
         material = StudentMaterial.objects.get(
             id=material_id,
             student=request.user,
-            is_student_material=True  # Проверяем, что это материал студента
+            is_student_material=True  # Проверяем, что это материал ученика
         )
         
         # Удаляем файл

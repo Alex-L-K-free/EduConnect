@@ -208,7 +208,7 @@ const TeacherDashboard = () => {
                 materials: materialsResponse.data
               };
             } catch (error) {
-              console.error(`Ошибка при загрузке материалов для студента ${student.id}:`, error);
+              console.error(`Ошибка при загрузке материалов для ученика ${student.id}:`, error);
               return student;
             }
           })
@@ -238,7 +238,7 @@ const TeacherDashboard = () => {
         }
 
       } catch (error) {
-        console.error('Ошибка при загрузке студентов:', error);
+        console.error('Ошибка при загрузке учеников:', error);
       } finally {
         setIsLoading(false);
       }
@@ -606,7 +606,7 @@ const TeacherDashboard = () => {
           </div>
 
           <div className="stats-card total-materials">
-            <h3>Материалы</h3>
+            <h3>Материал</h3>
             <div className="stats-details">
               <div>Документы: {statistics.materialsCount}</div>
               <div>Задания: {statistics.tasksCount}</div>

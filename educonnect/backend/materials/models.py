@@ -45,10 +45,10 @@ class Material(models.Model):
 
 def student_material_path(instance, filename):
     """
-    Функция для определения пути сохранения файла материала студента
+    Функция для определения пути сохранения файла материала ученика
     """
     try:
-        # Получаем данные о студенте
+        # Получаем данные о ученике
         student = instance.student
         subject_name = student.subject if student.subject else 'other'
         grade = student.grade if student.grade else 'unknown'
@@ -104,7 +104,7 @@ class StudentMaterial(models.Model):
         related_query_name='student_material'
     )
     is_viewed = models.BooleanField('Просмотрено', default=False)
-    is_student_material = models.BooleanField('Загружено студентом', default=False)
+    is_student_material = models.BooleanField('Загружено учеником', default=False)
 
     class Meta:
         db_table = 'student_materials'

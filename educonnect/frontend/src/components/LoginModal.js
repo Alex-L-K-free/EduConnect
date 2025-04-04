@@ -50,7 +50,7 @@ const LoginModal = ({ show, onHide }) => {
         login(data); // Используем базовые данные в случае ошибки
       }
     } else {
-      // Для студентов используем данные, полученные при входе
+      // Для учеников используем данные, полученные при входе
       login(data);
     }
 
@@ -75,7 +75,7 @@ const LoginModal = ({ show, onHide }) => {
     e.preventDefault();
     setError('');
 
-    // Сначала пробуем войти как студент
+    // Сначала пробуем войти как ученик
     try {
       const studentResponse = await fetch('http://127.0.0.1:8000/api/v1/students/login/', {
         method: 'POST',
@@ -91,7 +91,7 @@ const LoginModal = ({ show, onHide }) => {
         return;
       }
 
-      // Если не удалось войти как студент, пробуем как учитель/админ
+      // Если не удалось войти как ученик, пробуем как учитель/админ
       const teacherResponse = await fetch('http://127.0.0.1:8000/api/v1/login/', {
         method: 'POST',
         headers: {
