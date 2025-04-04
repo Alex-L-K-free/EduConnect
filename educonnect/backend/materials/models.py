@@ -76,7 +76,19 @@ class StudentMaterial(models.Model):
         related_query_name='student_material'
     )
     is_viewed = models.BooleanField('Просмотрено', default=False)
+    is_student_material = models.BooleanField('Загружено студентом', default=False)
 
     class Meta:
         db_table = 'student_materials'
         ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} - {self.student}"
+
+    def delete(self, *args, **kwargs):
+        # Удаляем файл при удалении записи
+        if self.file:
+            storage = self.file.storage
+            if storage.exists(self.file.name):
+                storage.delete(self.file.name)
+        super().delete(*args, **kwargs)
