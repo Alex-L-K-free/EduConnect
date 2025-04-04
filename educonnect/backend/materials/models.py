@@ -57,21 +57,33 @@ def student_material_path(instance, filename):
         # Получаем текущую дату
         now = timezone.now()
         
-        # Формируем путь: student_materials/предмет/класс/ученик/год/месяц/файл
-        path = os.path.join(
-            'student_materials',
-            str(subject_name),
-            f'{grade}{grade_letter}',
-            instance.student.user.username,  # Используем username студента вместо created_by
-            str(now.year),
-            f'{now.month:02d}',
-            filename
-        )
+        # Если subject_name == 'other', сохраняем в teacher_materials
+        if subject_name == 'other':
+            path = os.path.join(
+                'teacher_materials',
+                student.username,
+                str(subject_name),
+                f'{grade}{grade_letter}',
+                str(now.year),
+                f'{now.month:02d}',
+                filename
+            )
+        else:
+            # Иначе сохраняем в student_materials как раньше
+            path = os.path.join(
+                'student_materials',
+                str(subject_name),
+                f'{grade}{grade_letter}',
+                student.username,
+                str(now.year),
+                f'{now.month:02d}',
+                filename
+            )
         return path
     except Exception as e:
         logger.error(f"Error in student_material_path: {str(e)}")
-        # Возвращаем базовый путь в случае ошибки
-        return os.path.join('student_materials', 'other', filename)
+        # В случае ошибки сохраняем в teacher_materials
+        return os.path.join('teacher_materials', 'other', filename)
 
 class StudentMaterial(models.Model):
     student = models.ForeignKey(StudentUser, on_delete=models.CASCADE, related_name='student_materials')
