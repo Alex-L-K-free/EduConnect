@@ -266,7 +266,6 @@ def bulk_delete_materials(request):
 @permission_classes([IsAuthenticated])
 def student_upload_material(request):
     try:
-        # Получаем студента из request.user
         student = request.user
         
         file = request.FILES.get('file')
@@ -276,16 +275,16 @@ def student_upload_material(request):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Создаем материал
+        # Создаем материал с флагом is_student_material=True
         material = StudentMaterial(
             student=student,
             title=file.name,
             description=request.data.get('description', ''),
             file=file,
             material_type='document',
-            created_by=student,  # Используем самого студента как created_by
+            created_by=student,
             created_at=timezone.now(),
-            is_student_material=True
+            is_student_material=True  # Важно: устанавливаем флаг
         )
         material.save()
         

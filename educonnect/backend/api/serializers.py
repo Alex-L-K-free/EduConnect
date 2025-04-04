@@ -86,7 +86,7 @@ class StudentProfileSerializer(serializers.ModelSerializer):
             if not subject:
                 continue
                 
-            # Получаем материалы для текущего студента по предмету
+            # Получаем все материалы для текущего студента по предмету
             materials = StudentMaterial.objects.filter(
                 student=obj,
                 material_type__in=['document', 'video', 'presentation']
@@ -100,7 +100,7 @@ class StudentProfileSerializer(serializers.ModelSerializer):
             
             subjects_with_materials.append({
                 'name': subject,
-                'materials': materials_serializer.data
+                'materials': materials_serializer.data  # Здесь будут все материалы, включая is_student_material=True
             })
         
         return subjects_with_materials
