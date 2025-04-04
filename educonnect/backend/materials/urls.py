@@ -10,4 +10,5 @@ urlpatterns = [
     path('mark-viewed/<int:material_id>/', views.mark_material_viewed, name='mark-material-viewed'),
     path('delete/<int:material_id>/', views.delete_material, name='delete-material'),
     path('bulk-delete/', views.bulk_delete_materials, name='bulk-delete-materials'),
+    path('student-upload/', views.student_upload_material, name='student-upload-material'),  # новый URL для студентов
 ]

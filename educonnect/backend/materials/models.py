@@ -3,6 +3,10 @@ import os
 from subjects.models import Subject
 from education_core.models import User
 from users_student.models import StudentUser
+from django.utils import timezone
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Material(models.Model):
     DOCUMENT = 'document'
@@ -40,22 +44,34 @@ class Material(models.Model):
         verbose_name_plural = 'Учебные материалы'
 
 def student_material_path(instance, filename):
-    # Получаем предмет и класс студента
-    subject = instance.student.subject
-    grade = instance.student.grade
-    grade_letter = instance.student.index or ''
-    
-    # Формируем путь: предмет/класс/год/месяц/день/файл
-    return os.path.join(
-        'student_materials',
-        subject,
-        f'{grade}{grade_letter}',
-        instance.created_by.username,
-        f'{instance.created_at.year}',
-        f'{instance.created_at.month:02d}',
-        f'{instance.created_at.day:02d}',
-        filename
-    )
+    """
+    Функция для определения пути сохранения файла материала студента
+    """
+    try:
+        # Получаем данные о студенте
+        student = instance.student
+        subject_name = student.subject if student.subject else 'other'
+        grade = student.grade if student.grade else 'unknown'
+        grade_letter = student.index if student.index else ''
+        
+        # Получаем текущую дату
+        now = timezone.now()
+        
+        # Формируем путь: student_materials/предмет/класс/ученик/год/месяц/файл
+        path = os.path.join(
+            'student_materials',
+            str(subject_name),
+            f'{grade}{grade_letter}',
+            instance.student.user.username,  # Используем username студента вместо created_by
+            str(now.year),
+            f'{now.month:02d}',
+            filename
+        )
+        return path
+    except Exception as e:
+        logger.error(f"Error in student_material_path: {str(e)}")
+        # Возвращаем базовый путь в случае ошибки
+        return os.path.join('student_materials', 'other', filename)
 
 class StudentMaterial(models.Model):
     student = models.ForeignKey(StudentUser, on_delete=models.CASCADE, related_name='student_materials')
@@ -70,7 +86,7 @@ class StudentMaterial(models.Model):
     ], default='document')
     created_at = models.DateTimeField('Дата создания', auto_now_add=True)
     created_by = models.ForeignKey(
-        User, 
+        StudentUser,  # Изменяем тип поля с User на StudentUser
         on_delete=models.CASCADE, 
         related_name='created_student_materials',
         related_query_name='student_material'
@@ -86,7 +102,6 @@ class StudentMaterial(models.Model):
         return f"{self.title} - {self.student}"
 
     def delete(self, *args, **kwargs):
-        # Удаляем файл при удалении записи
         if self.file:
             storage = self.file.storage
             if storage.exists(self.file.name):

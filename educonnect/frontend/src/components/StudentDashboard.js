@@ -93,6 +93,17 @@ const StudentDashboard = () => {
 
   const handleUploadSubmit = async (subjectName) => {
     try {
+      if (!uploadData.file) {
+        setUploadError('Пожалуйста, выберите файл');
+        return;
+      }
+
+      // Проверяем наличие токена
+      if (!user?.token) {
+        setUploadError('Ошибка авторизации: токен отсутствует');
+        return;
+      }
+
       const formData = new FormData();
       formData.append('title', uploadData.file.name);
       formData.append('description', uploadData.description);
@@ -100,18 +111,24 @@ const StudentDashboard = () => {
       formData.append('subject', subjectName);
       formData.append('is_student_material', 'true');
 
-      await axios.post('http://127.0.0.1:8000/api/v1/materials/upload/', formData, {
+      const response = await axios.post('http://127.0.0.1:8000/api/v1/materials/student-upload/', formData, {
         headers: {
           'Authorization': `Token ${user.token}`,
           'Content-Type': 'multipart/form-data'
         }
       });
 
-      handleUploadClose();
-      loadStudentData();
+      if (response.data) {
+        handleUploadClose();
+        loadStudentData();
+      }
     } catch (error) {
-      setUploadError('Ошибка при загрузке материала');
-      console.error('Upload error:', error);
+      console.error('Upload error details:', error.response?.data);
+      setUploadError(
+        error.response?.data?.error || 
+        error.response?.data?.message || 
+        'Ошибка при загрузке материала'
+      );
     }
   };
 
