@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Container } from 'react-bootstrap';
+import { Container, Modal, Button } from 'react-bootstrap';
 import { useParams, useLocation } from 'react-router-dom';
 import SidebarStudent from './layout/SidebarStudent';
 import SlideTransition from './forms/students/SlideTransition';
@@ -36,6 +36,8 @@ const StudentDashboard = () => {
     file: null
   });
   const [uploadError, setUploadError] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [materialToDelete, setMaterialToDelete] = useState(null);
 
   const loadStudentData = useCallback(async () => {
     if (!user?.token) return;
@@ -132,19 +134,28 @@ const StudentDashboard = () => {
     }
   };
 
-  const handleDeleteMaterial = async (materialId) => {
-    if (window.confirm('Вы уверены, что хотите удалить этот материал?')) {
-      try {
-        await axios.delete(`http://127.0.0.1:8000/api/v1/materials/student-delete/${materialId}/`, {
-          headers: {
-            'Authorization': `Token ${user.token}`
-          }
-        });
-        loadStudentData();
-      } catch (error) {
-        setError('Ошибка при удалении материала');
-        console.error('Delete error:', error);
-      }
+  const handleDeleteClick = (material) => {
+    setMaterialToDelete(material);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteClose = () => {
+    setDeleteModalOpen(false);
+    setMaterialToDelete(null);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await axios.delete(`http://127.0.0.1:8000/api/v1/materials/student-delete/${materialToDelete.id}/`, {
+        headers: {
+          'Authorization': `Token ${user.token}`
+        }
+      });
+      handleDeleteClose();
+      loadStudentData();
+    } catch (error) {
+      setError('Ошибка при удалении материала');
+      console.error('Delete error:', error);
     }
   };
 
@@ -201,7 +212,7 @@ const StudentDashboard = () => {
                                     </a>
                                 )}
                                 <button 
-                                    onClick={() => handleDeleteMaterial(material.id)}
+                                    onClick={() => handleDeleteClick(material)}
                                     className="btn btn-danger btn-sm"
                                 >
                                     Удалить
@@ -512,6 +523,25 @@ const StudentDashboard = () => {
                 </form>
               </div>
             </div>
+          )}
+
+          {deleteModalOpen && (
+            <Modal show={deleteModalOpen} onHide={handleDeleteClose}>
+              <Modal.Header closeButton>
+                <Modal.Title>Подтверждение удаления</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <p>Вы действительно хотите удалить материал "{materialToDelete?.title}"?</p>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={handleDeleteClose}>
+                  Отмена
+                </Button>
+                <Button variant="danger" onClick={handleDeleteConfirm}>
+                  Удалить
+                </Button>
+              </Modal.Footer>
+            </Modal>
           )}
         </Container>
       </SlideTransition>

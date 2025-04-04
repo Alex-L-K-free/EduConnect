@@ -364,3 +364,59 @@
 .student-count {
   color: #666;
 }
+
+/* Стили для модального окна подтверждения */
+.modal-content {
+  background: linear-gradient(145deg, #ffffff, #f6f6f6);
+  border-radius: 15px;
+  box-shadow: 
+    20px 20px 60px #d1d1d1,
+    -20px -20px 60px #ffffff;
+}
+
+.modal-header {
+  border-bottom: 2px solid #e0e0e0;
+  padding: 15px 20px;
+}
+
+.modal-title {
+  color: #1a5f7a;
+  font-size: 1.4rem;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.modal-body {
+  padding: 20px;
+  color: #555;
+}
+
+.modal-footer {
+  border-top: none;
+  padding: 15px 20px;
+}
+
+.btn-danger {
+  background: linear-gradient(145deg, #dc3545, #c82333);
+  border: none;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 8px rgba(0,0,0,0.3);
+  background: linear-gradient(145deg, #c82333, #dc3545);
+}
+
+.btn-secondary {
+  background: linear-gradient(145deg, #6c757d, #5a6268);
+  border: none;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 8px rgba(0,0,0,0.3);
+  background: linear-gradient(145deg, #5a6268, #6c757d);
+}
