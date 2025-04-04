@@ -9,6 +9,7 @@ class MaterialSerializer(serializers.ModelSerializer):
 
 class StudentMaterialSerializer(serializers.ModelSerializer):
     file_url = serializers.SerializerMethodField()
+    formatted_date = serializers.SerializerMethodField()
 
     def get_file_url(self, obj):
         if obj.file:
@@ -16,6 +17,9 @@ class StudentMaterialSerializer(serializers.ModelSerializer):
             if request:
                 return request.build_absolute_uri(obj.file.url)
         return None
+
+    def get_formatted_date(self, obj):
+        return obj.created_at.strftime("%d.%m.%Y %H:%M")
 
     class Meta:
         model = StudentMaterial
@@ -26,7 +30,8 @@ class StudentMaterialSerializer(serializers.ModelSerializer):
             'file', 
             'file_url', 
             'material_type', 
-            'created_at', 
+            'created_at',
+            'formatted_date',
             'is_viewed',
             'is_student_material'
         ]

@@ -173,7 +173,10 @@ const StudentDashboard = () => {
                     <div className="materials-list">
                         {teacherMaterials.map((material) => (
                             <div key={material.id} className="material-item">
-                                <h5>{material.title}</h5>
+                                <div className="material-header">
+                                    <h5>{material.title}</h5>
+                                    <span className="material-date">{material.formatted_date}</span>
+                                </div>
                                 <p>{material.description}</p>
                                 {material.file_url && (
                                     <a href={material.file_url} target="_blank" rel="noopener noreferrer">
@@ -204,7 +207,10 @@ const StudentDashboard = () => {
                     <div className="materials-list">
                         {studentMaterials.map((material) => (
                             <div key={material.id} className="material-item">
-                                <h5>{material.title}</h5>
+                                <div className="material-header">
+                                    <h5>{material.title}</h5>
+                                    <span className="material-date">{material.formatted_date}</span>
+                                </div>
                                 <p>{material.description}</p>
                                 {material.file_url && (
                                     <a href={material.file_url} target="_blank" rel="noopener noreferrer">
