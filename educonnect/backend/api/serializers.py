@@ -84,10 +84,16 @@ class StudentProfileSerializer(serializers.ModelSerializer):
             if not subject:
                 continue
                 
+            # Получаем все материалы для всех записей студента с этим username
+            student_ids = StudentUser.objects.filter(
+                username=obj.username
+            ).values_list('id', flat=True)
+            
             # Получаем все материалы для текущего ученика по предмету
             materials = StudentMaterial.objects.filter(
-                student=obj,
-                material_type__in=['document', 'video', 'presentation']
+                student_id__in=student_ids,
+                material_type__in=['document', 'video', 'presentation'],
+                subject_name=subject  # Фильтруем по предмету
             ).order_by('-created_at')
             
             materials_serializer = StudentMaterialSerializer(
@@ -98,7 +104,7 @@ class StudentProfileSerializer(serializers.ModelSerializer):
             
             subjects_with_materials.append({
                 'name': subject,
-                'materials': materials_serializer.data  # Здесь будут все материалы, включая is_student_material=True
+                'materials': materials_serializer.data
             })
         
         return subjects_with_materials

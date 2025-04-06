@@ -38,6 +38,7 @@ const StudentDashboard = () => {
   const [uploadError, setUploadError] = useState(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [materialToDelete, setMaterialToDelete] = useState(null);
+  const [currentSubject, setCurrentSubject] = useState('');
 
   const loadStudentData = useCallback(async () => {
     if (!user?.token) return;
@@ -79,13 +80,15 @@ const StudentDashboard = () => {
     loadStudentData();
   }, [loadStudentData]);
 
-  const handleUploadClick = () => {
+  const handleUploadClick = (subjectName) => {
+    setCurrentSubject(subjectName);
     setUploadModalOpen(true);
     setUploadError(null);
   };
 
   const handleUploadClose = () => {
     setUploadModalOpen(false);
+    setCurrentSubject('');
     setUploadData({
       description: '',
       file: null
@@ -93,7 +96,7 @@ const StudentDashboard = () => {
     setUploadError(null);
   };
 
-  const handleUploadSubmit = async (subjectName) => {
+  const handleUploadSubmit = async () => {
     try {
       if (!uploadData.file) {
         setUploadError('Пожалуйста, выберите файл');
@@ -110,7 +113,7 @@ const StudentDashboard = () => {
       formData.append('title', uploadData.file.name);
       formData.append('description', uploadData.description);
       formData.append('file', uploadData.file);
-      formData.append('subject', subjectName);
+      formData.append('subject', currentSubject);
       formData.append('is_student_material', 'true');
 
       const response = await axios.post('http://127.0.0.1:8000/api/v1/materials/student-upload/', formData, {
@@ -197,7 +200,7 @@ const StudentDashboard = () => {
                     <h4>Твой материал</h4>
                     <button 
                         className="upload-material-btn"
-                        onClick={handleUploadClick}
+                        onClick={() => handleUploadClick(subjectDetails.name)}
                     >
                         <span>📤</span>
                         <span>Загрузить материал</span>
@@ -498,7 +501,7 @@ const StudentDashboard = () => {
           {uploadModalOpen && (
             <div className="upload-modal" onClick={handleUploadClose}>
               <div className="upload-modal-content" onClick={e => e.stopPropagation()}>
-                <h4>Загрузка материала</h4>
+                <h4>Загрузка материала - {currentSubject}</h4>
                 {uploadError && (
                   <div className="alert alert-danger">
                     {uploadError}
@@ -506,7 +509,7 @@ const StudentDashboard = () => {
                 )}
                 <form className="upload-form" onSubmit={e => {
                   e.preventDefault();
-                  handleUploadSubmit(subjects);
+                  handleUploadSubmit();
                 }}>
                   <textarea
                     placeholder="Описание материала (необязательно)"

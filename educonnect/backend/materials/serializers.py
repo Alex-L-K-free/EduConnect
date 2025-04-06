@@ -33,5 +33,6 @@ class StudentMaterialSerializer(serializers.ModelSerializer):
             'created_at',
             'formatted_date',
             'is_viewed',
-            'is_student_material'
+            'is_student_material',
+            'subject_name'
         ]

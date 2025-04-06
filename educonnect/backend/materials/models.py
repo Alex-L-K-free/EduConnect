@@ -50,7 +50,7 @@ def student_material_path(instance, filename):
     try:
         # Получаем данные о ученике
         student = instance.student
-        subject_name = student.subject if student.subject else 'other'
+        subject_name = instance.subject_name if instance.subject_name else student.subject
         grade = student.grade if student.grade else 'unknown'
         grade_letter = student.index if student.index else ''
         
@@ -105,6 +105,7 @@ class StudentMaterial(models.Model):
     )
     is_viewed = models.BooleanField('Просмотрено', default=False)
     is_student_material = models.BooleanField('Загружено учеником', default=False)
+    subject_name = models.CharField('Предмет', max_length=255, blank=True, null=True)  # Добавляем поле для предмета
 
     class Meta:
         db_table = 'student_materials'

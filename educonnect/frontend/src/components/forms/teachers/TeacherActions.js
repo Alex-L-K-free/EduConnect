@@ -195,7 +195,12 @@ const TeacherActions = ({ students, selectedStudents, onMaterialsUpdate, type })
           formData.append('file', file);
         });
         formData.append('student_ids', JSON.stringify(selectedIds));
-        formData.append('description', description); // Добавляем описание
+        formData.append('description', description);
+        // Получаем предмет из первого выбранного студента
+        const firstStudent = students.find(student => selectedStudents[student.id]);
+        if (firstStudent && firstStudent.subject) {
+          formData.append('subject_name', firstStudent.subject);
+        }
 
         await axios.post('/api/v1/materials/add/', formData, {
           headers: {

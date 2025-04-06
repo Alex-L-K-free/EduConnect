@@ -22,35 +22,30 @@ logger = logging.getLogger(__name__)
 @permission_classes([IsAuthenticated])
 def add_material(request):
     try:
-        # Добавим логирование для отладки
-        logger.info(f"Request user: {request.user}, Auth: {request.auth}")
-        logger.info(f"Headers: {request.headers}")
-        logger.info(f"Authorization header: {request.META.get('HTTP_AUTHORIZATION')}")
-
-        if not request.auth:
-            logger.error("No auth token provided")
+        # Проверяем, что пользователь - учитель
+        if request.user.role != User.TEACHER:
             return Response(
-                {'error': 'Требуется авторизация'},
-                status=status.HTTP_401_UNAUTHORIZED
+                {'error': 'Только учителя могут загружать материалы'},
+                status=status.HTTP_403_FORBIDDEN
             )
 
-        # Проверяем, что пользователь - ученик
-        student = None
-        if isinstance(request.user, StudentUser):
-            student = request.user
-            logger.info(f"User is StudentUser: {student}")
-        else:
-            try:
-                token = request.META.get('HTTP_AUTHORIZATION', '').split(' ')[1]
-                student = StudentUser.objects.get(auth_token=token)
-                logger.info(f"Found student by token: {student}")
-            except (IndexError, StudentUser.DoesNotExist) as e:
-                logger.error(f"Error finding student: {str(e)}")
-                return Response(
-                    {'error': 'Ученик не найден'},
-                    status=status.HTTP_404_NOT_FOUND
-                )
+        # Получаем список ID учеников
+        student_ids_json = request.data.get('student_ids')
+        if not student_ids_json:
+            return Response(
+                {'error': 'Не указаны ID учеников'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
+        try:
+            student_ids = json.loads(student_ids_json)
+        except json.JSONDecodeError:
+            return Response(
+                {'error': 'Неверный формат списка ID учеников'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Проверяем наличие файла
         file = request.FILES.get('file')
         if not file:
             return Response(
@@ -58,24 +53,41 @@ def add_material(request):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Создаем материал для ученика
-        material = StudentMaterial(
-            student=student,
-            title=file.name,
-            description=request.data.get('description', ''),
-            file=file,
-            material_type='document',
-            created_by=request.user,
-            created_at=timezone.now(),
-            is_student_material=True
-        )
-        material.save()
-        
-        serializer = StudentMaterialSerializer(material, context={'request': request})
+        # Получаем subject_name из request.data
+        subject_name = request.data.get('subject_name', '')
+
+        created_materials = []
+        for student_id in student_ids:
+            try:
+                student = StudentUser.objects.get(id=student_id)
+                material = StudentMaterial(
+                    student=student,
+                    title=file.name,
+                    description=request.data.get('description', ''),
+                    file=file,
+                    material_type='document',
+                    created_by=request.user,  # Используем учителя как created_by
+                    created_at=timezone.now(),
+                    is_student_material=False,  # Это материал от учителя
+                    subject_name=subject_name or student.subject  # Используем переданный subject_name или берем из студента
+                )
+                material.save()
+                created_materials.append(material)
+            except StudentUser.DoesNotExist:
+                logger.error(f"Student with id {student_id} not found")
+                continue
+
+        if not created_materials:
+            return Response(
+                {'error': 'Не удалось создать материалы для указанных учеников'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        serializer = StudentMaterialSerializer(created_materials, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     except Exception as e:
-        logger.error(f"Error uploading student material: {str(e)}")
+        logger.error(f"Error uploading material: {str(e)}")
         return Response(
             {'error': str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -86,8 +98,16 @@ def add_material(request):
 def get_student_materials(request, student_id):
     try:
         student = StudentUser.objects.get(id=student_id)
+        subject = request.query_params.get('subject', '')
+        
+        # Фильтруем материалы по студенту и предмету
+        materials = StudentMaterial.objects.filter(student=student)
+        if subject:
+            materials = materials.filter(subject_name=subject)
+            
         # Добавляем сортировку по дате создания
-        materials = StudentMaterial.objects.filter(student=student).order_by('-created_at')
+        materials = materials.order_by('-created_at')
+        
         serializer = StudentMaterialSerializer(
             materials, 
             many=True, 
@@ -267,6 +287,7 @@ def bulk_delete_materials(request):
 def student_upload_material(request):
     try:
         student = request.user
+        logger.info(f"Student uploading material: {student.username}")
         
         file = request.FILES.get('file')
         if not file:
@@ -274,6 +295,9 @@ def student_upload_material(request):
                 {'error': 'Файл не предоставлен'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+        subject = request.data.get('subject', '')
+        logger.info(f"Subject from request: {subject}")
 
         # Создаем материал с флагом is_student_material=True
         material = StudentMaterial(
@@ -284,9 +308,12 @@ def student_upload_material(request):
             material_type='document',
             created_by=student,
             created_at=timezone.now(),
-            is_student_material=True  # Важно: устанавливаем флаг
+            is_student_material=True,  # Важно: устанавливаем флаг
+            subject_name=subject  # Сохраняем название предмета
         )
+        logger.info(f"Created material with subject_name: {material.subject_name}")
         material.save()
+        logger.info(f"Material saved with file path: {material.file.path}")
         
         serializer = StudentMaterialSerializer(material, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
