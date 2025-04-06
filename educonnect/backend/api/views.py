@@ -117,8 +117,9 @@ class StudentLoginView(APIView):
                 
                 print(f"Login successful for student: {student.username}")
 
-                # Собираем информацию о предметах и учителях
-                subjects = list(students.values_list('subject', flat=True).distinct())
+                # Получаем все предметы студента
+                all_subjects = student.get_subjects()
+                subject_names = [s.name for s in all_subjects if s]
                 
                 return Response({
                     'token': token,
@@ -126,7 +127,7 @@ class StudentLoginView(APIView):
                     'role': 'student',
                     'first_name': student.firstName,
                     'last_name': student.lastName,
-                    'subjects': subjects,
+                    'subjects': subject_names,
                     'grade': student.grade,
                     'teachers': list(students.values_list('teacher__username', flat=True).distinct())
                 })

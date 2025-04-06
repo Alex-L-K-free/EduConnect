@@ -3,17 +3,17 @@ from education_core.models import User
 
 class Subject(models.Model):
     name = models.CharField('Название', max_length=100)
-    grade = models.CharField('Класс', max_length=20)
-    index = models.CharField(max_length=1, verbose_name='Индекс класса', blank=True, null=True)
-    code = models.CharField('Код предмета', max_length=50, unique=True, editable=False)
+    grade = models.CharField('Класс', max_length=10)
+    index = models.CharField('Индекс класса', max_length=5)
+    code = models.CharField('Код предмета', max_length=100, unique=True)
     created_at = models.DateTimeField('Дата создания', auto_now_add=True)
     updated_at = models.DateTimeField('Дата обновления', auto_now=True)
     
     class Meta:
         db_table = 'subjects'
-        ordering = ['name']
         verbose_name = 'Предмет'
         verbose_name_plural = 'Предметы'
+        ordering = ['name']
     
     def save(self, *args, **kwargs):
         # Формируем код предмета автоматически
@@ -21,18 +21,7 @@ class Subject(models.Model):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"{self.name} - {self.grade} класс"
-
-class SubjectEnrollment(models.Model):
-    subject = models.ForeignKey(Subject, verbose_name='Предмет', on_delete=models.CASCADE, related_name='enrollments')
-    student = models.ForeignKey(User, verbose_name='Ученик', on_delete=models.CASCADE, related_name='subject_enrollments')
-    enrolled_at = models.DateTimeField('Дата записи', auto_now_add=True)
-    
-    class Meta:
-        db_table = 'subject_enrollments'
-        unique_together = ['subject', 'student']
-        verbose_name = 'Запись на предмет'
-        verbose_name_plural = 'Записи на предметы'
+        return f"{self.name} - {self.grade}{self.index}"
 
 class TeacherSubject(models.Model):
     subject = models.ForeignKey(Subject, verbose_name='Предмет', on_delete=models.CASCADE, related_name='teachers')
@@ -41,6 +30,16 @@ class TeacherSubject(models.Model):
     
     class Meta:
         db_table = 'teacher_subjects'
-        unique_together = ['subject', 'teacher']
-        verbose_name = 'Назначение учителя'
-        verbose_name_plural = 'Назначения учителя'
+        verbose_name = 'Предмет учителя'
+        verbose_name_plural = 'Предметы учителей'
+
+class SubjectEnrollment(models.Model):
+    subject = models.ForeignKey(Subject, verbose_name='Предмет', on_delete=models.CASCADE, related_name='enrollments')
+    student = models.ForeignKey('users_student.StudentUser', verbose_name='Ученик', on_delete=models.CASCADE, related_name='subject_enrollments')
+    enrolled_at = models.DateTimeField('Дата записи', auto_now_add=True)
+    
+    class Meta:
+        db_table = 'subject_enrollments_new'
+        unique_together = ['subject', 'student']
+        verbose_name = 'Запись на предмет'
+        verbose_name_plural = 'Записи на предметы'

@@ -12,6 +12,10 @@ from education_core.constants import (
     EXISTS, MESSAGE
 )
 from django.contrib.auth import authenticate
+from subjects.models import Subject, SubjectEnrollment
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 
@@ -51,7 +55,7 @@ def student_list(request):
         return Response(serializer.data)
     
     elif request.method == 'POST':
-        print("Received data:", request.data)
+        logger.debug("Received data:", request.data)
         serializer = StudentSerializer(data=request.data)
         if serializer.is_valid():
             # Проверяем существование учеников с таким же ФИО
@@ -78,9 +82,24 @@ def student_list(request):
                     username=registered_student.username
                 )
 
+            # Создаем запись в SubjectEnrollment для выбранного предмета
+            subject_name = serializer.validated_data.get('subject')
+            if subject_name:
+                try:
+                    subject = Subject.objects.get(name=subject_name)
+                    SubjectEnrollment.objects.create(
+                        student=new_student,
+                        subject=subject
+                    )
+                    logger.debug(f"Created SubjectEnrollment for student {new_student.username} and subject {subject.name}")
+                except Subject.DoesNotExist:
+                    logger.error(f"Subject {subject_name} not found")
+                except Exception as e:
+                    logger.error(f"Error creating SubjectEnrollment: {str(e)}")
+
             return Response(StudentSerializer(new_student).data, status=status.HTTP_201_CREATED)
         else:
-            print("Validation errors:", serializer.errors)
+            logger.error("Validation errors:", serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE', 'PATCH'])
@@ -203,23 +222,52 @@ def student_login(request):
 def get_current_student(request):
     try:
         student = StudentUser.objects.get(username=request.user.username)
+        logger.debug(f"Getting profile for student: {student.username}")
+        
+        # Получаем все предметы студента
+        all_subjects = student.get_subjects()
+        subject_names = [s.name for s in all_subjects if s]
+        logger.debug(f"Found subjects: {subject_names}")
+        
+        # Получаем детальную информацию о предметах
+        subjects_details = []
+        for subject in all_subjects:
+            if subject:
+                is_enrolled = SubjectEnrollment.objects.filter(
+                    student=student,
+                    subject=subject
+                ).exists()
+                subjects_details.append({
+                    'id': subject.id,
+                    'name': subject.name,
+                    'is_enrolled': is_enrolled
+                })
+        logger.debug(f"Subject details: {subjects_details}")
+        
         data = {
             'id': student.id,
+            'username': student.username,
             'firstName': student.firstName,
             'lastName': student.lastName,
             'middleName': student.middleName,
             'grade': student.grade,
             'index': student.index,
-            'subjects': student.subject.split(',') if student.subject else [],
-            'teacher': student.teacher.id if student.teacher else None
+            'subjects': subject_names,
+            'subjects_details': subjects_details,
+            'teacher': {
+                'id': student.teacher.id,
+                'name': f"{student.teacher.first_name} {student.teacher.last_name}"
+            } if student.teacher else None
         }
         return Response(data)
     except StudentUser.DoesNotExist:
+        logger.error(f"Student not found for username: {request.user.username}")
         return Response(
             {'error': 'Ученик не найден'},
             status=status.HTTP_404_NOT_FOUND
         )
     except Exception as e:
+        logger.error(f"Error getting student profile: {str(e)}")
         return Response(
             {'error': str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR

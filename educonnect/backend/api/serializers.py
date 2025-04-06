@@ -60,14 +60,12 @@ class StudentProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ('username',)
 
     def get_subject(self, obj):
-        # Получаем все записи для данного ученика
-        student_subjects = StudentUser.objects.filter(
-            username=obj.username
-        ).values_list('subject', flat=True)
-        
-        # Объединяем все предметы в одну строку через запятую
-        all_subjects = ','.join(filter(None, student_subjects))
-        return all_subjects
+        # Получаем все предметы студента (и из legacy поля, и из связи many-to-many)
+        all_subjects = obj.get_subjects()
+        # Преобразуем в список названий предметов
+        subject_names = [s.name for s in all_subjects if s]
+        # Объединяем в строку через запятую
+        return ','.join(subject_names)
 
     def get_subjects_details(self, obj):
         # Получаем все предметы ученика

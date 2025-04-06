@@ -1,9 +1,11 @@
 from rest_framework import serializers
 from .models import Subject, TeacherSubject, SubjectEnrollment
+from users_student.models import StudentUser
 
 class SubjectSerializer(serializers.ModelSerializer):
-    teacher_name = serializers.SerializerMethodField()
-    is_enrolled = serializers.SerializerMethodField()
+    teacher_name = serializers.SerializerMethodField(read_only=True)
+    is_enrolled = serializers.SerializerMethodField(read_only=True)
+    code = serializers.CharField(read_only=True)
 
     class Meta:
         model = Subject
@@ -18,10 +20,14 @@ class SubjectSerializer(serializers.ModelSerializer):
     def get_is_enrolled(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
-            return SubjectEnrollment.objects.filter(
-                student=request.user,
-                subject=obj
-            ).exists()
+            try:
+                student = StudentUser.objects.get(username=request.user.username)
+                return SubjectEnrollment.objects.filter(
+                    student=student,
+                    subject=obj
+                ).exists()
+            except StudentUser.DoesNotExist:
+                return False
         return False
 
 class TeacherSubjectSerializer(serializers.ModelSerializer):
