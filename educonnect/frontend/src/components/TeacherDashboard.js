@@ -195,32 +195,42 @@ const TeacherDashboard = () => {
           student.username && student.username !== 'Не зарегистрирован'
         );
 
-        const studentsWithMaterials = await Promise.all(
-          studentsData.map(async (student) => {
-            try {
-              const materialsResponse = await axios.get(`/api/v1/materials/student/${student.id}/`, {
-                headers: {
-                  'Authorization': `Token ${localStorage.getItem('token')}`
-                }
-              });
-              return {
-                ...student,
-                materials: materialsResponse.data
-              };
-            } catch (error) {
-              console.error(`Ошибка при загрузке материалов для ученика ${student.id}:`, error);
-              return student;
-            }
-          })
-        );
+        const materialsPromises = studentsData.map(async (student) => {
+          try {
+            const subject = student.subject.toLowerCase().trim();
+            const materialsResponse = await axios.get(`/api/v1/materials/student/${student.id}/`, {
+              headers: {
+                'Authorization': `Token ${localStorage.getItem('token')}`
+              },
+              params: {
+                subject: subject
+              }
+            });
+            
+            return {
+              ...student,
+              materials: materialsResponse.data.filter(
+                material => material.subject_name.toLowerCase().trim() === subject
+              )
+            };
+          } catch (error) {
+            console.error(`Ошибка при загрузке материалов для студента ${student.id}:`, error);
+            return {
+              ...student,
+              materials: []
+            };
+          }
+        });
+
+        const studentsWithMaterials = await Promise.all(materialsPromises);
 
         if (shouldFetchBySubjects) {
           const newStudentsBySubject = {};
           selectedSubjectIds.forEach(subjectId => {
             const subject = subjectsData[subjectId];
             if (subject) {
-              newStudentsBySubject[subjectId] = studentsWithMaterials.filter(student => 
-                student.subject === subject.name
+              newStudentsBySubject[subjectId] = studentsWithMaterials.filter(
+                student => student.subject.toLowerCase().trim() === subject.name.toLowerCase().trim()
               );
             }
           });
