@@ -100,11 +100,19 @@ def get_student_materials(request, student_id):
         student = StudentUser.objects.get(id=student_id)
         subject = request.query_params.get('subject', '')
         
-        # Фильтруем материалы по студенту и предмету
-        materials = StudentMaterial.objects.filter(student=student)
+        logger.info(f"Getting materials for student {student.username}, subject: {subject}")
+        
+        # Получаем все записи студента с тем же username
+        student_records = StudentUser.objects.filter(username=student.username)
+        student_ids = [s.id for s in student_records]
+        
+        # Фильтруем материалы по всем записям студента
+        materials = StudentMaterial.objects.filter(student_id__in=student_ids)
         if subject:
-            materials = materials.filter(subject_name=subject)
-            
+            logger.info(f"Filtering materials by subject: {subject}")
+            materials = materials.filter(subject_name__iexact=subject)
+            logger.info(f"Found {materials.count()} materials for subject {subject}")
+        
         # Добавляем сортировку по дате создания
         materials = materials.order_by('-created_at')
         
