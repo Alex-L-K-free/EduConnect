@@ -66,7 +66,7 @@ def add_material(request):
                     description=request.data.get('description', ''),
                     file=file,
                     material_type='document',
-                    created_by=request.user,  # Используем учителя как created_by
+                    created_by=student,  # Используем ученика как created_by
                     created_at=timezone.now(),
                     is_student_material=False,  # Это материал от учителя
                     subject_name=subject_name or student.subject  # Используем переданный subject_name или берем из студента
@@ -309,12 +309,12 @@ def student_upload_material(request):
 
         # Создаем материал с флагом is_student_material=True
         material = StudentMaterial(
-            student=student,
+            student=student,  # Используем самого студента
             title=file.name,
             description=request.data.get('description', ''),
             file=file,
             material_type='document',
-            created_by=student,
+            created_by=student,  # Используем базовый User
             created_at=timezone.now(),
             is_student_material=True,  # Важно: устанавливаем флаг
             subject_name=subject  # Сохраняем название предмета

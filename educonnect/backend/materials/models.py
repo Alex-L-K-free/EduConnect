@@ -98,7 +98,7 @@ class StudentMaterial(models.Model):
     ], default='document')
     created_at = models.DateTimeField('Дата создания', auto_now_add=True)
     created_by = models.ForeignKey(
-        StudentUser,  # Изменяем тип поля с User на StudentUser
+        StudentUser,  # Возвращаем тип StudentUser
         on_delete=models.CASCADE, 
         related_name='created_student_materials',
         related_query_name='student_material'
