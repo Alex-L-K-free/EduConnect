@@ -21,6 +21,11 @@
     color: #6c757d;
   }
 
+  .footer-support {
+    position: absolute;
+    right: 16px;
+  }
+
   .footer-link {
     color: #6c757d;
     text-decoration: none;
@@ -29,15 +34,31 @@
     cursor: pointer;
     padding: 0;
     font-size: 1rem;
+
+    &:first-child:not(.footer-support .footer-link) {
+      position: absolute;
+      left: 16px;
+    }
+
+    &:hover {
+      color: #0056b3;
+      text-decoration: underline;
+    }
+  }
+
+  .telegram-link {
     position: absolute;
-
-    &:first-child {
-      left: 90px;
-    }
-
-    &:last-child {
-      right: 90px;
-    }
+    bottom: 100%;
+    right: 0;
+    color: #6c757d;
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding: 4px 8px;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 8px;
+    white-space: nowrap;
 
     &:hover {
       color: #0056b3;

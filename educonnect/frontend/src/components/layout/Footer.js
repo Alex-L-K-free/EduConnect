@@ -1,11 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../../styles/layout/Footer.scss';
 
 const Footer = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showTelegramLink, setShowTelegramLink] = useState(false);
+  const supportRef = useRef(null);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
+
+  const handleSupportClick = (e) => {
+    e.preventDefault();
+    setShowTelegramLink(!showTelegramLink);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (supportRef.current && !supportRef.current.contains(event.target)) {
+        setShowTelegramLink(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <>
@@ -16,14 +36,24 @@ const Footer = () => {
             <span>&copy; 2025 EduConnect</span>
             <span>Версия 4.0.0</span>
           </div>
-          <a 
-            href="https://t.me/your_support_account" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="footer-link"
-          >
-            Поддержка
-          </a>
+          <div className="footer-support" ref={supportRef}>
+            {showTelegramLink && (
+              <a 
+                href="https://t.me/Alex_L_K" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="telegram-link"
+              >
+                @Alex_L_K
+              </a>
+            )}
+            <button 
+              className="footer-link" 
+              onClick={handleSupportClick}
+            >
+              Поддержка
+            </button>
+          </div>
         </div>
       </footer>
 
