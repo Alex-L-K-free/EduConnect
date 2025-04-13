@@ -33,6 +33,7 @@ const TeacherDashboard = () => {
   const [availableClasses, setAvailableClasses] = useState([]);
 
   const [selectedStudents, setSelectedStudents] = useState({});
+  const [expandedStudents, setExpandedStudents] = useState({});
 
   const [statistics, setStatistics] = useState({
     totalStudents: 0,
@@ -345,6 +346,123 @@ const TeacherDashboard = () => {
     });
   };
 
+  const handleViewMaterial = async (material) => {
+    // Временно отключено
+    // try {
+    //   window.open(material.file_url, '_blank');
+    // } catch (error) {
+    //   console.error('Error viewing material:', error);
+    // }
+  };
+
+  const handleDownloadMaterial = async (material) => {
+    try {
+      const link = document.createElement('a');
+      link.href = material.file_url;
+      link.setAttribute('download', material.title);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading material:', error);
+    }
+  };
+
+  const renderSubjectMaterials = (subjectDetails) => {
+    // Разделяем материалы на учительские и студенческие
+    const teacherMaterials = subjectDetails.materials.filter(m => !m.is_student_material);
+    const studentMaterials = subjectDetails.materials.filter(m => m.is_student_material);
+
+    return (
+      <div className="subject-materials">
+        <div className="materials-grid">
+          {/* Материалы от учителя */}
+          <div className="teacher-materials">
+            <div className="materials-header">
+              <h4>Материал учителя</h4>
+            </div>
+            {teacherMaterials.length > 0 ? (
+              <div className="materials-list">
+                {teacherMaterials.map((material) => (
+                  <div key={material.id} className="material-item">
+                    <div className="material-header">
+                      <h5>{material.title}</h5>
+                      <span className="material-date">{material.formatted_date}</span>
+                    </div>
+                    <p>{material.description}</p>
+                    <div className="material-actions">
+                      {/* <button 
+                        onClick={() => handleViewMaterial(material)}
+                        className="material-action-btn view-btn"
+                      >
+                        <span>👁️</span>
+                        <span>Просмотр</span>
+                      </button> */}
+                      <button 
+                        onClick={() => handleDownloadMaterial(material)}
+                        className="material-action-btn download-btn"
+                      >
+                        <span>📥</span>
+                        <span>Скачать</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p>Нет материалов от учителя</p>
+            )}
+          </div>
+
+          {/* Материалы ученика */}
+          <div className="student-materials">
+            <div className="materials-header">
+              <h4>Материал ученика</h4>
+            </div>
+            {studentMaterials.length > 0 ? (
+              <div className="materials-list">
+                {studentMaterials.map((material) => (
+                  <div key={material.id} className="material-item student-material">
+                    <div className="material-header">
+                      <h5>{material.title}</h5>
+                      <span className="material-date">{material.formatted_date}</span>
+                    </div>
+                    <p>{material.description}</p>
+                    <div className="material-actions">
+                      {/* <button 
+                        onClick={() => handleViewMaterial(material)}
+                        className="material-action-btn view-btn"
+                      >
+                        <span>👁️</span>
+                        <span>Просмотр</span>
+                      </button> */}
+                      <button 
+                        onClick={() => handleDownloadMaterial(material)}
+                        className="material-action-btn download-btn"
+                      >
+                        <span>📥</span>
+                        <span>Скачать</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p>У ученика пока нет загруженных материалов</p>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const toggleStudentMaterials = (studentId) => {
+    setExpandedStudents(prev => ({
+      ...prev,
+      [studentId]: !prev[studentId]
+    }));
+  };
+
   const renderStudentsList = (subjectId, students) => {
     const subjectName = subjectsData[subjectId]?.name || '';
     
@@ -391,8 +509,7 @@ const TeacherDashboard = () => {
                 <col className="checkbox-cell" />
                 <col className="student-name-column" />
                 <col className="student-actions-column" />
-                <col className="student-actions-column" />
-                <col className="student-actions-column" />
+                <col className="student-materials-column" />
               </colgroup>
               <thead>
                 <tr>
@@ -413,51 +530,58 @@ const TeacherDashboard = () => {
                       type="materials"
                     />
                   </th>
-                  {/* <th>
-                    <StudentActions 
-                      students={studentsByClass[classKey]}
-                      selectedStudents={selectedStudents}
-                      onMaterialsUpdate={handleMaterialsUpdate}
-                      type="tasks"
-                    />
-                  </th> */}
-                  {/* <th>
-                    <StudentActions 
-                      students={studentsByClass[classKey]}
-                      selectedStudents={selectedStudents}
-                      onMaterialsUpdate={handleMaterialsUpdate}
-                      type="messages"
-                    />
-                  </th> */}
+                  <th>Материалы</th>
                 </tr>
               </thead>
               <tbody>
                 {studentsByClass[classKey].map(student => {
                   const updatedStudent = students.find(s => s.id === student.id) || student;
+                  const teacherMaterialsCount = updatedStudent.materials?.filter(m => !m.is_student_material).length || 0;
+                  const studentMaterialsCount = updatedStudent.materials?.filter(m => m.is_student_material).length || 0;
+                  
                   return (
-                    <tr 
-                      key={student.id}
-                      className={selectedStudents[student.id] ? 'selected-row' : ''}
-                    >
-                      <td className="checkbox-cell">
-                        <input
-                          type="checkbox"
-                          className="student-checkbox"
-                          checked={selectedStudents[student.id] || false}
-                          onChange={() => handleSelectStudent(student.id)}
-                        />
-                      </td>
-                      <td className="student-name-column">
-                        {`${student.lastName} ${student.firstName} ${student.middleName || ''}`}
-                      </td>
-                      <MaterialCell 
-                        materials={updatedStudent.materials || []} 
-                        onMaterialsUpdate={handleMaterialsUpdate}
-                        studentId={student.id}
-                      />
-                      <DescriptionCell descriptions={updatedStudent.descriptions || []} />
-                      <MessageCell messages={updatedStudent.messages || []} />
-                    </tr>
+                    <>
+                      <tr 
+                        key={student.id}
+                        className={selectedStudents[student.id] ? 'selected-row' : ''}
+                      >
+                        <td className="checkbox-cell">
+                          <input
+                            type="checkbox"
+                            className="student-checkbox"
+                            checked={selectedStudents[student.id] || false}
+                            onChange={() => handleSelectStudent(student.id)}
+                          />
+                        </td>
+                        <td className="student-name-column">
+                          {`${student.lastName} ${student.firstName} ${student.middleName || ''}`}
+                        </td>
+                        <td>
+                          <MaterialCell 
+                            materials={updatedStudent.materials || []} 
+                            onMaterialsUpdate={handleMaterialsUpdate}
+                            studentId={student.id}
+                          />
+                        </td>
+                        <td className="materials-summary">
+                          <button 
+                            className="toggle-materials-btn"
+                            onClick={() => toggleStudentMaterials(student.id)}
+                          >
+                            <span>📚 Материалы учителя: {teacherMaterialsCount}</span>
+                            <span>📝 Материалы ученика: {studentMaterialsCount}</span>
+                            {expandedStudents[student.id] ? '▼' : '▶'}
+                          </button>
+                        </td>
+                      </tr>
+                      {expandedStudents[student.id] && (
+                        <tr className="materials-row">
+                          <td colSpan="4">
+                            {renderSubjectMaterials({ materials: updatedStudent.materials || [] })}
+                          </td>
+                        </tr>
+                      )}
+                    </>
                   );
                 })}
               </tbody>
