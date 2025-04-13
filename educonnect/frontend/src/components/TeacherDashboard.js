@@ -266,9 +266,8 @@ const TeacherDashboard = () => {
   const handleDeleteMaterial = async (material, student) => {
     if (window.confirm('Вы уверены, что хотите удалить этот материал?')) {
       try {
-        const deleteUrl = material.is_student_material 
-          ? `/api/v1/materials/student-delete/${material.id}/`
-          : `/api/v1/materials/delete/${material.id}/`;
+        // Используем единый endpoint для удаления материалов
+        const deleteUrl = `/api/v1/materials/delete/${material.id}/`;
 
         await axios.delete(deleteUrl, {
           headers: {
