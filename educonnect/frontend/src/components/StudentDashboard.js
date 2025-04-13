@@ -80,22 +80,6 @@ const StudentDashboard = () => {
     loadStudentData();
   }, [loadStudentData]);
 
-  const handleUploadClick = (subjectName) => {
-    setCurrentSubject(subjectName);
-    setUploadModalOpen(true);
-    setUploadError(null);
-  };
-
-  const handleUploadClose = () => {
-    setUploadModalOpen(false);
-    setCurrentSubject('');
-    setUploadData({
-      description: '',
-      file: null
-    });
-    setUploadError(null);
-  };
-
   const handleUploadSubmit = async () => {
     try {
       if (!uploadData.file) {
@@ -124,7 +108,13 @@ const StudentDashboard = () => {
       });
 
       if (response.data) {
-        handleUploadClose();
+        setUploadModalOpen(false);
+        setCurrentSubject('');
+        setUploadData({
+          description: '',
+          file: null
+        });
+        setUploadError(null);
         loadStudentData();
       }
     } catch (error) {
@@ -142,23 +132,23 @@ const StudentDashboard = () => {
     setDeleteModalOpen(true);
   };
 
-  const handleDeleteClose = () => {
-    setDeleteModalOpen(false);
-    setMaterialToDelete(null);
-  };
-
   const handleDeleteConfirm = async () => {
+    if (!materialToDelete) return;
+
     try {
       await axios.delete(`http://127.0.0.1:8000/api/v1/materials/student-delete/${materialToDelete.id}/`, {
         headers: {
           'Authorization': `Token ${user.token}`
         }
       });
-      handleDeleteClose();
+
+      // Обновляем список материалов после удаления
       loadStudentData();
+      setDeleteModalOpen(false);
+      setMaterialToDelete(null);
     } catch (error) {
-      setError('Ошибка при удалении материала');
-      console.error('Delete error:', error);
+      console.error('Error deleting material:', error);
+      setError('Не удалось удалить материал');
     }
   };
 
@@ -168,72 +158,93 @@ const StudentDashboard = () => {
     const studentMaterials = subjectDetails.materials.filter(m => m.is_student_material);
 
     return (
-        <div className="subject-materials">
-            {/* Материалы от учителя */}
-            <div className="teacher-materials">
-                <h4>Материал учителя</h4>
-                {teacherMaterials.length > 0 ? (
-                    <div className="materials-list">
-                        {teacherMaterials.map((material) => (
-                            <div key={material.id} className="material-item">
-                                <div className="material-header">
-                                    <h5>{material.title}</h5>
-                                    <span className="material-date">{material.formatted_date}</span>
-                                </div>
-                                <p>{material.description}</p>
-                                {material.file_url && (
-                                    <a href={material.file_url} target="_blank" rel="noopener noreferrer">
-                                        Скачать материал
-                                    </a>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <p>Нет материалов от учителя</p>
-                )}
+      <div className="subject-materials">
+        <div className="materials-grid">
+          {/* Материалы от учителя */}
+          <div className="teacher-materials">
+            <div className="materials-header">
+              <h4>Материал учителя</h4>
             </div>
+            {teacherMaterials.length > 0 ? (
+              <div className="materials-list">
+                {teacherMaterials.map((material) => (
+                  <div key={material.id} className="material-item">
+                    <div className="material-header">
+                      <h5>{material.title}</h5>
+                      <span className="material-date">{material.formatted_date}</span>
+                    </div>
+                    <p>{material.description}</p>
+                    {material.file_url && (
+                      <a href={material.file_url} target="_blank" rel="noopener noreferrer">
+                        Скачать материал
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p>Нет материалов от учителя</p>
+            )}
+          </div>
 
-            {/* Материалы ученика */}
-            <div className="student-materials">
-                <div className="student-materials-header">
-                    <h4>Твой материал</h4>
-                    <button 
-                        className="upload-material-btn"
-                        onClick={() => handleUploadClick(subjectDetails.name)}
-                    >
-                        <span>📤</span>
-                        <span>Загрузить материал</span>
-                    </button>
-                </div>
-                {studentMaterials.length > 0 ? (
-                    <div className="materials-list">
-                        {studentMaterials.map((material) => (
-                            <div key={material.id} className="material-item">
-                                <div className="material-header">
-                                    <h5>{material.title}</h5>
-                                    <span className="material-date">{material.formatted_date}</span>
-                                </div>
-                                <p>{material.description}</p>
-                                {material.file_url && (
-                                    <a href={material.file_url} target="_blank" rel="noopener noreferrer">
-                                        Скачать материал
-                                    </a>
-                                )}
-                                <button 
-                                    onClick={() => handleDeleteClick(material)}
-                                    className="btn btn-danger btn-sm"
-                                >
-                                    Удалить
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <p>У вас пока нет загруженных материалов</p>
-                )}
+          {/* Материалы ученика */}
+          <div className="student-materials">
+            <div className="materials-header">
+              <h4>Твой материал</h4>
+              <button
+                className="upload-material-btn"
+                onClick={() => {
+                  setCurrentSubject(subjectDetails.name);
+                  setUploadModalOpen(true);
+                }}
+              >
+                Загрузить материал
+              </button>
             </div>
+            {studentMaterials.length > 0 ? (
+              <div className="materials-list">
+                {studentMaterials.map((material) => (
+                  <div key={material.id} className="material-item student-material">
+                    <div className="material-header">
+                      <h5>{material.title}</h5>
+                      <span className="material-date">{material.formatted_date}</span>
+                    </div>
+                    <p>{material.description}</p>
+                    <div className="material-actions">
+                      <a 
+                        href={material.file_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="material-action-btn view-btn"
+                      >
+                        <span>👁️</span>
+                        <span>Просмотр</span>
+                      </a>
+                      <a 
+                        href={material.file_url} 
+                        download
+                        className="material-action-btn download-btn"
+                      >
+                        <span>📥</span>
+                        <span>Скачать</span>
+                      </a>
+                      <button 
+                        onClick={() => handleDeleteClick(material)}
+                        className="material-action-btn delete-btn"
+                      >
+                        <span>🗑️</span>
+                        <span>Удалить</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p>У тебя пока нет загруженных материалов</p>
+            )}
+          </div>
         </div>
+      </div>
     );
   };
 
@@ -499,7 +510,7 @@ const StudentDashboard = () => {
 
           {/* Модальное окно загрузки */}
           {uploadModalOpen && (
-            <div className="upload-modal" onClick={handleUploadClose}>
+            <div className="upload-modal" onClick={() => setUploadModalOpen(false)}>
               <div className="upload-modal-content" onClick={e => e.stopPropagation()}>
                 <h4>Загрузка материала - {currentSubject}</h4>
                 {uploadError && (
@@ -522,7 +533,7 @@ const StudentDashboard = () => {
                     required
                   />
                   <div className="upload-form-buttons">
-                    <button type="button" className="cancel-btn" onClick={handleUploadClose}>
+                    <button type="button" className="cancel-btn" onClick={() => setUploadModalOpen(false)}>
                       Отмена
                     </button>
                     <button type="submit" className="submit-btn">
@@ -534,24 +545,23 @@ const StudentDashboard = () => {
             </div>
           )}
 
-          {deleteModalOpen && (
-            <Modal show={deleteModalOpen} onHide={handleDeleteClose}>
-              <Modal.Header closeButton>
-                <Modal.Title>Подтверждение удаления</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                <p>Вы действительно хотите удалить материал "{materialToDelete?.title}"?</p>
-              </Modal.Body>
-              <Modal.Footer>
-                <Button variant="secondary" onClick={handleDeleteClose}>
-                  Отмена
-                </Button>
-                <Button variant="danger" onClick={handleDeleteConfirm}>
-                  Удалить
-                </Button>
-              </Modal.Footer>
-            </Modal>
-          )}
+          {/* Модальное окно подтверждения удаления */}
+          <Modal show={deleteModalOpen} onHide={() => setDeleteModalOpen(false)}>
+            <Modal.Header closeButton>
+              <Modal.Title>Подтверждение удаления</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              Вы уверены, что хотите удалить этот материал?
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => setDeleteModalOpen(false)}>
+                Отмена
+              </Button>
+              <Button variant="danger" onClick={handleDeleteConfirm}>
+                Удалить
+              </Button>
+            </Modal.Footer>
+          </Modal>
         </Container>
       </SlideTransition>
     </div>
