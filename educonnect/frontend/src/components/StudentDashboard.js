@@ -152,6 +152,29 @@ const StudentDashboard = () => {
     }
   };
 
+  const handleViewMaterial = async (material) => {
+    try {
+      window.open(material.file_url, '_blank');
+    } catch (error) {
+      console.error('Error viewing material:', error);
+      setError('Не удалось открыть материал для просмотра');
+    }
+  };
+
+  const handleDownloadMaterial = async (material) => {
+    try {
+      const link = document.createElement('a');
+      link.href = material.file_url;
+      link.setAttribute('download', material.title);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading material:', error);
+      setError('Не удалось скачать материал');
+    }
+  };
+
   const renderSubjectMaterials = (subjectDetails) => {
     // Разделяем материалы на учительские и студенческие
     const teacherMaterials = subjectDetails.materials.filter(m => !m.is_student_material);
@@ -175,23 +198,20 @@ const StudentDashboard = () => {
                     </div>
                     <p>{material.description}</p>
                     <div className="material-actions">
-                      <a 
-                        href={material.file_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
+                      <button 
+                        onClick={() => handleViewMaterial(material)}
                         className="material-action-btn view-btn"
                       >
                         <span>👁️</span>
                         <span>Просмотр</span>
-                      </a>
-                      <a 
-                        href={material.file_url} 
-                        download
+                      </button>
+                      <button 
+                        onClick={() => handleDownloadMaterial(material)}
                         className="material-action-btn download-btn"
                       >
                         <span>📥</span>
                         <span>Скачать</span>
-                      </a>
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -225,30 +245,29 @@ const StudentDashboard = () => {
                     </div>
                     <p>{material.description}</p>
                     <div className="material-actions">
-                      <a 
-                        href={material.file_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
+                      <button 
+                        onClick={() => handleViewMaterial(material)}
                         className="material-action-btn view-btn"
                       >
                         <span>👁️</span>
                         <span>Просмотр</span>
-                      </a>
-                      <a 
-                        href={material.file_url} 
-                        download
+                      </button>
+                      <button 
+                        onClick={() => handleDownloadMaterial(material)}
                         className="material-action-btn download-btn"
                       >
                         <span>📥</span>
                         <span>Скачать</span>
-                      </a>
-                      <button 
-                        onClick={() => handleDeleteClick(material)}
-                        className="material-action-btn delete-btn"
-                      >
-                        <span>🗑️</span>
-                        <span>Удалить</span>
                       </button>
+                      {material.is_student_material && (
+                        <button 
+                          onClick={() => handleDeleteClick(material)}
+                          className="material-action-btn delete-btn"
+                        >
+                          <span>🗑️</span>
+                          <span>Удалить</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
