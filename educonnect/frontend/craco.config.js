@@ -1,9 +1,13 @@
+const sass = require('sass');
+
 module.exports = {
   style: {
     sass: {
       loaderOptions: {
+        api: "modern",
+        implementation: sass,
         sassOptions: {
-          quietDeps: true
+          outputStyle: 'compressed',
         }
       }
     }
