@@ -861,33 +861,35 @@
 .materials-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin-top: 1rem;
-}
-
-.teacher-materials,
-.student-materials {
-  background: #fff;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  height: fit-content;
+  gap: 20px;
+  width: 100%;
+  align-items: start;
 }
 
 .materials-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #f0f0f0;
+  margin-bottom: 20px;
+  min-height: 40px;
+  padding: 0;
 }
 
 .materials-header h4 {
   margin: 0;
-  font-size: 1.25rem;
-  color: #1a365d;
+  font-size: 1.2rem;
   font-weight: 600;
+  line-height: 1.2;
+}
+
+.teacher-materials,
+.student-materials {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: fit-content;
+  margin: 0;
 }
 
 .material-item {
