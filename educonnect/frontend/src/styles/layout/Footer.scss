@@ -26,6 +26,18 @@
   .footer-support {
     position: absolute;
     right: 16px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  .telegram-container {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    margin-bottom: 8px;
+    pointer-events: all;
+    z-index: 1000;
   }
 
   .footer-link {
@@ -50,19 +62,18 @@
   }
 
   .telegram-link {
-    position: absolute;
-    bottom: 100%;
-    right: 0;
+    display: block;
     color: #6c757d;
     text-decoration: none;
     font-family: inherit;
     font-size: inherit;
-    padding: 4px 8px;
+    padding: 8px 12px;
     background-color: #fff;
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 8px;
     white-space: nowrap;
+    cursor: pointer;
+    pointer-events: all;
 
     &:hover {
       color: #0056b3;
