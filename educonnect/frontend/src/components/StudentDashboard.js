@@ -153,12 +153,13 @@ const StudentDashboard = () => {
   };
 
   const handleViewMaterial = async (material) => {
-    try {
-      window.open(material.file_url, '_blank');
-    } catch (error) {
-      console.error('Error viewing material:', error);
-      setError('Не удалось открыть материал для просмотра');
-    }
+    // Временно отключено
+    // try {
+    //   window.open(material.file_url, '_blank');
+    // } catch (error) {
+    //   console.error('Error viewing material:', error);
+    //   setError('Не удалось открыть материал для просмотра');
+    // }
   };
 
   const handleDownloadMaterial = async (material) => {
@@ -198,13 +199,13 @@ const StudentDashboard = () => {
                     </div>
                     <p>{material.description}</p>
                     <div className="material-actions">
-                      <button 
+                      {/* <button 
                         onClick={() => handleViewMaterial(material)}
                         className="material-action-btn view-btn"
                       >
                         <span>👁️</span>
                         <span>Просмотр</span>
-                      </button>
+                      </button> */}
                       <button 
                         onClick={() => handleDownloadMaterial(material)}
                         className="material-action-btn download-btn"
@@ -245,13 +246,13 @@ const StudentDashboard = () => {
                     </div>
                     <p>{material.description}</p>
                     <div className="material-actions">
-                      <button 
+                      {/* <button 
                         onClick={() => handleViewMaterial(material)}
                         className="material-action-btn view-btn"
                       >
                         <span>👁️</span>
                         <span>Просмотр</span>
-                      </button>
+                      </button> */}
                       <button 
                         onClick={() => handleDownloadMaterial(material)}
                         className="material-action-btn download-btn"
