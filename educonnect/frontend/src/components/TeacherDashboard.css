@@ -632,3 +632,20 @@
 .student-materials-column {
   width: 600px;
 }
+
+.students-table tr {
+  height: 20px;
+  line-height: 20px;
+}
+
+.students-table td {
+  padding: 0 10px;
+  height: 20px;
+  line-height: 20px;
+  vertical-align: middle;
+}
+
+.students-table .student-checkbox {
+  margin: 0;
+  vertical-align: middle;
+}
