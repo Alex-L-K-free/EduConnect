@@ -3,7 +3,8 @@ import SidebarTeacher from './layout/SidebarTeacher';
 import TeacherProfile from './forms/teachers/TeacherProfile';
 import TeacherSubjects from './forms/subjects/SubjectsList';
 import StudentsList from './forms/students/StudentsList';
-import StudentActions, { MaterialCell } from './forms/teachers/TeacherActions';
+// Временно закомментированные импорты
+// import StudentActions, { MaterialCell } from './forms/teachers/TeacherActions';
 import axios from 'axios';
 import './TeacherDashboard.css';
 
@@ -33,7 +34,6 @@ const TeacherDashboard = () => {
   const [availableClasses, setAvailableClasses] = useState([]);
 
   const [selectedStudents, setSelectedStudents] = useState({});
-  const [expandedStudents, setExpandedStudents] = useState({});
 
   const [statistics, setStatistics] = useState({
     totalStudents: 0,
@@ -45,6 +45,8 @@ const TeacherDashboard = () => {
     tasksCount: 0,
     messagesCount: 0
   });
+
+  const [expandedStudents, setExpandedStudents] = useState({});
 
   const handleMaterialsUpdate = async (update, forceUpdate = false) => {
     if (forceUpdate || !update) {
@@ -140,6 +142,13 @@ const TeacherDashboard = () => {
         return newMap;
       });
     }
+  };
+
+  const toggleStudentMaterials = (studentId) => {
+    setExpandedStudents(prev => ({
+      ...prev,
+      [studentId]: !prev[studentId]
+    }));
   };
 
   useEffect(() => {
@@ -433,13 +442,6 @@ const TeacherDashboard = () => {
     );
   };
 
-  const toggleStudentMaterials = (studentId) => {
-    setExpandedStudents(prev => ({
-      ...prev,
-      [studentId]: !prev[studentId]
-    }));
-  };
-
   const renderStudentsList = (subjectId, students) => {
     const subjectName = subjectsData[subjectId]?.name || '';
     
@@ -485,7 +487,6 @@ const TeacherDashboard = () => {
               <colgroup>
                 <col className="checkbox-cell" />
                 <col className="student-name-column" />
-                <col className="student-actions-column" />
                 <col className="student-materials-column" />
               </colgroup>
               <thead>
@@ -499,14 +500,6 @@ const TeacherDashboard = () => {
                     />
                   </th>
                   <th>Ученик</th>
-                  <th>
-                    <StudentActions 
-                      students={studentsByClass[classKey]}
-                      selectedStudents={selectedStudents}
-                      onMaterialsUpdate={handleMaterialsUpdate}
-                      type="materials"
-                    />
-                  </th>
                   <th>Материалы</th>
                 </tr>
               </thead>
@@ -517,11 +510,8 @@ const TeacherDashboard = () => {
                   const studentMaterialsCount = updatedStudent.materials?.filter(m => m.is_student_material).length || 0;
                   
                   return (
-                    <>
-                      <tr 
-                        key={student.id}
-                        className={selectedStudents[student.id] ? 'selected-row' : ''}
-                      >
+                    <React.Fragment key={student.id}>
+                      <tr className={selectedStudents[student.id] ? 'selected-row' : ''}>
                         <td className="checkbox-cell">
                           <input
                             type="checkbox"
@@ -532,13 +522,6 @@ const TeacherDashboard = () => {
                         </td>
                         <td className="student-name-column">
                           {`${student.lastName} ${student.firstName} ${student.middleName || ''}`}
-                        </td>
-                        <td>
-                          <MaterialCell 
-                            materials={updatedStudent.materials || []} 
-                            onMaterialsUpdate={handleMaterialsUpdate}
-                            studentId={student.id}
-                          />
                         </td>
                         <td className="materials-summary">
                           <button 
@@ -553,12 +536,62 @@ const TeacherDashboard = () => {
                       </tr>
                       {expandedStudents[student.id] && (
                         <tr className="materials-row">
-                          <td colSpan="4">
-                            {renderSubjectMaterials({ materials: updatedStudent.materials || [] })}
+                          <td colSpan="3">
+                            <div className="subject-materials">
+                              <div className="materials-grid">
+                                {/* Материалы от учителя */}
+                                <div className="teacher-materials">
+                                  <div className="materials-header">
+                                    <h4>Материал учителя</h4>
+                                  </div>
+                                  {updatedStudent.materials?.filter(m => !m.is_student_material).length > 0 ? (
+                                    <div className="materials-list">
+                                      {updatedStudent.materials
+                                        .filter(m => !m.is_student_material)
+                                        .map((material) => (
+                                          <div key={material.id} className="material-item">
+                                            <div className="material-header">
+                                              <h5>{material.title}</h5>
+                                              <span className="material-date">{material.formatted_date}</span>
+                                            </div>
+                                            <p>{material.description}</p>
+                                          </div>
+                                        ))}
+                                    </div>
+                                  ) : (
+                                    <p>Нет материалов от учителя</p>
+                                  )}
+                                </div>
+
+                                {/* Материалы ученика */}
+                                <div className="student-materials">
+                                  <div className="materials-header">
+                                    <h4>Материал ученика</h4>
+                                  </div>
+                                  {updatedStudent.materials?.filter(m => m.is_student_material).length > 0 ? (
+                                    <div className="materials-list">
+                                      {updatedStudent.materials
+                                        .filter(m => m.is_student_material)
+                                        .map((material) => (
+                                          <div key={material.id} className="material-item student-material">
+                                            <div className="material-header">
+                                              <h5>{material.title}</h5>
+                                              <span className="material-date">{material.formatted_date}</span>
+                                            </div>
+                                            <p>{material.description}</p>
+                                          </div>
+                                        ))}
+                                    </div>
+                                  ) : (
+                                    <p>У ученика пока нет загруженных материалов</p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
                           </td>
                         </tr>
                       )}
-                    </>
+                    </React.Fragment>
                   );
                 })}
               </tbody>
