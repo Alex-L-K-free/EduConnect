@@ -174,11 +174,25 @@ const StudentDashboard = () => {
                       <span className="material-date">{material.formatted_date}</span>
                     </div>
                     <p>{material.description}</p>
-                    {material.file_url && (
-                      <a href={material.file_url} target="_blank" rel="noopener noreferrer">
-                        Скачать материал
+                    <div className="material-actions">
+                      <a 
+                        href={material.file_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="material-action-btn view-btn"
+                      >
+                        <span>👁️</span>
+                        <span>Просмотр</span>
                       </a>
-                    )}
+                      <a 
+                        href={material.file_url} 
+                        download
+                        className="material-action-btn download-btn"
+                      >
+                        <span>📥</span>
+                        <span>Скачать</span>
+                      </a>
+                    </div>
                   </div>
                 ))}
               </div>
