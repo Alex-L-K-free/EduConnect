@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../../styles/layout/Footer.scss';
 
 const Footer = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showTelegramLink, setShowTelegramLink] = useState(false);
+  const supportRef = useRef(null);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -11,6 +12,19 @@ const Footer = () => {
   const handleSupportClick = () => {
     setShowTelegramLink(!showTelegramLink);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (supportRef.current && !supportRef.current.contains(event.target)) {
+        setShowTelegramLink(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <>
@@ -21,7 +35,7 @@ const Footer = () => {
             <span>&copy; 2025 EduConnect</span>
             <span>Версия 4.0.0</span>
           </div>
-          <div className="footer-support">
+          <div className="footer-support" ref={supportRef}>
             <div className="telegram-container">
               {showTelegramLink && (
                 <a 
