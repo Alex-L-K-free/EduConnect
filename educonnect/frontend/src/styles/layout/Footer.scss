@@ -49,6 +49,9 @@
     padding: 0;
     font-family: inherit;
     font-size: inherit;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 
     &:first-child:not(.footer-support .footer-link) {
       position: absolute;
@@ -62,7 +65,9 @@
   }
 
   .telegram-link {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     color: #6c757d;
     text-decoration: none;
     font-family: inherit;
@@ -79,6 +84,10 @@
       color: #0056b3;
       text-decoration: underline;
     }
+  }
+
+  .telegram-icon {
+    flex-shrink: 0;
   }
 }
 
