@@ -259,16 +259,70 @@ const TeacherDashboard = () => {
     });
   };
 
-  const handleDownloadMaterial = async (material) => {
-    try {
-      const link = document.createElement('a');
-      link.href = material.file_url;
-      link.setAttribute('download', material.title);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (error) {
-      console.error('Error downloading material:', error);
+  const handleDownloadMaterial = (material) => {
+    window.open(material.file_url, '_blank');
+  };
+
+  const handleDeleteMaterial = async (material, student) => {
+    if (window.confirm('Вы уверены, что хотите удалить этот материал?')) {
+      try {
+        const deleteUrl = material.is_student_material 
+          ? `/api/v1/materials/student-delete/${material.id}/`
+          : `/api/v1/materials/delete/${material.id}/`;
+
+        await axios.delete(deleteUrl, {
+          headers: {
+            'Authorization': `Token ${localStorage.getItem('token')}`
+          }
+        });
+
+        // Обновляем список материалов после удаления
+        const response = await axios.get(`/api/v1/materials/student/${student.id}/`, {
+          headers: {
+            'Authorization': `Token ${localStorage.getItem('token')}`
+          },
+          params: {
+            subject: student.subject.toLowerCase().trim()
+          }
+        });
+        
+        if (currentView === 'students-by-subjects') {
+          setSubjectStudentsMap(prevMap => {
+            const newMap = { ...prevMap };
+            Object.keys(newMap).forEach(subjectId => {
+              newMap[subjectId] = newMap[subjectId].map(s => {
+                if (s.id === student.id) {
+                  return {
+                    ...s,
+                    materials: response.data
+                  };
+                }
+                return s;
+              });
+            });
+            return newMap;
+          });
+        } else if (currentView === 'students-by-classes') {
+          setClassStudentsMap(prevMap => {
+            const newMap = { ...prevMap };
+            Object.keys(newMap).forEach(classId => {
+              newMap[classId] = newMap[classId].map(s => {
+                if (s.id === student.id) {
+                  return {
+                    ...s,
+                    materials: response.data
+                  };
+                }
+                return s;
+              });
+            });
+            return newMap;
+          });
+        }
+      } catch (error) {
+        console.error('Ошибка при удалении материала:', error);
+        alert('Не удалось удалить материал');
+      }
     }
   };
 
@@ -342,17 +396,17 @@ const TeacherDashboard = () => {
                   return (
                     <React.Fragment key={student.id}>
                       <tr className={selectedStudents[student.id] ? 'selected-row' : ''}>
-                        <td className="checkbox-cell">
-                          <input
-                            type="checkbox"
-                            className="student-checkbox"
-                            checked={selectedStudents[student.id] || false}
-                            onChange={() => handleSelectStudent(student.id)}
-                          />
-                        </td>
-                        <td className="student-name-column">
-                          {`${student.lastName} ${student.firstName} ${student.middleName || ''}`}
-                        </td>
+                      <td className="checkbox-cell">
+                        <input
+                          type="checkbox"
+                          className="student-checkbox"
+                          checked={selectedStudents[student.id] || false}
+                          onChange={() => handleSelectStudent(student.id)}
+                        />
+                      </td>
+                      <td className="student-name-column">
+                        {`${student.lastName} ${student.firstName} ${student.middleName || ''}`}
+                      </td>
                         <td className="materials-summary">
                           <button 
                             className="toggle-materials-btn"
@@ -393,6 +447,13 @@ const TeacherDashboard = () => {
                                                 <span>📥</span>
                                                 <span>Скачать</span>
                                               </button>
+                                              <button 
+                                                onClick={() => handleDeleteMaterial(material, student)}
+                                                className="material-action-btn delete-btn"
+                                              >
+                                                <span>🗑️</span>
+                                                <span>Удалить</span>
+                                              </button>
                                             </div>
                                           </div>
                                         ))}
@@ -426,6 +487,13 @@ const TeacherDashboard = () => {
                                                 <span>📥</span>
                                                 <span>Скачать</span>
                                               </button>
+                                              <button 
+                                                onClick={() => handleDeleteMaterial(material, student)}
+                                                className="material-action-btn delete-btn"
+                                              >
+                                                <span>🗑️</span>
+                                                <span>Удалить</span>
+                                              </button>
                                             </div>
                                           </div>
                                         ))}
@@ -437,7 +505,7 @@ const TeacherDashboard = () => {
                               </div>
                             </div>
                           </td>
-                        </tr>
+                    </tr>
                       )}
                     </React.Fragment>
                   );
