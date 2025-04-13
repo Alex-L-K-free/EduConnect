@@ -26,6 +26,18 @@ const Footer = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isModalOpen]);
+
   return (
     <>
       <footer className="footer">
@@ -72,7 +84,7 @@ const Footer = () => {
             <p>
               EduConnect - это инновационная образовательная платформа, 
               предназначенная для эффективного взаимодействия между 
-              преподавателями и студентами. Наша цель - сделать 
+              учителем и учениками. Наша цель - сделать 
               образование доступным и удобным для всех.
             </p>
             <button className="modal-close" onClick={closeModal}>Закрыть</button>
