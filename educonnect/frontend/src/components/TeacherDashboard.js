@@ -48,100 +48,22 @@ const TeacherDashboard = () => {
 
   const [expandedStudents, setExpandedStudents] = useState({});
 
-  const handleMaterialsUpdate = async (update, forceUpdate = false) => {
-    if (forceUpdate || !update) {
-      const selectedIds = Object.keys(selectedStudents)
-        .filter(id => selectedStudents[id])
-        .map(id => parseInt(id));
+  const handleSelectAllStudents = (classKey, students) => {
+    const newSelected = { ...selectedStudents };
+    const allSelected = students.every(student => selectedStudents[student.id]);
+    
+    students.forEach(student => {
+      newSelected[student.id] = !allSelected;
+    });
+    
+    setSelectedStudents(newSelected);
+  };
 
-      if (selectedIds.length > 0) {
-        try {
-          const response = await axios.get('/api/v1/materials/students/', {
-            headers: {
-              'Authorization': `Token ${localStorage.getItem('token')}`
-            },
-            params: {
-              student_ids: selectedIds.join(',')
-            }
-          });
-
-          if (currentView === 'students-by-subjects') {
-            setSubjectStudentsMap(prevMap => {
-              const newMap = { ...prevMap };
-              Object.keys(newMap).forEach(subjectId => {
-                newMap[subjectId] = newMap[subjectId].map(student => {
-                  const updatedData = response.data.find(data => data.id === student.id);
-                  if (updatedData) {
-                    return {
-                      ...student,
-                      materials: updatedData.materials
-                    };
-                  }
-                  return student;
-                });
-              });
-              return newMap;
-            });
-          } else if (currentView === 'students-by-classes') {
-            setClassStudentsMap(prevMap => {
-              const newMap = { ...prevMap };
-              Object.keys(newMap).forEach(classId => {
-                newMap[classId] = newMap[classId].map(student => {
-                  const updatedData = response.data.find(data => data.id === student.id);
-                  if (updatedData) {
-                    return {
-                      ...student,
-                      materials: updatedData.materials
-                    };
-                  }
-                  return student;
-                });
-              });
-              return newMap;
-            });
-          }
-        } catch (error) {
-          console.error('Ошибка при обновлении материалов:', error);
-        }
-      }
-      return;
-    }
-
-    const { studentId, materials } = update;
-
-    if (currentView === 'students-by-subjects') {
-      setSubjectStudentsMap(prevMap => {
-        const newMap = { ...prevMap };
-        Object.keys(newMap).forEach(subjectId => {
-          newMap[subjectId] = newMap[subjectId].map(student => {
-            if (student.id === studentId) {
-              return {
-                ...student,
-                materials: materials
-              };
-            }
-            return student;
-          });
-        });
-        return newMap;
-      });
-    } else if (currentView === 'students-by-classes') {
-      setClassStudentsMap(prevMap => {
-        const newMap = { ...prevMap };
-        Object.keys(newMap).forEach(classId => {
-          newMap[classId] = newMap[classId].map(student => {
-            if (student.id === studentId) {
-              return {
-                ...student,
-                materials: materials
-              };
-            }
-            return student;
-          });
-        });
-        return newMap;
-      });
-    }
+  const handleSelectStudent = (studentId) => {
+    setSelectedStudents(prev => ({
+      ...prev,
+      [studentId]: !prev[studentId]
+    }));
   };
 
   const toggleStudentMaterials = (studentId) => {
@@ -329,24 +251,6 @@ const TeacherDashboard = () => {
     }
   }, []);
 
-  const handleSelectAllStudents = (classKey, students) => {
-    const newSelected = { ...selectedStudents };
-    const allSelected = students.every(student => selectedStudents[student.id]);
-    
-    students.forEach(student => {
-      newSelected[student.id] = !allSelected;
-    });
-    
-    setSelectedStudents(newSelected);
-  };
-
-  const handleSelectStudent = (studentId) => {
-    setSelectedStudents(prev => ({
-      ...prev,
-      [studentId]: !prev[studentId]
-    }));
-  };
-
   const sortStudents = (students) => {
     return [...students].sort((a, b) => {
       const lastNameCompare = a.lastName.localeCompare(b.lastName);
@@ -366,80 +270,6 @@ const TeacherDashboard = () => {
     } catch (error) {
       console.error('Error downloading material:', error);
     }
-  };
-
-  const renderSubjectMaterials = (subjectDetails) => {
-    // Разделяем материалы на учительские и студенческие
-    const teacherMaterials = subjectDetails.materials.filter(m => !m.is_student_material);
-    const studentMaterials = subjectDetails.materials.filter(m => m.is_student_material);
-
-    return (
-      <div className="subject-materials">
-        <div className="materials-grid">
-          {/* Материалы от учителя */}
-          <div className="teacher-materials">
-            <div className="materials-header">
-              <h4>Материал учителя</h4>
-            </div>
-            {teacherMaterials.length > 0 ? (
-              <div className="materials-list">
-                {teacherMaterials.map((material) => (
-                  <div key={material.id} className="material-item">
-                    <div className="material-header">
-                      <h5>{material.title}</h5>
-                      <span className="material-date">{material.formatted_date}</span>
-                    </div>
-                    <p>{material.description}</p>
-                    <div className="material-actions">
-                      <button 
-                        onClick={() => handleDownloadMaterial(material)}
-                        className="material-action-btn download-btn"
-                      >
-                        <span>📥</span>
-                        <span>Скачать</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p>Нет материалов от учителя</p>
-            )}
-          </div>
-
-          {/* Материалы ученика */}
-          <div className="student-materials">
-            <div className="materials-header">
-              <h4>Материал ученика</h4>
-            </div>
-            {studentMaterials.length > 0 ? (
-              <div className="materials-list">
-                {studentMaterials.map((material) => (
-                  <div key={material.id} className="material-item student-material">
-                    <div className="material-header">
-                      <h5>{material.title}</h5>
-                      <span className="material-date">{material.formatted_date}</span>
-                    </div>
-                    <p>{material.description}</p>
-                    <div className="material-actions">
-                      <button 
-                        onClick={() => handleDownloadMaterial(material)}
-                        className="material-action-btn download-btn"
-                      >
-                        <span>📥</span>
-                        <span>Скачать</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p>У ученика пока нет загруженных материалов</p>
-            )}
-          </div>
-        </div>
-      </div>
-    );
   };
 
   const renderStudentsList = (subjectId, students) => {
@@ -530,7 +360,7 @@ const TeacherDashboard = () => {
                           >
                             <span>📚 Материалы учителя: {teacherMaterialsCount}</span>
                             <span>📝 Материалы ученика: {studentMaterialsCount}</span>
-                            {expandedStudents[student.id] ? '▼' : '▶'}
+                            <span className="materials-arrow">{expandedStudents[student.id] ? '▼' : '▶'}</span>
                           </button>
                         </td>
                       </tr>
@@ -555,6 +385,15 @@ const TeacherDashboard = () => {
                                               <span className="material-date">{material.formatted_date}</span>
                                             </div>
                                             <p>{material.description}</p>
+                                            <div className="material-actions">
+                                              <button 
+                                                onClick={() => handleDownloadMaterial(material)}
+                                                className="material-action-btn download-btn"
+                                              >
+                                                <span>📥</span>
+                                                <span>Скачать</span>
+                                              </button>
+                                            </div>
                                           </div>
                                         ))}
                                     </div>
@@ -579,6 +418,15 @@ const TeacherDashboard = () => {
                                               <span className="material-date">{material.formatted_date}</span>
                                             </div>
                                             <p>{material.description}</p>
+                                            <div className="material-actions">
+                                              <button 
+                                                onClick={() => handleDownloadMaterial(material)}
+                                                className="material-action-btn download-btn"
+                                              >
+                                                <span>📥</span>
+                                                <span>Скачать</span>
+                                              </button>
+                                            </div>
                                           </div>
                                         ))}
                                     </div>
