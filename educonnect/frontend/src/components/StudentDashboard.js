@@ -152,16 +152,6 @@ const StudentDashboard = () => {
     }
   };
 
-  const handleViewMaterial = async (material) => {
-    // Временно отключено
-    // try {
-    //   window.open(material.file_url, '_blank');
-    // } catch (error) {
-    //   console.error('Error viewing material:', error);
-    //   setError('Не удалось открыть материал для просмотра');
-    // }
-  };
-
   const handleDownloadMaterial = async (material) => {
     try {
       const link = document.createElement('a');
@@ -199,13 +189,6 @@ const StudentDashboard = () => {
                     </div>
                     <p>{material.description}</p>
                     <div className="material-actions">
-                      {/* <button 
-                        onClick={() => handleViewMaterial(material)}
-                        className="material-action-btn view-btn"
-                      >
-                        <span>👁️</span>
-                        <span>Просмотр</span>
-                      </button> */}
                       <button 
                         onClick={() => handleDownloadMaterial(material)}
                         className="material-action-btn download-btn"
@@ -246,13 +229,6 @@ const StudentDashboard = () => {
                     </div>
                     <p>{material.description}</p>
                     <div className="material-actions">
-                      {/* <button 
-                        onClick={() => handleViewMaterial(material)}
-                        className="material-action-btn view-btn"
-                      >
-                        <span>👁️</span>
-                        <span>Просмотр</span>
-                      </button> */}
                       <button 
                         onClick={() => handleDownloadMaterial(material)}
                         className="material-action-btn download-btn"

@@ -3,7 +3,7 @@ import SidebarTeacher from './layout/SidebarTeacher';
 import TeacherProfile from './forms/teachers/TeacherProfile';
 import TeacherSubjects from './forms/subjects/SubjectsList';
 import StudentsList from './forms/students/StudentsList';
-import StudentActions, { MaterialCell, DescriptionCell, MessageCell } from './forms/teachers/TeacherActions';
+import StudentActions, { MaterialCell } from './forms/teachers/TeacherActions';
 import axios from 'axios';
 import './TeacherDashboard.css';
 
@@ -346,15 +346,6 @@ const TeacherDashboard = () => {
     });
   };
 
-  const handleViewMaterial = async (material) => {
-    // Временно отключено
-    // try {
-    //   window.open(material.file_url, '_blank');
-    // } catch (error) {
-    //   console.error('Error viewing material:', error);
-    // }
-  };
-
   const handleDownloadMaterial = async (material) => {
     try {
       const link = document.createElement('a');
@@ -391,13 +382,6 @@ const TeacherDashboard = () => {
                     </div>
                     <p>{material.description}</p>
                     <div className="material-actions">
-                      {/* <button 
-                        onClick={() => handleViewMaterial(material)}
-                        className="material-action-btn view-btn"
-                      >
-                        <span>👁️</span>
-                        <span>Просмотр</span>
-                      </button> */}
                       <button 
                         onClick={() => handleDownloadMaterial(material)}
                         className="material-action-btn download-btn"
@@ -429,13 +413,6 @@ const TeacherDashboard = () => {
                     </div>
                     <p>{material.description}</p>
                     <div className="material-actions">
-                      {/* <button 
-                        onClick={() => handleViewMaterial(material)}
-                        className="material-action-btn view-btn"
-                      >
-                        <span>👁️</span>
-                        <span>Просмотр</span>
-                      </button> */}
                       <button 
                         onClick={() => handleDownloadMaterial(material)}
                         className="material-action-btn download-btn"
