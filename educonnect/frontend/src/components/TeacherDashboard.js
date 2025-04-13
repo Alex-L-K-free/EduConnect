@@ -8,6 +8,26 @@ import StudentsList from './forms/students/StudentsList';
 import axios from 'axios';
 import './TeacherDashboard.css';
 
+const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <h3>
+          {title}
+          <button className="close-btn" onClick={onClose}>×</button>
+        </h3>
+        <p>{message}</p>
+        <div className="modal-actions">
+          <button onClick={onClose} className="cancel-btn">Отмена</button>
+          <button onClick={onConfirm} className="confirm-btn">Удалить</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const TeacherDashboard = () => {
   const [currentView, setCurrentView] = useState(() => {
     const saved = localStorage.getItem('teacherDashboardView');
@@ -47,6 +67,10 @@ const TeacherDashboard = () => {
   });
 
   const [expandedStudents, setExpandedStudents] = useState({});
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [materialToDelete, setMaterialToDelete] = useState(null);
+  const [studentForDelete, setStudentForDelete] = useState(null);
 
   const handleSelectAllStudents = (classKey, students) => {
     const newSelected = { ...selectedStudents };
@@ -264,64 +288,71 @@ const TeacherDashboard = () => {
   };
 
   const handleDeleteMaterial = async (material, student) => {
-    if (window.confirm('Вы уверены, что хотите удалить этот материал?')) {
-      try {
-        // Используем единый endpoint для удаления материалов
-        const deleteUrl = `/api/v1/materials/delete/${material.id}/`;
+    setMaterialToDelete(material);
+    setStudentForDelete(student);
+    setDeleteModalOpen(true);
+  };
 
-        await axios.delete(deleteUrl, {
-          headers: {
-            'Authorization': `Token ${localStorage.getItem('token')}`
-          }
-        });
+  const confirmDelete = async () => {
+    try {
+      const deleteUrl = `/api/v1/materials/delete/${materialToDelete.id}/`;
 
-        // Обновляем список материалов после удаления
-        const response = await axios.get(`/api/v1/materials/student/${student.id}/`, {
-          headers: {
-            'Authorization': `Token ${localStorage.getItem('token')}`
-          },
-          params: {
-            subject: student.subject.toLowerCase().trim()
-          }
-        });
-        
-        if (currentView === 'students-by-subjects') {
-          setSubjectStudentsMap(prevMap => {
-            const newMap = { ...prevMap };
-            Object.keys(newMap).forEach(subjectId => {
-              newMap[subjectId] = newMap[subjectId].map(s => {
-                if (s.id === student.id) {
-                  return {
-                    ...s,
-                    materials: response.data
-                  };
-                }
-                return s;
-              });
-            });
-            return newMap;
-          });
-        } else if (currentView === 'students-by-classes') {
-          setClassStudentsMap(prevMap => {
-            const newMap = { ...prevMap };
-            Object.keys(newMap).forEach(classId => {
-              newMap[classId] = newMap[classId].map(s => {
-                if (s.id === student.id) {
-                  return {
-                    ...s,
-                    materials: response.data
-                  };
-                }
-                return s;
-              });
-            });
-            return newMap;
-          });
+      await axios.delete(deleteUrl, {
+        headers: {
+          'Authorization': `Token ${localStorage.getItem('token')}`
         }
-      } catch (error) {
-        console.error('Ошибка при удалении материала:', error);
-        alert('Не удалось удалить материал');
+      });
+
+      // Обновляем список материалов после удаления
+      const response = await axios.get(`/api/v1/materials/student/${studentForDelete.id}/`, {
+        headers: {
+          'Authorization': `Token ${localStorage.getItem('token')}`
+        },
+        params: {
+          subject: studentForDelete.subject.toLowerCase().trim()
+        }
+      });
+      
+      if (currentView === 'students-by-subjects') {
+        setSubjectStudentsMap(prevMap => {
+          const newMap = { ...prevMap };
+          Object.keys(newMap).forEach(subjectId => {
+            newMap[subjectId] = newMap[subjectId].map(s => {
+              if (s.id === studentForDelete.id) {
+                return {
+                  ...s,
+                  materials: response.data
+                };
+              }
+              return s;
+            });
+          });
+          return newMap;
+        });
+      } else if (currentView === 'students-by-classes') {
+        setClassStudentsMap(prevMap => {
+          const newMap = { ...prevMap };
+          Object.keys(newMap).forEach(classId => {
+            newMap[classId] = newMap[classId].map(s => {
+              if (s.id === studentForDelete.id) {
+                return {
+                  ...s,
+                  materials: response.data
+                };
+              }
+              return s;
+            });
+          });
+          return newMap;
+        });
       }
+    } catch (error) {
+      console.error('Ошибка при удалении материала:', error);
+      alert('Не удалось удалить материал');
+    } finally {
+      setDeleteModalOpen(false);
+      setMaterialToDelete(null);
+      setStudentForDelete(null);
     }
   };
 
@@ -787,6 +818,13 @@ const TeacherDashboard = () => {
       <div className="dashboard-content">
         {renderContent()}
       </div>
+      <ConfirmationModal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="Подтверждение удаления"
+        message="Вы уверены, что хотите удалить этот материал?"
+      />
     </div>
   );
 };
