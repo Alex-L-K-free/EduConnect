@@ -392,7 +392,8 @@ const TeacherDashboard = () => {
       if (materialToDelete.type === 'bulk') {
         // Массовое удаление материалов
         await axios.post('/api/v1/materials/bulk-delete/', {
-          student_ids: studentForDelete.ids
+          student_ids: studentForDelete.ids,
+          subject: studentForDelete.subject
         }, {
           headers: {
             'Authorization': `Token ${localStorage.getItem('token')}`
@@ -404,6 +405,9 @@ const TeacherDashboard = () => {
           const materialsResponse = await axios.get(`/api/v1/materials/student/${studentId}/`, {
             headers: {
               'Authorization': `Token ${localStorage.getItem('token')}`
+            },
+            params: {
+              subject: studentForDelete.subject
             }
           });
 
@@ -625,7 +629,10 @@ const TeacherDashboard = () => {
                     
                     if (selectedIds.length > 0) {
                       setMaterialToDelete({ type: 'bulk' });
-                      setStudentForDelete({ ids: selectedIds });
+                      setStudentForDelete({ 
+                        ids: selectedIds,
+                        subject: subjectName.toLowerCase().trim()
+                      });
                       setDeleteModalOpen(true);
                     }
                   }}
