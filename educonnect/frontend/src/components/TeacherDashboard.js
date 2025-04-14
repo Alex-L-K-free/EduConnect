@@ -389,56 +389,111 @@ const TeacherDashboard = () => {
 
   const confirmDelete = async () => {
     try {
-      const deleteUrl = `/api/v1/materials/delete/${materialToDelete.id}/`;
-
-      await axios.delete(deleteUrl, {
-        headers: {
-          'Authorization': `Token ${localStorage.getItem('token')}`
-        }
-      });
-
-      // Обновляем список материалов после удаления
-      const response = await axios.get(`/api/v1/materials/student/${studentForDelete.id}/`, {
-        headers: {
-          'Authorization': `Token ${localStorage.getItem('token')}`
-        },
-        params: {
-          subject: studentForDelete.subject.toLowerCase().trim()
-        }
-      });
-      
-      if (currentView === 'students-by-subjects') {
-        setSubjectStudentsMap(prevMap => {
-          const newMap = { ...prevMap };
-          Object.keys(newMap).forEach(subjectId => {
-            newMap[subjectId] = newMap[subjectId].map(s => {
-              if (s.id === studentForDelete.id) {
-                return {
-                  ...s,
-                  materials: response.data
-                };
-              }
-              return s;
-            });
-          });
-          return newMap;
+      if (materialToDelete.type === 'bulk') {
+        // Массовое удаление материалов
+        await axios.post('/api/v1/materials/bulk-delete/', {
+          student_ids: studentForDelete.ids
+        }, {
+          headers: {
+            'Authorization': `Token ${localStorage.getItem('token')}`
+          }
         });
-      } else if (currentView === 'students-by-classes') {
-        setClassStudentsMap(prevMap => {
-          const newMap = { ...prevMap };
-          Object.keys(newMap).forEach(classId => {
-            newMap[classId] = newMap[classId].map(s => {
-              if (s.id === studentForDelete.id) {
-                return {
-                  ...s,
-                  materials: response.data
-                };
-              }
-              return s;
-            });
+
+        // Обновляем список материалов для всех выбранных студентов
+        await Promise.all(studentForDelete.ids.map(async (studentId) => {
+          const materialsResponse = await axios.get(`/api/v1/materials/student/${studentId}/`, {
+            headers: {
+              'Authorization': `Token ${localStorage.getItem('token')}`
+            }
           });
-          return newMap;
+
+          // Обновляем состояние для каждого студента
+          if (currentView === 'students-by-subjects') {
+            setSubjectStudentsMap(prevMap => {
+              const newMap = { ...prevMap };
+              Object.keys(newMap).forEach(subjectId => {
+                newMap[subjectId] = newMap[subjectId].map(s => {
+                  if (s.id === studentId) {
+                    return {
+                      ...s,
+                      materials: materialsResponse.data
+                    };
+                  }
+                  return s;
+                });
+              });
+              return newMap;
+            });
+          } else if (currentView === 'students-by-classes') {
+            setClassStudentsMap(prevMap => {
+              const newMap = { ...prevMap };
+              Object.keys(newMap).forEach(classId => {
+                newMap[classId] = newMap[classId].map(s => {
+                  if (s.id === studentId) {
+                    return {
+                      ...s,
+                      materials: materialsResponse.data
+                    };
+                  }
+                  return s;
+                });
+              });
+              return newMap;
+            });
+          }
+        }));
+      } else {
+        // Удаление одного материала
+        const deleteUrl = `/api/v1/materials/delete/${materialToDelete.id}/`;
+        await axios.delete(deleteUrl, {
+          headers: {
+            'Authorization': `Token ${localStorage.getItem('token')}`
+          }
         });
+
+        // Обновляем список материалов после удаления
+        const response = await axios.get(`/api/v1/materials/student/${studentForDelete.id}/`, {
+          headers: {
+            'Authorization': `Token ${localStorage.getItem('token')}`
+          },
+          params: {
+            subject: studentForDelete.subject.toLowerCase().trim()
+          }
+        });
+        
+        if (currentView === 'students-by-subjects') {
+          setSubjectStudentsMap(prevMap => {
+            const newMap = { ...prevMap };
+            Object.keys(newMap).forEach(subjectId => {
+              newMap[subjectId] = newMap[subjectId].map(s => {
+                if (s.id === studentForDelete.id) {
+                  return {
+                    ...s,
+                    materials: response.data
+                  };
+                }
+                return s;
+              });
+            });
+            return newMap;
+          });
+        } else if (currentView === 'students-by-classes') {
+          setClassStudentsMap(prevMap => {
+            const newMap = { ...prevMap };
+            Object.keys(newMap).forEach(classId => {
+              newMap[classId] = newMap[classId].map(s => {
+                if (s.id === studentForDelete.id) {
+                  return {
+                    ...s,
+                    materials: response.data
+                  };
+                }
+                return s;
+              });
+            });
+            return newMap;
+          });
+        }
       }
     } catch (error) {
       console.error('Ошибка при удалении материала:', error);
@@ -549,17 +604,37 @@ const TeacherDashboard = () => {
       <div key={subjectId} className="subject-students-list">
         <div className="section-header">
           <h3>Предмет: {subjectName}</h3>
-          {Object.values(selectedStudents).some(Boolean) && (
-            <button
-              className="upload-materials-btn"
-              onClick={() => {
-                setUploadingForStudent(null);
-                setShowUploadModal(true);
-              }}
-            >
-              Загрузить материалы для выбранных учеников
-            </button>
-          )}
+          <div className="section-actions">
+            {Object.values(selectedStudents).some(Boolean) && (
+              <>
+                <button
+                  className="upload-materials-btn"
+                  onClick={() => {
+                    setUploadingForStudent(null);
+                    setShowUploadModal(true);
+                  }}
+                >
+                  Загрузить материалы
+                </button>
+                <button
+                  className="delete-materials-btn"
+                  onClick={() => {
+                    const selectedIds = Object.entries(selectedStudents)
+                      .filter(([_, isSelected]) => isSelected)
+                      .map(([id]) => parseInt(id));
+                    
+                    if (selectedIds.length > 0) {
+                      setMaterialToDelete({ type: 'bulk' });
+                      setStudentForDelete({ ids: selectedIds });
+                      setDeleteModalOpen(true);
+                    }
+                  }}
+                >
+                  Удалить материалы
+                </button>
+              </>
+            )}
+          </div>
         </div>
         {sortedClasses.map(classKey => (
           <div key={`${subjectId}-${classKey}`} className="class-section">
@@ -627,7 +702,7 @@ const TeacherDashboard = () => {
                             </button>
                           </div>
                         </td>
-                      </tr>
+                    </tr>
                       {expandedStudents[student.id] && (
                         <tr className="materials-row">
                           <td colSpan="3">
