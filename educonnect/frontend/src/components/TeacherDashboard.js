@@ -28,6 +28,97 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
   );
 };
 
+const MaterialUploadModal = ({ isOpen, onClose, onUpload, selectedStudents, singleStudent = null }) => {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [file, setFile] = useState(null);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!file) {
+      setError('Пожалуйста, выберите файл');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('description', description);
+
+    // Преобразуем ID студентов в массив
+    const studentIds = singleStudent 
+      ? [singleStudent.id] 
+      : Object.entries(selectedStudents)
+          .filter(([_, isSelected]) => isSelected)
+          .map(([id]) => parseInt(id));
+
+    // Добавляем ID студентов как JSON строку
+    formData.append('student_ids', JSON.stringify(studentIds));
+
+    // Если загружаем для одного студента, добавляем название предмета
+    if (singleStudent && singleStudent.subject) {
+      formData.append('subject_name', singleStudent.subject);
+    }
+
+    try {
+      await onUpload(formData);
+      setTitle('');
+      setDescription('');
+      setFile(null);
+      setError('');
+      onClose();
+    } catch (err) {
+      console.error('Ошибка при загрузке:', err);
+      setError('Ошибка при загрузке материала');
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content upload-modal">
+        <h3>
+          Загрузка материала
+          <button className="close-btn" onClick={onClose}>×</button>
+        </h3>
+        <form onSubmit={handleSubmit} className="upload-form">
+          {error && <div className="error-message">{error}</div>}
+          <div className="form-group">
+            <label>Название:</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Описание:</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Файл:</label>
+            <input
+              type="file"
+              onChange={(e) => setFile(e.target.files[0])}
+              required
+            />
+          </div>
+          <div className="modal-actions">
+            <button type="button" onClick={onClose} className="cancel-btn">Отмена</button>
+            <button type="submit" className="confirm-btn">Загрузить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 const TeacherDashboard = () => {
   const [currentView, setCurrentView] = useState(() => {
     const saved = localStorage.getItem('teacherDashboardView');
@@ -71,6 +162,9 @@ const TeacherDashboard = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [materialToDelete, setMaterialToDelete] = useState(null);
   const [studentForDelete, setStudentForDelete] = useState(null);
+
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadingForStudent, setUploadingForStudent] = useState(null);
 
   const handleSelectAllStudents = (classKey, students) => {
     const newSelected = { ...selectedStudents };
@@ -356,6 +450,70 @@ const TeacherDashboard = () => {
     }
   };
 
+  const handleUploadMaterial = async (formData) => {
+    try {
+      const response = await axios.post('/api/v1/materials/add/', formData, {
+        headers: {
+          'Authorization': `Token ${localStorage.getItem('token')}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      if (response.status === 201) {
+        // Get student IDs from the parsed JSON string
+        const studentIdsStr = formData.get('student_ids');
+        const studentIds = JSON.parse(studentIdsStr);
+
+        // Refresh the materials list for each student
+        await Promise.all(studentIds.map(async (studentId) => {
+          const materialsResponse = await axios.get(`/api/v1/materials/student/${studentId}/`, {
+            headers: {
+              'Authorization': `Token ${localStorage.getItem('token')}`
+            }
+          });
+          
+          // Update the materials in state
+          if (currentView === 'students-by-subjects') {
+            setSubjectStudentsMap(prev => {
+              const newMap = { ...prev };
+              Object.keys(newMap).forEach(subjectId => {
+                newMap[subjectId] = newMap[subjectId].map(student => {
+                  if (student.id === studentId) {
+                    return {
+                      ...student,
+                      materials: materialsResponse.data
+                    };
+                  }
+                  return student;
+                });
+              });
+              return newMap;
+            });
+          } else if (currentView === 'students-by-classes') {
+            setClassStudentsMap(prev => {
+              const newMap = { ...prev };
+              Object.keys(newMap).forEach(classId => {
+                newMap[classId] = newMap[classId].map(student => {
+                  if (student.id === studentId) {
+                    return {
+                      ...student,
+                      materials: materialsResponse.data
+                    };
+                  }
+                  return student;
+                });
+              });
+              return newMap;
+            });
+          }
+        }));
+      }
+    } catch (error) {
+      console.error('Ошибка при загрузке материала:', error);
+      throw error;
+    }
+  };
+
   const renderStudentsList = (subjectId, students) => {
     const subjectName = subjectsData[subjectId]?.name || '';
     
@@ -391,6 +549,17 @@ const TeacherDashboard = () => {
       <div key={subjectId} className="subject-students-list">
         <div className="section-header">
           <h3>Предмет: {subjectName}</h3>
+          {Object.values(selectedStudents).some(Boolean) && (
+            <button
+              className="upload-materials-btn"
+              onClick={() => {
+                setUploadingForStudent(null);
+                setShowUploadModal(true);
+              }}
+            >
+              Загрузить материалы для выбранных учеников
+            </button>
+          )}
         </div>
         {sortedClasses.map(classKey => (
           <div key={`${subjectId}-${classKey}`} className="class-section">
@@ -438,14 +607,25 @@ const TeacherDashboard = () => {
                         {`${student.lastName} ${student.firstName} ${student.middleName || ''}`}
                       </td>
                         <td className="materials-summary">
-                          <button 
-                            className="toggle-materials-btn"
-                            onClick={() => toggleStudentMaterials(student.id)}
-                          >
-                            <span>📚 Материалы учителя: {teacherMaterialsCount}</span>
-                            <span>📝 Материалы ученика: {studentMaterialsCount}</span>
-                            <span className="materials-arrow">{expandedStudents[student.id] ? '▼' : '▶'}</span>
-                          </button>
+                          <div className="materials-actions">
+                            <button 
+                              className="toggle-materials-btn"
+                              onClick={() => toggleStudentMaterials(student.id)}
+                            >
+                              <span>📚 Материалы учителя: {teacherMaterialsCount}</span>
+                              <span>📝 Материалы ученика: {studentMaterialsCount}</span>
+                              <span className="materials-arrow">{expandedStudents[student.id] ? '▼' : '▶'}</span>
+                            </button>
+                            <button
+                              className="upload-material-btn"
+                              onClick={() => {
+                                setUploadingForStudent(student);
+                                setShowUploadModal(true);
+                              }}
+                            >
+                              +
+                            </button>
+                          </div>
                         </td>
                       </tr>
                       {expandedStudents[student.id] && (
@@ -824,6 +1004,16 @@ const TeacherDashboard = () => {
         onConfirm={confirmDelete}
         title="Подтверждение удаления"
         message="Вы уверены, что хотите удалить этот материал?"
+      />
+      <MaterialUploadModal
+        isOpen={showUploadModal}
+        onClose={() => {
+          setShowUploadModal(false);
+          setUploadingForStudent(null);
+        }}
+        onUpload={handleUploadMaterial}
+        selectedStudents={selectedStudents}
+        singleStudent={uploadingForStudent}
       />
     </div>
   );
