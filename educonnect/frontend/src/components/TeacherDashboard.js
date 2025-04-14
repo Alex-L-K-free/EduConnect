@@ -377,8 +377,37 @@ const TeacherDashboard = () => {
     });
   };
 
-  const handleDownloadMaterial = (material) => {
-    window.open(material.file_url, '_blank');
+  const handleDownloadMaterial = async (material) => {
+    try {
+      const response = await axios({
+        url: material.file_url,
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          'Authorization': `Token ${localStorage.getItem('token')}`
+        }
+      });
+
+      // Создаем ссылку для скачивания
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Получаем оригинальное имя файла из URL или используем title
+      const fileName = material.file_url.split('/').pop() || `${material.title}`;
+      link.setAttribute('download', fileName);
+      
+      // Добавляем ссылку в DOM, кликаем по ней и удаляем
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      // Очищаем URL
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Ошибка при скачивании файла:', error);
+      alert('Не удалось скачать файл. Пожалуйста, попробуйте снова.');
+    }
   };
 
   const handleDeleteMaterial = async (material, student) => {
