@@ -36,7 +36,6 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
 };
 
 const MaterialUploadModal = ({ isOpen, onClose, onUpload, selectedStudents, singleStudent = null }) => {
-  const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [file, setFile] = useState(null);
   const [error, setError] = useState('');
@@ -50,7 +49,7 @@ const MaterialUploadModal = ({ isOpen, onClose, onUpload, selectedStudents, sing
 
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('title', title);
+    formData.append('title', file.name);
     formData.append('description', description);
 
     const studentIds = singleStudent 
@@ -67,7 +66,6 @@ const MaterialUploadModal = ({ isOpen, onClose, onUpload, selectedStudents, sing
 
     try {
       await onUpload(formData);
-      setTitle('');
       setDescription('');
       setFile(null);
       setError('');
@@ -100,15 +98,6 @@ const MaterialUploadModal = ({ isOpen, onClose, onUpload, selectedStudents, sing
           </div>
         )}
         <Form onSubmit={handleSubmit}>
-          <Form.Group className="mb-3">
-            <Form.Label>Название материала</Form.Label>
-            <Form.Control
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-          </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Описание материала</Form.Label>
             <Form.Control
@@ -664,7 +653,12 @@ const TeacherDashboard = () => {
         <div className="section-header">
           <h3>Предмет: {subjectName}</h3>
           <div className="section-actions">
-            {Object.values(selectedStudents).some(Boolean) && (
+            {Object.entries(selectedStudents)
+              .filter(([id, isSelected]) => 
+                isSelected && 
+                filteredStudents.some(student => student.id === parseInt(id))
+              )
+              .length > 0 && (
               <>
                 <button
                   className="upload-materials-btn"
@@ -679,7 +673,10 @@ const TeacherDashboard = () => {
                   className="delete-materials-btn"
                   onClick={() => {
                     const selectedIds = Object.entries(selectedStudents)
-                      .filter(([_, isSelected]) => isSelected)
+                      .filter(([id, isSelected]) => 
+                        isSelected && 
+                        filteredStudents.some(student => student.id === parseInt(id))
+                      )
                       .map(([id]) => parseInt(id));
                     
                     if (selectedIds.length > 0) {
