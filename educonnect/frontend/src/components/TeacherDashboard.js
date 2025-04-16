@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Modal, Button, Form } from 'react-bootstrap';
+import { Modal, Button, Form } from 'react-bootstrap';
 import SidebarTeacher from './layout/SidebarTeacher';
 import TeacherProfile from './forms/teachers/TeacherProfile';
 import TeacherSubjects from './forms/subjects/SubjectsList';
