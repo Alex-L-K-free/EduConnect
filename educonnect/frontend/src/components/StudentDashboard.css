@@ -555,15 +555,19 @@
 .upload-material-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
+  gap: 12px;
+  padding: 12px 24px;
   background: linear-gradient(145deg, #2e7d32, #1b5e20);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
+  font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-width: fit-content;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .upload-material-btn:hover {
@@ -571,6 +575,11 @@
   background: linear-gradient(145deg, #1b5e20, #2e7d32);
   color: white;
   text-decoration: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.upload-material-btn span {
+  display: inline-block;
 }
 
 .material-item.student-material {
@@ -639,63 +648,51 @@
   background: linear-gradient(145deg, #d32f2f, #c62828);
 }
 
-/* Обновленные стили для модального окна загрузки */
-.upload-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
+/* Обновленные стили для модальных окон Bootstrap */
+.modal {
+  display: flex !important;
   align-items: center;
-  z-index: 1000;
-  perspective: 1000px;
-  animation: modalFadeIn 0.3s ease-out;
+  justify-content: center;
 }
 
-.upload-modal-content {
+.modal-dialog {
+  margin: 0;
+  max-width: 700px;
+  width: 95%;
+}
+
+.modal-content {
   background: linear-gradient(145deg, #ffffff, #f6f6f6);
-  padding: 30px;
+  border: none;
   border-radius: 15px;
-  width: 90%;
-  max-width: 500px;
   box-shadow: 
     20px 20px 60px #d1d1d1,
     -20px -20px 60px #ffffff;
-  transform: rotateX(5deg);
-  transform-style: preserve-3d;
-  transition: all 0.3s ease;
-  animation: modalSlideIn 0.4s ease-out forwards;
+  width: 100%;
+  margin: 1rem;
 }
 
-.upload-modal-content:hover {
-  transform: rotateX(0deg) translateY(-5px);
-  box-shadow: 
-    25px 25px 65px #d1d1d1,
-    -25px -25px 65px #ffffff;
+.modal-header {
+  border-bottom: 2px solid #e0e0e0;
+  padding: 1.5rem 2rem;
 }
 
-.upload-modal-content h4 {
+.modal-header .modal-title {
   color: #1a5f7a;
   font-size: 1.6rem;
-  margin-bottom: 25px;
-  padding-bottom: 15px;
-  border-bottom: 2px solid #e0e0e0;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-  transform: translateZ(20px);
 }
 
-.upload-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  transform-style: preserve-3d;
+.modal-body {
+  padding: 2rem;
 }
 
-.upload-form textarea {
-  padding: 15px;
+.modal-footer {
+  border-top: 2px solid #e0e0e0;
+  padding: 1.5rem 2rem;
+}
+
+.form-control {
   border: none;
   border-radius: 10px;
   background: linear-gradient(145deg, #f0f0f0, #ffffff);
@@ -703,33 +700,22 @@
     inset 5px 5px 10px #d1d1d1,
     inset -5px -5px 10px #ffffff;
   transition: all 0.3s ease;
-  min-height: 100px;
-  font-size: 0.95rem;
-  color: #495057;
-  transform: translateZ(10px);
 }
 
-.upload-form textarea:focus {
-  outline: none;
+.form-control:focus {
   box-shadow: 
     inset 7px 7px 14px #d1d1d1,
     inset -7px -7px 14px #ffffff,
     0 0 0 2px rgba(46, 125, 50, 0.2);
+  border: none;
 }
 
-.upload-form input[type="file"] {
-  padding: 15px;
-  border-radius: 10px;
-  background: linear-gradient(145deg, #f0f0f0, #ffffff);
-  box-shadow: 
-    5px 5px 10px #d1d1d1,
-    -5px -5px 10px #ffffff;
-  transition: all 0.3s ease;
+.form-control[type="file"] {
+  padding: 0.75rem;
   cursor: pointer;
-  transform: translateZ(10px);
 }
 
-.upload-form input[type="file"]::-webkit-file-upload-button {
+.form-control[type="file"]::-webkit-file-upload-button {
   background: #2e7d32;
   color: white;
   padding: 8px 16px;
@@ -740,49 +726,32 @@
   transition: all 0.2s ease;
 }
 
-.upload-form input[type="file"]::-webkit-file-upload-button:hover {
+.form-control[type="file"]::-webkit-file-upload-button:hover {
   background: #1b5e20;
+}
+
+.btn-success {
+  background: linear-gradient(145deg, #2e7d32, #1b5e20);
+  border: none;
+  box-shadow: 3px 3px 6px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.btn-success:hover:not(:disabled) {
+  background: linear-gradient(145deg, #1b5e20, #2e7d32);
   transform: translateY(-2px);
 }
 
-.upload-form-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 15px;
-  margin-top: 10px;
-  transform: translateZ(15px);
-}
-
-.upload-form-buttons button {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  transform-style: preserve-3d;
-}
-
-.upload-form-buttons .cancel-btn {
+.btn-secondary {
   background: linear-gradient(145deg, #6c757d, #5a6268);
-  color: white;
+  border: none;
   box-shadow: 3px 3px 6px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
 }
 
-.upload-form-buttons .cancel-btn:hover {
-  transform: translateY(-2px) translateZ(5px);
+.btn-secondary:hover {
   background: linear-gradient(145deg, #5a6268, #6c757d);
-}
-
-.upload-form-buttons .submit-btn {
-  background: linear-gradient(145deg, #2e7d32, #1b5e20);
-  color: white;
-  box-shadow: 3px 3px 6px rgba(0,0,0,0.2);
-}
-
-.upload-form-buttons .submit-btn:hover {
-  transform: translateY(-2px) translateZ(5px);
-  background: linear-gradient(145deg, #1b5e20, #2e7d32);
+  transform: translateY(-2px);
 }
 
 .alert.alert-danger {
@@ -793,48 +762,6 @@
   border: none;
   margin-bottom: 20px;
   box-shadow: 3px 3px 6px rgba(0,0,0,0.2);
-  transform: translateZ(10px);
-  animation: alertSlideIn 0.3s ease-out;
-}
-
-@keyframes modalFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes modalSlideIn {
-  from {
-    opacity: 0;
-    transform: rotateX(10deg) translateY(50px);
-  }
-  to {
-    opacity: 1;
-    transform: rotateX(5deg) translateY(0);
-  }
-}
-
-@keyframes alertSlideIn {
-  from {
-    opacity: 0;
-    transform: translateZ(10px) translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateZ(10px) translateY(0);
-  }
-}
-
-/* Обновляем заголовки секций */
-.subject-materials h5 {
-  color: #1a5f7a;
-  font-size: 1.3rem;
-  margin-bottom: 20px;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-  transform: translateZ(10px);
 }
 
 /* Анимация появления элементов */

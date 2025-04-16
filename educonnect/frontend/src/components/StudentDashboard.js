@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Container, Modal, Button } from 'react-bootstrap';
+import { Container, Modal, Button, Form } from 'react-bootstrap';
 import { useParams, useLocation } from 'react-router-dom';
 import SidebarStudent from './layout/SidebarStudent';
 import SlideTransition from './forms/students/SlideTransition';
@@ -497,6 +497,20 @@ const StudentDashboard = () => {
     );
   };
 
+  const handleCloseUploadModal = () => {
+    setUploadModalOpen(false);
+    setUploadData({
+      description: '',
+      file: null
+    });
+    setUploadError(null);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setDeleteModalOpen(false);
+    setMaterialToDelete(null);
+  };
+
   return (
     <div className="d-flex student-dashboard">
       <SidebarStudent activePage={activePage} />
@@ -517,63 +531,93 @@ const StudentDashboard = () => {
           )}
 
           {!loading && !error && renderContent()}
-
-          {/* Модальное окно загрузки */}
-          {uploadModalOpen && (
-            <div className="upload-modal" onClick={() => setUploadModalOpen(false)}>
-              <div className="upload-modal-content" onClick={e => e.stopPropagation()}>
-                <h4>Загрузка материала - {currentSubject}</h4>
-                {uploadError && (
-                  <div className="alert alert-danger">
-                    {uploadError}
-                  </div>
-                )}
-                <form className="upload-form" onSubmit={e => {
-                  e.preventDefault();
-                  handleUploadSubmit();
-                }}>
-                  <textarea
-                    placeholder="Описание материала (необязательно)"
-                    value={uploadData.description}
-                    onChange={e => setUploadData({...uploadData, description: e.target.value})}
-                  />
-                  <input
-                    type="file"
-                    onChange={e => setUploadData({...uploadData, file: e.target.files[0]})}
-                    required
-                  />
-                  <div className="upload-form-buttons">
-                    <button type="button" className="cancel-btn" onClick={() => setUploadModalOpen(false)}>
-                      Отмена
-                    </button>
-                    <button type="submit" className="submit-btn">
-                      Загрузить
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
-
-          {/* Модальное окно подтверждения удаления */}
-          <Modal show={deleteModalOpen} onHide={() => setDeleteModalOpen(false)}>
-            <Modal.Header closeButton>
-              <Modal.Title>Подтверждение удаления</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              Вы уверены, что хотите удалить этот материал?
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={() => setDeleteModalOpen(false)}>
-                Отмена
-              </Button>
-              <Button variant="danger" onClick={handleDeleteConfirm}>
-                Удалить
-              </Button>
-            </Modal.Footer>
-          </Modal>
         </Container>
       </SlideTransition>
+
+      {/* Модальное окно загрузки */}
+      <Modal 
+        show={uploadModalOpen} 
+        onHide={handleCloseUploadModal}
+        backdrop="static"
+        keyboard={false}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Загрузка материала - {currentSubject}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {uploadError && (
+            <div className="alert alert-danger">
+              {uploadError}
+            </div>
+          )}
+          <Form onSubmit={e => {
+            e.preventDefault();
+            handleUploadSubmit();
+          }}>
+            <Form.Group className="mb-3">
+              <Form.Label>Описание материала</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                placeholder="Описание материала (необязательно)"
+                value={uploadData.description}
+                onChange={e => setUploadData({...uploadData, description: e.target.value})}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Выберите файл</Form.Label>
+              <Form.Control
+                type="file"
+                onChange={e => setUploadData({...uploadData, file: e.target.files[0]})}
+                required
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseUploadModal}>
+            Отмена
+          </Button>
+          <Button 
+            variant="success" 
+            onClick={async () => {
+              await handleUploadSubmit();
+              if (!uploadError) {
+                handleCloseUploadModal();
+              }
+            }}
+            disabled={!uploadData.file}
+          >
+            Загрузить
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Модальное окно подтверждения удаления */}
+      <Modal 
+        show={deleteModalOpen} 
+        onHide={handleCloseDeleteModal}
+        backdrop="static"
+        keyboard={false}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Подтверждение удаления</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Вы уверены, что хотите удалить этот материал?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseDeleteModal}>
+            Отмена
+          </Button>
+          <Button variant="danger" onClick={async () => {
+            await handleDeleteConfirm();
+            handleCloseDeleteModal();
+          }}>
+            Удалить
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
