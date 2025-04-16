@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Container, Modal, Button, Form } from 'react-bootstrap';
 import SidebarTeacher from './layout/SidebarTeacher';
 import TeacherProfile from './forms/teachers/TeacherProfile';
 import TeacherSubjects from './forms/subjects/SubjectsList';
@@ -9,22 +10,28 @@ import axios from 'axios';
 import './TeacherDashboard.css';
 
 const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
-  if (!isOpen) return null;
-
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <h3>
-          {title}
-          <button className="close-btn" onClick={onClose}>×</button>
-        </h3>
-        <p>{message}</p>
-        <div className="modal-actions">
-          <button onClick={onClose} className="cancel-btn">Отмена</button>
-          <button onClick={onConfirm} className="confirm-btn">Удалить</button>
-        </div>
-      </div>
-    </div>
+    <Modal 
+      show={isOpen} 
+      onHide={onClose}
+      backdrop="static"
+      keyboard={false}
+    >
+      <Modal.Header closeButton>
+        <Modal.Title>{title}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        {message}
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={onClose}>
+          Отмена
+        </Button>
+        <Button variant="danger" onClick={onConfirm}>
+          Удалить
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 };
 
@@ -43,19 +50,17 @@ const MaterialUploadModal = ({ isOpen, onClose, onUpload, selectedStudents, sing
 
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('title', title);
     formData.append('description', description);
 
-    // Преобразуем ID студентов в массив
     const studentIds = singleStudent 
       ? [singleStudent.id] 
       : Object.entries(selectedStudents)
           .filter(([_, isSelected]) => isSelected)
           .map(([id]) => parseInt(id));
 
-    // Добавляем ID студентов как JSON строку
     formData.append('student_ids', JSON.stringify(studentIds));
 
-    // Если загружаем для одного студента, добавляем название предмета
     if (singleStudent && singleStudent.subject) {
       formData.append('subject_name', singleStudent.subject);
     }
@@ -73,49 +78,70 @@ const MaterialUploadModal = ({ isOpen, onClose, onUpload, selectedStudents, sing
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="modal-overlay">
-      <div className="modal-content upload-modal">
-        <h3>
-          Загрузка материала
-          <button className="close-btn" onClick={onClose}>×</button>
-        </h3>
-        <form onSubmit={handleSubmit} className="upload-form">
-          {error && <div className="error-message">{error}</div>}
-          <div className="form-group">
-            <label>Название:</label>
-            <input
+    <Modal 
+      show={isOpen} 
+      onHide={onClose}
+      backdrop="static"
+      keyboard={false}
+      size="lg"
+    >
+      <Modal.Header closeButton>
+        <Modal.Title>
+          {singleStudent 
+            ? `Загрузка материала для ${singleStudent.lastName} ${singleStudent.firstName}`
+            : 'Загрузка материала для выбранных учеников'}
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        {error && (
+          <div className="alert alert-danger">
+            {error}
+          </div>
+        )}
+        <Form onSubmit={handleSubmit}>
+          <Form.Group className="mb-3">
+            <Form.Label>Название материала</Form.Label>
+            <Form.Control
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
             />
-          </div>
-          <div className="form-group">
-            <label>Описание:</label>
-            <textarea
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Описание материала</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              required
+              placeholder="Описание материала (необязательно)"
             />
-          </div>
-          <div className="form-group">
-            <label>Файл:</label>
-            <input
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Выберите файл</Form.Label>
+            <Form.Control
               type="file"
               onChange={(e) => setFile(e.target.files[0])}
               required
             />
-          </div>
-          <div className="modal-actions">
-            <button type="button" onClick={onClose} className="cancel-btn">Отмена</button>
-            <button type="submit" className="confirm-btn">Загрузить</button>
-          </div>
-        </form>
-      </div>
-    </div>
+          </Form.Group>
+        </Form>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={onClose}>
+          Отмена
+        </Button>
+        <Button 
+          variant="success" 
+          onClick={handleSubmit}
+          disabled={!file}
+        >
+          Загрузить
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 };
 
