@@ -574,29 +574,29 @@
 
 .subject-materials {
   background: linear-gradient(145deg, #f8f9fa, #ffffff);
-  border-radius: 12px;
-  padding: 25px;
-  margin-top: 20px;
+  border-radius: 6px;
+  padding: 8px;
+  margin-top: 6px;
   box-shadow: 
-    inset 5px 5px 10px #d1d1d1,
-    inset -5px -5px 10px #ffffff;
+    inset 3px 3px 6px #d1d1d1,
+    inset -3px -3px 6px #ffffff;
   transform-style: preserve-3d;
 }
 
 .materials-list {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 6px;
 }
 
 .material-item {
   background: linear-gradient(145deg, #f0f0f0, #ffffff);
-  border-radius: 10px;
-  padding: 20px;
-  margin-bottom: 15px;
+  border-radius: 6px;
+  padding: 6px;
+  margin-bottom: 6px;
   box-shadow: 
-    5px 5px 10px #d1d1d1,
-    -5px -5px 10px #ffffff;
+    3px 3px 6px #d1d1d1,
+    -3px -3px 6px #ffffff;
   transform-style: preserve-3d;
   transition: all 0.3s ease;
 }
@@ -612,35 +612,35 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 8px;
+  margin-bottom: 2px;
 }
 
 .material-header h5 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 0.8rem;
   color: #2d3748;
   font-weight: 500;
 }
 
 .material-date {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: #718096;
 }
 
 .material-actions {
   display: flex;
-  gap: 10px;
-  margin-top: 12px;
+  gap: 6px;
+  margin-top: 6px;
 }
 
 .material-action-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
+  gap: 3px;
+  padding: 3px 8px;
   border: none;
-  border-radius: 6px;
-  font-size: 0.9em;
+  border-radius: 3px;
+  font-size: 0.75em;
   cursor: pointer;
   text-decoration: none !important;
   color: white !important;
