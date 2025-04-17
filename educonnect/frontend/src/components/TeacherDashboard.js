@@ -658,7 +658,15 @@ const TeacherDashboard = () => {
           <h3>
             <div className="subject-title">
               Предмет: {subjectName}
-              {sortedClasses.length === 1 && <span className="class-info">Класс: {className}</span>}
+              {sortedClasses.length === 1 ? (
+                <span className="class-info">Класс: {className}</span>
+              ) : (
+                <div className="classes-list">
+                  {sortedClasses.map(classKey => (
+                    <span key={classKey} className="class-info">Класс: {classKey}</span>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="section-actions">
               {Object.entries(selectedStudents)
