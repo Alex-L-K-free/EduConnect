@@ -58,8 +58,8 @@
 .subject-students-list h3 {
   color: #1a5f7a;
   font-size: 1.2rem;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
+  margin-bottom: 5px;
+  padding-bottom: 5px;
   border-bottom: 2px solid #2e7d32;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
   transform: translateZ(20px);
@@ -861,7 +861,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
 }
 
 @keyframes pulse {
