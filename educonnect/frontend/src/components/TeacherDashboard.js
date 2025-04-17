@@ -633,6 +633,10 @@ const TeacherDashboard = () => {
       );
     }
 
+    // Получаем класс из первого отфильтрованного студента
+    const firstStudent = filteredStudents[0];
+    const className = firstStudent ? `${firstStudent.grade}${firstStudent.index}` : '';
+
     const studentsByClass = {};
     filteredStudents.forEach(student => {
       const classKey = `${student.grade}${student.index || ''}`;
@@ -651,54 +655,61 @@ const TeacherDashboard = () => {
     return (
       <div key={subjectId} className="subject-students-list">
         <div className="section-header">
-          <h3>Предмет: {subjectName}</h3>
-          <div className="section-actions">
-            {Object.entries(selectedStudents)
-              .filter(([id, isSelected]) => 
-                isSelected && 
-                filteredStudents.some(student => student.id === parseInt(id))
-              )
-              .length > 0 && (
-              <>
-                <button
-                  className="upload-materials-btn"
-                  onClick={() => {
-                    setUploadingForStudent(null);
-                    setShowUploadModal(true);
-                  }}
-                >
-                  Загрузить материалы
-                </button>
-                <button
-                  className="delete-materials-btn"
-                  onClick={() => {
-                    const selectedIds = Object.entries(selectedStudents)
-                      .filter(([id, isSelected]) => 
-                        isSelected && 
-                        filteredStudents.some(student => student.id === parseInt(id))
-                      )
-                      .map(([id]) => parseInt(id));
-                    
-                    if (selectedIds.length > 0) {
-                      setMaterialToDelete({ type: 'bulk' });
-                      setStudentForDelete({ 
-                        ids: selectedIds,
-                        subject: subjectName.toLowerCase().trim()
-                      });
-                      setDeleteModalOpen(true);
-                    }
-                  }}
-                >
-                  Удалить материалы
-                </button>
-              </>
-            )}
-          </div>
+          <h3>
+            <div className="subject-title">
+              Предмет: {subjectName}
+              {sortedClasses.length === 1 && <span className="class-info">Класс: {className}</span>}
+            </div>
+            <div className="section-actions">
+              {Object.entries(selectedStudents)
+                .filter(([id, isSelected]) => 
+                  isSelected && 
+                  filteredStudents.some(student => student.id === parseInt(id))
+                )
+                .length > 0 && (
+                <>
+                  <button
+                    className="upload-materials-btn"
+                    onClick={() => {
+                      setUploadingForStudent(null);
+                      setShowUploadModal(true);
+                    }}
+                  >
+                    Загрузить материалы
+                  </button>
+                  <button
+                    className="delete-materials-btn"
+                    onClick={() => {
+                      const selectedIds = Object.entries(selectedStudents)
+                        .filter(([id, isSelected]) => 
+                          isSelected && 
+                          filteredStudents.some(student => student.id === parseInt(id))
+                        )
+                        .map(([id]) => parseInt(id));
+                      
+                      if (selectedIds.length > 0) {
+                        setMaterialToDelete({ type: 'bulk' });
+                        setStudentForDelete({ 
+                          ids: selectedIds,
+                          subject: subjectName.toLowerCase().trim()
+                        });
+                        setDeleteModalOpen(true);
+                      }
+                    }}
+                  >
+                    Удалить материалы
+                  </button>
+                </>
+              )}
+            </div>
+          </h3>
         </div>
         {sortedClasses.map(classKey => (
           <div key={`${subjectId}-${classKey}`} className="class-section">
             <div className="class-header">
-              <h4>Класс: {classKey}</h4>
+              <div className="subject-title">
+                {sortedClasses.length > 1 && <span className="class-info">Класс: {classKey}</span>}
+              </div>
             </div>
             <table className="students-table">
               <colgroup>

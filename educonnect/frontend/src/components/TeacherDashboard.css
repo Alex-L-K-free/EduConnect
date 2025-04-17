@@ -69,11 +69,30 @@
   align-items: center;
 }
 
+.subject-title {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.class-info {
+  color: #666;
+  font-size: 0.9em;
+  font-weight: normal;
+  padding: 4px 12px;
+  background: linear-gradient(145deg, #f0f0f0, #ffffff);
+  border-radius: 15px;
+  box-shadow: 
+    2px 2px 4px #d1d1d1,
+    -2px -2px 4px #ffffff;
+  display: inline-block;
+}
+
 .students-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  margin-top: 20px;
+  margin-top: 0;
   position: relative;
   transform-style: preserve-3d;
   perspective: 1000px;
@@ -862,4 +881,26 @@
 .materials-arrow:hover {
   animation: none;
   transform: scale(1);
+}
+
+.class-header {
+  margin: 0;
+}
+
+.class-header .subject-title {
+  display: flex;
+  align-items: center;
+}
+
+.class-header .class-info {
+  color: #1a5f7a;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 4px 12px;
+  background: linear-gradient(145deg, #f0f0f0, #ffffff);
+  border-radius: 15px;
+  box-shadow: 
+    2px 2px 4px #d1d1d1,
+    -2px -2px 4px #ffffff;
+  display: inline-block;
 }
