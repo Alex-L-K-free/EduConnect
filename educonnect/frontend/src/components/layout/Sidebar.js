@@ -31,6 +31,7 @@ const Sidebar = ({ activePage }) => {
           className="sidebar-logo"
         />
       </div>
+
       <div 
         className="registration-warning clickable"
         onClick={handleShow}
@@ -41,21 +42,37 @@ const Sidebar = ({ activePage }) => {
       >
         <h6>Необходимо войти или зарегистрироваться для продолжения!</h6>
       </div>
-      {/* <h2>главная</h2>
-      <ul>
-        <li className={activePage === 'home' ? 'active' : ''}>
-          <a href="/">Главная</a>
-        </li>
-        <li className={activePage === 'admin' ? 'active' : ''}>
-          <a href="/admin">Панель управления</a>
-        </li>
-        <li className={activePage === 'teacher' ? 'active' : ''}>
-          <a href="/teacher">Панель учителя</a>
-        </li>
-        <li className={activePage === 'student' ? 'active' : ''}>
-          <a href="/student">Панель ученика</a>
-        </li>
-      </ul> */}
+
+      {/* <div className="info-section">
+        <div className="info-block">
+          <h3>Для учеников</h3>
+          <ul>
+            <li>Доступ к учебным материалам</li>
+            <li>Общение с одноклассниками</li>
+            <li>Отслеживание успеваемости</li>
+          </ul>
+        </div>
+
+        <div className="info-block">
+          <h3>Для учителей</h3>
+          <ul>
+            <li>Управление материалами</li>
+            <li>Работа с учениками</li>
+            <li>Ведение успеваемости</li>
+          </ul>
+        </div>
+      </div> */}
+
+      <div className="quick-stats">
+        <div className="stat-item">
+          <span className="stat-label">Учеников на платформе</span>
+          <span className="stat-value">500+</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-label">Учебных материалов</span>
+          <span className="stat-value">1000+</span>
+        </div>
+      </div>
 
       <LoginModal 
         show={showLogin} 
