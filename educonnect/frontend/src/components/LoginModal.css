@@ -1,9 +1,22 @@
+.login-modal .modal-dialog {
+  position: fixed;
+  top: 35px;
+  right: 30px;
+  margin: 0;
+  max-width: 320px;
+  width: 100%;
+  z-index: 1050;
+}
+
 .login-modal .modal-content {
   background: linear-gradient(145deg, #ffffff, #f6f6f6);
   border-radius: 15px;
   box-shadow: 
+    0 5px 15px rgba(0,0,0,0.2),
     20px 20px 60px #d1d1d1,
     -20px -20px 60px #ffffff;
+  width: 100%;
+  padding: 1rem;
 }
 
 .login-modal .modal-header {
