@@ -5,7 +5,7 @@ EduConnect - это веб-платформа для организации об
 ## Скриншоты
 
 ### Главная
-![HomePage](docs/images/HomePage.jpg)
+![HomePage](0docs/images/HomePage.jpg)
 *Главная страница*
 
 ### Панель учителя
