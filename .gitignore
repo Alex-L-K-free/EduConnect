@@ -1,3 +1,4 @@
+
 # Создаем .gitignore
 echo "# Python
 __pycache__/
