@@ -1,10 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Sidebar.css'; // Импортируйте стили для Sidebar
 import educonnectLogo from '../../assets/images/educonnect-logo.png';
 import LoginModal from '../LoginModal';
+import api from '../../utils/axios';
 
 const Sidebar = ({ activePage }) => {
   const [showLogin, setShowLogin] = useState(false);
+  const [stats, setStats] = useState({
+    studentsCount: '500+',
+    materialsCount: '1000+'
+  });
+
+  useEffect(() => {
+    // Загружаем статистику при монтировании компонента
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      const response = await api.get('/api/v1/platform-stats/');
+      setStats({
+        studentsCount: response.data.students_count > 500 ? '500+' : response.data.students_count + '+',
+        materialsCount: response.data.materials_count > 1000 ? '1000+' : response.data.materials_count + '+'
+      });
+    } catch (error) {
+      console.error('Ошибка при загрузке статистики:', error);
+      // В случае ошибки оставляем дефолтные значения
+    }
+  };
 
   const handleShow = () => setShowLogin(true);
   const handleClose = () => setShowLogin(false);
@@ -66,11 +89,11 @@ const Sidebar = ({ activePage }) => {
       <div className="quick-stats">
         <div className="stat-item">
           <span className="stat-label">Учеников на платформе</span>
-          <span className="stat-value">500+</span>
+          <span className="stat-value">{stats.studentsCount}</span>
         </div>
         <div className="stat-item">
           <span className="stat-label">Учебных материалов</span>
-          <span className="stat-value">1000+</span>
+          <span className="stat-value">{stats.materialsCount}</span>
         </div>
       </div>
 

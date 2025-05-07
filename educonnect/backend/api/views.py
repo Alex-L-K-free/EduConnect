@@ -13,12 +13,14 @@ from rest_framework import status
 from education_core.constants import ROLE_STUDENT
 from django.contrib.auth import get_user_model
 from users_student.models import StudentUser  # Добавьте этот импорт
+from materials.models import Material, StudentMaterial  # Импортируем модели материалов
 from django.contrib.auth.hashers import check_password  # Добавляем импорт
 import uuid
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from django.core.cache import cache
 from rest_framework.permissions import BasePermission
+from django.db.models import Count
 
 User = get_user_model()
 
@@ -189,3 +191,20 @@ class StudentProfileView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_platform_stats(request):
+    """
+    Получение статистики по платформе: количество учеников и учебных материалов
+    """
+    # Получаем количество учеников
+    students_count = StudentUser.objects.count()
+    
+    # Получаем количество учебных материалов
+    materials_count = Material.objects.count() + StudentMaterial.objects.count()
+    
+    return Response({
+        'students_count': students_count,
+        'materials_count': materials_count
+    })

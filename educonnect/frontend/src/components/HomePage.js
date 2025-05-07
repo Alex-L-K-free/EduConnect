@@ -1,11 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import backgroundImage from '../assets/images/background.jpg';
 import './HomePage.css';
 // import './Sidebar.css'; // Импортируйте стили для Sidebar
 import Sidebar from './layout/Sidebar';
 // import eduConnectLogo from '../assets/images/educonnect-logo.png';
+import api from '../utils/axios';
 
 const HomePage = () => {
+  useEffect(() => {
+    // Проверка доступности API при загрузке страницы
+    const checkApiStatus = async () => {
+      try {
+        await api.get('/api/v1/platform-stats/');
+        console.log('API подключен и работает');
+      } catch (error) {
+        console.error('Ошибка при подключении к API:', error);
+      }
+    };
+    
+    checkApiStatus();
+  }, []);
+
   return (
     <div className="home-page">
       <Sidebar />

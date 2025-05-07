@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
-from .views import LoginView, current_user, StudentLoginView, StudentProfileView
+from .views import LoginView, current_user, StudentLoginView, StudentProfileView, get_platform_stats
 from users_teacher.views import (
     teacher_profile,
     change_password,
@@ -31,5 +31,6 @@ urlpatterns = [
     path('students/', include('users_student.urls', namespace='students')),
     path('materials/', include('materials.urls', namespace='materials')),
     path('students/profile/', StudentProfileView.as_view(), name='student-profile'),
+    path('platform-stats/', get_platform_stats, name='platform-stats'),
     # Здесь будем добавлять другие URL-паттерны
 ]
